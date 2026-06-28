@@ -10,7 +10,7 @@ export default function HomePage() {
 
       <main>
         <section className="relative min-h-[calc(100vh-88px)] overflow-hidden bg-ink text-paper">
-          <div className="absolute inset-0 bg-[url('https://lh3.googleusercontent.com/aida-public/AB6AXuDMdULg85Zw5V9QPtGOVei-QYyA1MmHsx2yc9ZBIGrUoRqh3pJP-dIhk1qDiv0NXMvCGogX4Dbmmk-QG5YzoFpIQb5nikCQkp-w_nJovpE9XwhYVmE7hJr37wmL_Rja9kXBI_jN-usYqCHqgoG7YqNlRF4uMvKHGByD0L43GiNS8uEDDwP0jjN6tLfsX33fr6PvHu2EY83uWwliWHb_1744mCbDmlM8kjsZ5f17MSvMdyY2qSE1WaFXCYM3V3_AUJy9hcCcGXbDSfQ')] bg-cover bg-center opacity-80" />
+          <div className="studio-drift absolute inset-0 bg-[url('https://lh3.googleusercontent.com/aida-public/AB6AXuDMdULg85Zw5V9QPtGOVei-QYyA1MmHsx2yc9ZBIGrUoRqh3pJP-dIhk1qDiv0NXMvCGogX4Dbmmk-QG5YzoFpIQb5nikCQkp-w_nJovpE9XwhYVmE7hJr37wmL_Rja9kXBI_jN-usYqCHqgoG7YqNlRF4uMvKHGByD0L43GiNS8uEDDwP0jjN6tLfsX33fr6PvHu2EY83uWwliWHb_1744mCbDmlM8kjsZ5f17MSvMdyY2qSE1WaFXCYM3V3_AUJy9hcCcGXbDSfQ')] bg-cover bg-center opacity-80" />
           <div className="absolute inset-0 bg-ink/40" />
           <div className="relative mx-auto flex h-full max-w-7xl flex-col justify-end px-6 pb-24">
             <div className="max-w-4xl">
@@ -83,7 +83,7 @@ export default function HomePage() {
 
             <div className="grid gap-px border border-grey-light bg-grey-faint md:grid-cols-2">
               {homeProjects.map((project) => (
-                <div key={project.title} className="bg-paper p-8">
+                <div key={project.title} className="studio-plane bg-paper p-8">
                   <div className="mb-8 overflow-hidden bg-grey-faint">
                     <img
                       src={project.image}

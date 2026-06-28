@@ -5,6 +5,7 @@ import PublicEventsPage from "../pages/PublicEventsPage";
 import RequestQuotePage from "../pages/RequestQuotePage";
 import InvoiceManagementPage from "../pages/InvoiceManagementPage";
 import PayInvoicePage from "../pages/PayInvoicePage";
+import PortfolioCmsPage from "../pages/PortfolioCmsPage";
 
 export default function AppRoutes() {
   return (
@@ -15,6 +16,7 @@ export default function AppRoutes() {
       <Route path="/request-quote" element={<RequestQuotePage />} />
       <Route path="/admin/invoices" element={<InvoiceManagementPage />} />
       <Route path="/admin/pay-invoice" element={<PayInvoicePage />} />
+      <Route path="/admin/portfolio-cms" element={<PortfolioCmsPage />} />
       <Route path="*" element={<HomePage />} />
     </Routes>
   );

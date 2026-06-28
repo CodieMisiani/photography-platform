@@ -84,7 +84,7 @@ export default function PortfolioPage() {
 
 function PortfolioCard({ item }: { item: PortfolioItem }) {
   return (
-    <article className="group relative overflow-hidden bg-paper text-ink">
+    <article className="studio-plane group relative overflow-hidden bg-paper text-ink">
       <img
         src={item.image}
         alt={item.title}

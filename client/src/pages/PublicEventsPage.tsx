@@ -90,7 +90,7 @@ export default function PublicEventsPage() {
 
 function EventRow({ event }: { event: PublicEvent }) {
   return (
-    <article className="grid gap-8 border-b border-grey-light py-12 md:grid-cols-[80px_minmax(220px,1fr)_minmax(0,1.7fr)] md:items-start">
+    <article className="studio-plane grid gap-8 border-b border-grey-light py-12 md:grid-cols-[80px_minmax(220px,1fr)_minmax(0,1.7fr)] md:items-start">
       <time className="flex flex-row items-baseline gap-3 md:flex-col md:items-center md:gap-1">
         <span className="font-display text-5xl font-semibold leading-none text-ink">
           {event.day}

@@ -5,3 +5,13 @@ export type PortfolioItem = {
   year: string;
   image: string;
 };
+
+export type PortfolioCmsProject = {
+  id: string;
+  title: string;
+  series: string;
+  category: string;
+  date: string;
+  status: "Featured" | "Published" | "Draft";
+  image: string;
+};
