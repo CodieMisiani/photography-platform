@@ -9,6 +9,19 @@ export type Invoice = {
   initials: string;
 };
 
+export type InvoiceLineItem = {
+  description: string;
+  amount: string;
+};
+
+export type PayableInvoice = {
+  id: string;
+  dueDate: string;
+  status: InvoiceStatus;
+  total: string;
+  lineItems: InvoiceLineItem[];
+};
+
 export type InvoiceSummary = {
   totalRevenue: string;
   pendingAmount: string;
