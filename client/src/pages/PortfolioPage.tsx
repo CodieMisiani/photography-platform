@@ -1,9 +1,10 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Button from "../components/ui/Button";
 import type { PortfolioItem } from "../types/portfolio";
-import { portfolioItems } from "../data/portfolioFixtures";
+import { api } from "../lib/api";
 
 const filterOptions = [
   "All",
@@ -17,13 +18,29 @@ type FilterOption = (typeof filterOptions)[number];
 
 export default function PortfolioPage() {
   const [selectedFilter, setSelectedFilter] = useState<FilterOption>("All");
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["portfolio"],
+    queryFn: api.portfolio.list,
+  });
+
+  const portfolioItems = useMemo(
+    () =>
+      (data?.events ?? []).map((event) => ({
+        id: event.id,
+        title: event.title,
+        category: normalizeCategory(event.category),
+        year: new Date(event.event_date).getFullYear().toString(),
+        image: event.cover_url,
+      })),
+    [data?.events],
+  );
 
   const filteredItems = useMemo(
     () =>
       selectedFilter === "All"
         ? portfolioItems
         : portfolioItems.filter((item) => item.category === selectedFilter),
-    [selectedFilter],
+    [portfolioItems, selectedFilter],
   );
 
   return (
@@ -65,9 +82,16 @@ export default function PortfolioPage() {
         </section>
 
         <section className="grid gap-px border border-grey-light bg-grey-faint sm:grid-cols-2">
-          {filteredItems.map((item) => (
-            <PortfolioCard key={item.id} item={item} />
-          ))}
+          {isLoading ? <PortfolioState message="Loading portfolio" /> : null}
+          {isError ? (
+            <PortfolioState message="Portfolio could not load" action={() => refetch()} />
+          ) : null}
+          {!isLoading && !isError && filteredItems.length === 0 ? (
+            <PortfolioState message="No projects found" />
+          ) : null}
+          {!isLoading && !isError
+            ? filteredItems.map((item) => <PortfolioCard key={item.id} item={item} />)
+            : null}
         </section>
 
         <div className="mt-10 flex justify-center">
@@ -78,6 +102,28 @@ export default function PortfolioPage() {
       </main>
 
       <Footer />
+    </div>
+  );
+}
+
+function normalizeCategory(category: string): PortfolioItem["category"] {
+  const match = filterOptions.find((option) => option !== "All" && option === category);
+  return match && match !== "All" ? match : "Portraits";
+}
+
+function PortfolioState({
+  message,
+  action,
+}: {
+  message: string;
+  action?: () => void;
+}) {
+  return (
+    <div className="col-span-full flex min-h-80 flex-col items-center justify-center gap-6 bg-paper p-10 text-center">
+      <p className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey">
+        {message}
+      </p>
+      {action ? <Button onClick={action}>Retry</Button> : null}
     </div>
   );
 }

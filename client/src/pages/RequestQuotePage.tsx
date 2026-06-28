@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { FormEvent, ReactNode } from "react";
+import { useMutation } from "@tanstack/react-query";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Button from "../components/ui/Button";
@@ -10,17 +11,62 @@ import {
   quoteImages,
   quoteSteps,
 } from "../data/quoteFixtures";
+import { api } from "../lib/api";
 
 type FormStep = 1 | 2 | 3 | "success";
+type QuoteFormState = {
+  name: string;
+  mobile: string;
+  email: string;
+  eventType: string;
+  dateRange: string;
+  description: string;
+};
 
 export default function RequestQuotePage() {
   const [step, setStep] = useState<FormStep>(1);
   const [selectedBudget, setSelectedBudget] = useState(budgetOptions[0]);
+  const [formError, setFormError] = useState("");
+  const [formState, setFormState] = useState<QuoteFormState>({
+    name: "",
+    mobile: "",
+    email: "",
+    eventType: eventTypeOptions[0],
+    dateRange: "",
+    description: "",
+  });
+  const quoteMutation = useMutation({
+    mutationFn: api.quotes.create,
+  });
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStep("success");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setFormError("");
+
+    try {
+      await quoteMutation.mutateAsync({
+        client_name: formState.name,
+        whatsapp: formState.mobile,
+        email: formState.email,
+        description: [
+          formState.description,
+          `Event type: ${formState.eventType}`,
+          `Preferred date range: ${formState.dateRange || "Flexible"}`,
+          `Budget: ${selectedBudget}`,
+        ].join("\n"),
+      });
+      setStep("success");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      setFormError("Your quote request could not be sent. Please check the details and try again.");
+    }
+  }
+
+  function updateField(field: keyof QuoteFormState, value: string) {
+    setFormState((current) => ({
+      ...current,
+      [field]: value,
+    }));
   }
 
   return (
@@ -85,16 +131,36 @@ export default function RequestQuotePage() {
               </header>
 
               <form onSubmit={handleSubmit}>
-                {step === 1 ? <IdentityStep onNext={() => setStep(2)} /> : null}
+                {formError ? (
+                  <p className="mb-8 border border-grey-light bg-grey-faint p-4 text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-ink">
+                    {formError}
+                  </p>
+                ) : null}
+                {step === 1 ? (
+                  <IdentityStep
+                    formState={formState}
+                    onFieldChange={updateField}
+                    onNext={() => setStep(2)}
+                  />
+                ) : null}
                 {step === 2 ? (
                   <EventDetailsStep
+                    formState={formState}
                     selectedBudget={selectedBudget}
+                    onFieldChange={updateField}
                     onBudgetChange={setSelectedBudget}
                     onBack={() => setStep(1)}
                     onNext={() => setStep(3)}
                   />
                 ) : null}
-                {step === 3 ? <CreativeBriefStep onBack={() => setStep(2)} /> : null}
+                {step === 3 ? (
+                  <CreativeBriefStep
+                    description={formState.description}
+                    isSubmitting={quoteMutation.isPending}
+                    onDescriptionChange={(value) => updateField("description", value)}
+                    onBack={() => setStep(2)}
+                  />
+                ) : null}
                 {step === "success" ? <SuccessState /> : null}
               </form>
             </div>
@@ -126,12 +192,28 @@ export default function RequestQuotePage() {
   );
 }
 
-function IdentityStep({ onNext }: { onNext: () => void }) {
+function IdentityStep({
+  formState,
+  onFieldChange,
+  onNext,
+}: {
+  formState: QuoteFormState;
+  onFieldChange: (field: keyof QuoteFormState, value: string) => void;
+  onNext: () => void;
+}) {
   return (
     <section className="space-y-12">
       <StepTitle>Personal Identity</StepTitle>
       <div className="grid grid-cols-1 gap-x-12 gap-y-10 md:grid-cols-2">
-        <FormField id="name" name="name" label="Full Name" placeholder="Johnathan Doe" required />
+        <FormField
+          id="name"
+          name="name"
+          label="Full Name"
+          placeholder="Johnathan Doe"
+          required
+          value={formState.name}
+          onChange={(event) => onFieldChange("name", event.target.value)}
+        />
         <FormField
           id="mobile"
           name="mobile"
@@ -139,6 +221,8 @@ function IdentityStep({ onNext }: { onNext: () => void }) {
           placeholder="+1 000 000 000"
           type="tel"
           required
+          value={formState.mobile}
+          onChange={(event) => onFieldChange("mobile", event.target.value)}
         />
         <div className="md:col-span-2">
           <FormField
@@ -148,6 +232,8 @@ function IdentityStep({ onNext }: { onNext: () => void }) {
             placeholder="hello@studio.com"
             type="email"
             required
+            value={formState.email}
+            onChange={(event) => onFieldChange("email", event.target.value)}
           />
         </div>
       </div>
@@ -159,12 +245,16 @@ function IdentityStep({ onNext }: { onNext: () => void }) {
 }
 
 function EventDetailsStep({
+  formState,
   selectedBudget,
+  onFieldChange,
   onBudgetChange,
   onBack,
   onNext,
 }: {
+  formState: QuoteFormState;
   selectedBudget: string;
+  onFieldChange: (field: keyof QuoteFormState, value: string) => void;
   onBudgetChange: (value: string) => void;
   onBack: () => void;
   onNext: () => void;
@@ -173,7 +263,14 @@ function EventDetailsStep({
     <section className="space-y-12">
       <StepTitle>Event Specifications</StepTitle>
       <div className="grid grid-cols-1 gap-x-12 gap-y-10 md:grid-cols-2">
-        <FormField as="select" id="eventType" name="eventType" label="Event Type">
+        <FormField
+          as="select"
+          id="eventType"
+          name="eventType"
+          label="Event Type"
+          value={formState.eventType}
+          onChange={(event) => onFieldChange("eventType", event.target.value)}
+        >
           {eventTypeOptions.map((option) => (
             <option key={option}>{option}</option>
           ))}
@@ -183,6 +280,8 @@ function EventDetailsStep({
           name="dateRange"
           label="Date Range Preference"
           placeholder="MM/DD/YYYY - MM/DD/YYYY"
+          value={formState.dateRange}
+          onChange={(event) => onFieldChange("dateRange", event.target.value)}
         />
         <fieldset className="md:col-span-2">
           <legend className="mb-4 text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey">
@@ -229,7 +328,17 @@ function EventDetailsStep({
   );
 }
 
-function CreativeBriefStep({ onBack }: { onBack: () => void }) {
+function CreativeBriefStep({
+  description,
+  isSubmitting,
+  onDescriptionChange,
+  onBack,
+}: {
+  description: string;
+  isSubmitting: boolean;
+  onDescriptionChange: (value: string) => void;
+  onBack: () => void;
+}) {
   return (
     <section className="space-y-12">
       <StepTitle>The Creative Brief</StepTitle>
@@ -240,6 +349,9 @@ function CreativeBriefStep({ onBack }: { onBack: () => void }) {
         label="Tell Us Your Vision"
         placeholder="Describe the atmosphere, location, and aesthetic goals..."
         rows={5}
+        required
+        value={description}
+        onChange={(event) => onDescriptionChange(event.target.value)}
       />
       <div className="flex items-start gap-4">
         <input
@@ -264,7 +376,9 @@ function CreativeBriefStep({ onBack }: { onBack: () => void }) {
         >
           Back
         </button>
-        <Button type="submit">Submit Request</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Sending" : "Submit Request"}
+        </Button>
       </div>
     </section>
   );

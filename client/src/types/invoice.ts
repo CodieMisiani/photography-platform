@@ -1,4 +1,4 @@
-export type InvoiceStatus = "Paid" | "Sent" | "Draft" | "Pending";
+export type InvoiceStatus = "Paid" | "Sent" | "Draft" | "Pending" | "Failed";
 
 export type Invoice = {
   id: string;
@@ -16,6 +16,7 @@ export type InvoiceLineItem = {
 
 export type PayableInvoice = {
   id: string;
+  databaseId?: string;
   dueDate: string;
   status: InvoiceStatus;
   total: string;
