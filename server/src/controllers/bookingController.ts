@@ -5,6 +5,7 @@ import {
   deleteCalendarBlock,
   listAvailability,
   listBookings,
+  listCalendarBlocks,
   updateBookingStatus,
 } from "../services/bookingService.js";
 
@@ -28,6 +29,10 @@ export async function getAvailability(req: Request, res: Response) {
 
 export async function createBlock(req: Request, res: Response) {
   res.status(201).json({ block: await createCalendarBlock(req.body) });
+}
+
+export async function listBlocks(_req: Request, res: Response) {
+  res.status(200).json({ blocks: await listCalendarBlocks() });
 }
 
 export async function removeBlock(req: Request, res: Response) {

@@ -43,6 +43,7 @@ export async function fetchPayableInvoice(invoiceId: string) {
 function mapInvoiceRow(invoice: ApiInvoice) {
   return {
     id: invoice.invoice_no,
+    databaseId: invoice.id,
     client: invoice.client_name,
     amount: moneyFormatter.format(Number(invoice.amount)),
     dueDate: invoice.paid_at ? new Date(invoice.paid_at).toLocaleDateString() : "Due on receipt",

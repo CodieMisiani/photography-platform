@@ -17,6 +17,7 @@ const envSchema = z.object({
     .optional()
     .transform((value) => value === "true"),
   ADMIN_EMAIL: z.string().email().default("admin@example.com"),
+  ADMIN_PASSWORD: z.string().min(8).optional(),
   ADMIN_PASSWORD_HASH: z.string().min(1).default("$2b$12$replace_with_bcrypt_hash"),
   CLOUDINARY_CLOUD_NAME: z.string().optional().default(""),
   CLOUDINARY_API_KEY: z.string().optional().default(""),

@@ -6,6 +6,8 @@ import {
   listAdminInvoices,
   lookupInvoice,
   payInvoice,
+  patchAdminInvoice,
+  removeAdminInvoice,
 } from "../controllers/invoiceController.js";
 import { requireAdminSession } from "../middleware/auth.js";
 import { publicWriteLimiter } from "../middleware/rateLimiters.js";
@@ -14,6 +16,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import {
   idParamsSchema,
   invoiceCreateSchema,
+  invoicePatchSchema,
   invoiceNoParamsSchema,
   invoicePaySchema,
 } from "./schemas.js";
@@ -26,6 +29,18 @@ invoiceRoutes.post(
   requireAdminSession,
   validate({ body: invoiceCreateSchema }),
   asyncHandler(createAdminInvoice),
+);
+invoiceRoutes.patch(
+  "/admin/invoices/:id",
+  requireAdminSession,
+  validate({ params: idParamsSchema, body: invoicePatchSchema }),
+  asyncHandler(patchAdminInvoice),
+);
+invoiceRoutes.delete(
+  "/admin/invoices/:id",
+  requireAdminSession,
+  validate({ params: idParamsSchema }),
+  asyncHandler(removeAdminInvoice),
 );
 invoiceRoutes.get(
   "/invoices/:invoiceNo",

@@ -4,6 +4,7 @@ import {
   createPublicBooking,
   getAvailability,
   listAdminBookings,
+  listBlocks,
   patchBookingStatus,
   removeBlock,
 } from "../controllers/bookingController.js";
@@ -33,6 +34,7 @@ bookingRoutes.post(
   asyncHandler(createPublicBooking),
 );
 bookingRoutes.get("/admin/bookings", requireAdminSession, asyncHandler(listAdminBookings));
+bookingRoutes.get("/admin/calendar-blocks", requireAdminSession, asyncHandler(listBlocks));
 bookingRoutes.patch(
   "/admin/bookings/:id/status",
   requireAdminSession,

@@ -11,6 +11,8 @@ import { invoiceRoutes } from "./routes/invoiceRoutes.js";
 import { portfolioRoutes } from "./routes/portfolioRoutes.js";
 import { publicEventRoutes } from "./routes/publicEventRoutes.js";
 import { quoteRoutes } from "./routes/quoteRoutes.js";
+import { checkHealth } from "./services/healthService.js";
+import { asyncHandler } from "./utils/asyncHandler.js";
 
 export function createApp() {
   const app = express();
@@ -25,9 +27,13 @@ export function createApp() {
   app.use(express.json({ limit: "1mb" }));
   app.use(cookieParser(env.SESSION_SECRET));
 
-  app.get("/health", (_req, res) => {
-    res.status(200).json({ ok: true });
-  });
+  app.get(
+    "/health",
+    asyncHandler(async (_req, res) => {
+      const health = await checkHealth();
+      res.status(health.ok ? 200 : 503).json(health);
+    }),
+  );
 
   app.use("/auth", authRoutes);
   app.use("/portfolio", portfolioRoutes);

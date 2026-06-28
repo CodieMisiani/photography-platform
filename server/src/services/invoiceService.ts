@@ -44,6 +44,38 @@ export async function createInvoice(payload: {
   return created;
 }
 
+export async function updateInvoice(
+  id: string,
+  payload: Partial<{
+    invoice_no: string;
+    client_name: string;
+    phone: string;
+    amount: number;
+    status: InvoiceRow["status"];
+    mpesa_ref: string | null;
+  }>,
+) {
+  const updatePayload = {
+    ...payload,
+    amount: payload.amount === undefined ? undefined : payload.amount.toFixed(2),
+  };
+  const [updated] = await db<InvoiceRow>("invoices")
+    .where({ id })
+    .update(updatePayload)
+    .returning("*");
+  if (!updated) {
+    throw new AppError(404, "Invoice not found", "INVOICE_NOT_FOUND");
+  }
+  return updated;
+}
+
+export async function deleteInvoice(id: string) {
+  const deleted = await db<InvoiceRow>("invoices").where({ id }).delete();
+  if (!deleted) {
+    throw new AppError(404, "Invoice not found", "INVOICE_NOT_FOUND");
+  }
+}
+
 export async function findInvoiceByNumber(invoiceNo: string) {
   const invoice = await db<InvoiceRow>("invoices").where({ invoice_no: invoiceNo }).first();
   if (!invoice) {

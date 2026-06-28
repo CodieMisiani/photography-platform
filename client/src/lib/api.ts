@@ -38,6 +38,26 @@ export type QuoteRequestPayload = {
   description: string;
 };
 
+export type BookingPayload = {
+  client_name: string;
+  whatsapp: string;
+  email: string;
+  event_date: string;
+  event_type: string;
+  notes?: string | null;
+};
+
+export type ApiBooking = BookingPayload & {
+  id: string;
+  status: "pending" | "confirmed" | "declined";
+};
+
+export type ApiQuoteRequest = QuoteRequestPayload & {
+  id: string;
+  status: "new" | "responded" | "closed";
+  created_at: string;
+};
+
 export type AdminUser = {
   email: string;
 };
@@ -113,6 +133,60 @@ export const api = {
   },
   portfolio: {
     list: () => request<{ events: ApiPortfolioEvent[] }>("/portfolio"),
+    create: (payload: Omit<ApiPortfolioEvent, "id" | "created_at">) =>
+      request<{ event: ApiPortfolioEvent }>("/portfolio", {
+        method: "POST",
+        body: payload,
+      }),
+    update: (id: string, payload: Partial<Omit<ApiPortfolioEvent, "id" | "created_at">>) =>
+      request<{ event: ApiPortfolioEvent }>(`/portfolio/${id}`, {
+        method: "PATCH",
+        body: payload,
+      }),
+    delete: (id: string) => request<void>(`/portfolio/${id}`, { method: "DELETE" }),
+    upload: (file: File) => {
+      const body = new FormData();
+      body.append("image", file);
+      return request<{ url: string; public_id: string }>("/portfolio/uploads", {
+        method: "POST",
+        body,
+      });
+    },
+  },
+  bookings: {
+    availability: (from?: string, to?: string) => {
+      const params = new URLSearchParams();
+      if (from) params.set("from", from);
+      if (to) params.set("to", to);
+      const suffix = params.toString() ? `?${params.toString()}` : "";
+      return request<{
+        unavailable_dates: Array<{ date: string; reason: string; source: string }>;
+      }>(`/calendar/availability${suffix}`);
+    },
+    create: (payload: BookingPayload) =>
+      request<{ booking: ApiBooking }>("/bookings", {
+        method: "POST",
+        body: payload,
+      }),
+    listAdmin: () => request<{ bookings: ApiBooking[] }>("/admin/bookings"),
+    listBlocks: () =>
+      request<{ blocks: Array<{ id: string; blocked_date: string; reason: string }> }>(
+        "/admin/calendar-blocks",
+      ),
+    updateStatus: (id: string, status: ApiBooking["status"]) =>
+      request<{ booking: ApiBooking }>(`/admin/bookings/${id}/status`, {
+        method: "PATCH",
+        body: { status },
+      }),
+    blockDate: (payload: { blocked_date: string; reason: string; booking_id?: string | null }) =>
+      request<{ block: { id: string; blocked_date: string; reason: string } }>(
+        "/admin/calendar-blocks",
+        {
+          method: "POST",
+          body: payload,
+        },
+      ),
+    unblockDate: (id: string) => request<void>(`/admin/calendar-blocks/${id}`, { method: "DELETE" }),
   },
   quotes: {
     create: (payload: QuoteRequestPayload) =>
@@ -120,9 +194,26 @@ export const api = {
         method: "POST",
         body: payload,
       }),
+    listAdmin: () => request<{ quotes: ApiQuoteRequest[] }>("/admin/quotes"),
+    updateStatus: (id: string, status: ApiQuoteRequest["status"]) =>
+      request<{ quote: ApiQuoteRequest }>(`/admin/quotes/${id}/status`, {
+        method: "PATCH",
+        body: { status },
+      }),
   },
   invoices: {
     list: () => request<{ invoices: ApiInvoice[] }>("/admin/invoices"),
+    create: (payload: { invoice_no?: string; client_name: string; phone: string; amount: number }) =>
+      request<{ invoice: ApiInvoice }>("/admin/invoices", {
+        method: "POST",
+        body: payload,
+      }),
+    update: (id: string, payload: Partial<{ client_name: string; phone: string; amount: number; status: ApiInvoice["status"]; mpesa_ref: string | null }>) =>
+      request<{ invoice: ApiInvoice }>(`/admin/invoices/${id}`, {
+        method: "PATCH",
+        body: payload,
+      }),
+    delete: (id: string) => request<void>(`/admin/invoices/${id}`, { method: "DELETE" }),
     lookup: (invoiceNo: string) =>
       request<{ invoice: ApiInvoice }>(`/invoices/${encodeURIComponent(invoiceNo)}`),
     pay: (id: string, phone: string) =>
@@ -140,5 +231,17 @@ export const api = {
   },
   publicEvents: {
     list: () => request<{ events: ApiPublicEvent[] }>("/events"),
+    listAdmin: () => request<{ events: ApiPublicEvent[] }>("/admin/public-events"),
+    create: (payload: Omit<ApiPublicEvent, "id">) =>
+      request<{ event: ApiPublicEvent }>("/admin/public-events", {
+        method: "POST",
+        body: payload,
+      }),
+    update: (id: string, payload: Partial<Omit<ApiPublicEvent, "id">>) =>
+      request<{ event: ApiPublicEvent }>(`/admin/public-events/${id}`, {
+        method: "PATCH",
+        body: payload,
+      }),
+    delete: (id: string) => request<void>(`/admin/public-events/${id}`, { method: "DELETE" }),
   },
 };

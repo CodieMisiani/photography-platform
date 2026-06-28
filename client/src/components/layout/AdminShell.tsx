@@ -4,6 +4,9 @@ const adminLinks = [
   { label: "Invoices", to: "/admin/invoices" },
   { label: "Pay Invoice", to: "/admin/pay-invoice" },
   { label: "Portfolio CMS", to: "/admin/portfolio-cms" },
+  { label: "Bookings", to: "/admin/bookings" },
+  { label: "Quotes", to: "/admin/quotes" },
+  { label: "Public Events", to: "/admin/public-events" },
 ];
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {

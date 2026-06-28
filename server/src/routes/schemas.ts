@@ -54,6 +54,13 @@ export const invoiceCreateSchema = z.object({
   amount: z.coerce.number().positive(),
 });
 
+export const invoicePatchSchema = invoiceCreateSchema
+  .extend({
+    status: z.enum(["unpaid", "paid", "failed"]).optional(),
+    mpesa_ref: z.string().max(160).optional().nullable(),
+  })
+  .partial();
+
 export const invoicePaySchema = z.object({
   phone: z.string().min(7).max(40),
 });

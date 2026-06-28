@@ -2,6 +2,7 @@ export type InvoiceStatus = "Paid" | "Sent" | "Draft" | "Pending" | "Failed";
 
 export type Invoice = {
   id: string;
+  databaseId?: string;
   client: string;
   amount: string;
   dueDate: string;

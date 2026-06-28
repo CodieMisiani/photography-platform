@@ -13,6 +13,10 @@ export async function listBookings() {
   return db<BookingRow>("bookings").select("*").orderBy("event_date", "asc");
 }
 
+export async function listCalendarBlocks() {
+  return db<CalendarBlockRow>("calendar_blocks").select("*").orderBy("blocked_date", "asc");
+}
+
 export async function updateBookingStatus(id: string, status: BookingStatus) {
   const [updated] = await db<BookingRow>("bookings").where({ id }).update({ status }).returning("*");
   if (!updated) {

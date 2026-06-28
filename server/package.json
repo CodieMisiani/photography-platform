@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "migrate": "knex migrate:latest --knexfile knexfile.cjs",
-    "migrate:rollback": "knex migrate:rollback --knexfile knexfile.cjs"
+    "migrate:rollback": "knex migrate:rollback --knexfile knexfile.cjs",
+    "seed:admin": "tsx src/db/seedAdmin.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -33,6 +34,7 @@
     "@types/multer": "^2.0.0",
     "@types/node": "^24.10.1",
     "@types/pg": "^8.15.6",
+    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
