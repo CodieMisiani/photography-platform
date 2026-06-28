@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 520" role="img" aria-label="Studio product composition in monochrome">
+  <rect width="640" height="520" fill="#F4F2F1"/>
+  <rect x="74" y="74" width="492" height="372" fill="#FFFFFF"/>
+  <rect x="126" y="130" width="174" height="256" fill="#E5E2E1"/>
+  <rect x="340" y="118" width="150" height="292" fill="#1A1A1A"/>
+  <circle cx="415" cy="214" r="44" fill="#FFFFFF"/>
+  <rect x="380" y="274" width="70" height="92" fill="#FFFFFF"/>
+  <path d="M126 386h364" stroke="#1A1A1A" stroke-width="6"/>
+</svg>

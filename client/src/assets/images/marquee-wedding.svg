@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 520" role="img" aria-label="Editorial wedding composition in monochrome">
+  <rect width="640" height="520" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="640" height="210" fill="#E5E2E1"/>
+  <path d="M0 180c92-42 184-40 276-6 118 44 236 44 364-12v358H0V180Z" fill="#F4F2F1"/>
+  <circle cx="258" cy="238" r="52" fill="#1A1A1A"/>
+  <circle cx="378" cy="238" r="52" fill="#6B6B6B"/>
+  <path d="M172 520c14-122 55-204 86-204s72 82 86 204H172Z" fill="#1A1A1A"/>
+  <path d="M310 520c14-122 45-204 68-204s54 82 68 204H310Z" fill="#6B6B6B"/>
+</svg>

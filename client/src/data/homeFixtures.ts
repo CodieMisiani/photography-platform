@@ -1,4 +1,9 @@
 import type { HomeMetric, HomeProject, HomeService } from "../types/home";
+import architectureImage from "../assets/images/marquee-architecture.svg";
+import concertImage from "../assets/images/marquee-concert.svg";
+import portraitImage from "../assets/images/marquee-portrait.svg";
+import studioImage from "../assets/images/marquee-studio.svg";
+import weddingImage from "../assets/images/marquee-wedding.svg";
 
 export const homeMetrics: HomeMetric[] = [
   { value: "500+", label: "Events Captured" },
@@ -11,14 +16,40 @@ export const homeProjects: HomeProject[] = [
   {
     title: "The Eternal Union",
     location: "Lake Como, Italy",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDIPkyrZ97QagJd1npory5nm4A51nw652KGTFaWbt9gnX3fCk28rz7nm57DWTd9PjmIOfc_w8YvQo2-Mc1lMuB66MH4V3EDP8G_XgCVWLUqeM4xI4CdFJyuxFEi5jriI2J7vV9vYiYzIvtof3rJh5_s05YZPob1CjV_dCzPy_uS94Yo0k0hFp7_Z4zsix4cwkKvO8FIntj-kFSMESE0b6H4PLJbSBDmBysN1THJ6bbwB4RQda_ZxlopDCWFyEVBf9BHz2Sc_X5hqkY",
+    image: weddingImage,
   },
   {
     title: "Sonic Resonance",
     location: "London Metro",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDf3fAhwMZY2MsdPyKcw_y5L35aQ9iQwHzk0JkfOxJWba5JJzGp891x2IXkkjCVXxunOJMAE9H725U3vMwCR5-2Y1C_Y6BswMtiRWOcyQaCAE9qVuKnoIjhU2rPUg3m-fUeHLub5pRWcSB19FrMMAIduo6dA8FOnTVn0iXVew43DAaVVSvDI3nLCcRGOB4E3WMuD17cH5-4nB5e_4ANcMhx9IWU9xS1Fh3zT-hhSn-CXbqvuP5LDo74yd1Ai71pHD6XOg0ovVzVWOs",
+    image: concertImage,
+  },
+];
+
+export const homeMarqueeImages: HomeProject[] = [
+  {
+    title: "Modern Portrait",
+    location: "London Studio",
+    image: portraitImage,
+  },
+  {
+    title: "Editorial Wedding",
+    location: "Lake Como",
+    image: weddingImage,
+  },
+  {
+    title: "Commercial Detail",
+    location: "Studio Tabletop",
+    image: studioImage,
+  },
+  {
+    title: "Architectural Lines",
+    location: "Gallery Nord",
+    image: architectureImage,
+  },
+  {
+    title: "Live Performance",
+    location: "London Metro",
+    image: concertImage,
   },
 ];
 

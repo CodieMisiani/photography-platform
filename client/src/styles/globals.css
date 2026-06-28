@@ -114,6 +114,43 @@ a {
   animation: studio-drift 8s ease-in-out infinite alternate;
 }
 
+.homepage-marquee {
+  inline-size: 100%;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.homepage-marquee__track {
+  display: flex;
+  inline-size: max-content;
+  will-change: transform;
+  animation: homepage-marquee 56s linear infinite;
+}
+
+.homepage-marquee__item {
+  flex: 0 0 auto;
+  inline-size: clamp(220px, 28vw, 460px);
+  block-size: clamp(220px, 24vw, 420px);
+  margin: 0;
+  overflow: hidden;
+  background: #f4f2f1;
+}
+
+.homepage-marquee__item img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+@keyframes homepage-marquee {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @keyframes studio-drift {
   from {
     transform: translate3d(0, 0, 0) scale(1);
@@ -126,7 +163,8 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .studio-plane,
   .studio-plane:hover,
-  .studio-drift {
+  .studio-drift,
+  .homepage-marquee__track {
     animation: none;
     transform: none;
   }

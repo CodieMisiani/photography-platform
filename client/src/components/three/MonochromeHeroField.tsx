@@ -12,6 +12,7 @@ export default function MonochromeHeroField() {
     }
 
     let frameId = 0;
+    let disposed = false;
     let cleanup = () => {};
 
     async function startScene() {
@@ -44,6 +45,11 @@ export default function MonochromeHeroField() {
           import("three/src/materials/MeshBasicMaterial.js"),
           import("three/src/objects/Mesh.js"),
         ]);
+
+        if (disposed || !viewport.isConnected) {
+          return;
+        }
+
         const renderer = new WebGLRenderer({
           alpha: true,
           antialias: true,
@@ -134,7 +140,10 @@ export default function MonochromeHeroField() {
 
     void startScene();
 
-    return () => cleanup();
+    return () => {
+      disposed = true;
+      cleanup();
+    };
   }, [prefersReducedMotion]);
 
   if (prefersReducedMotion || isUnavailable) {

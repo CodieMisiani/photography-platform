@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 520" role="img" aria-label="Editorial portrait in monochrome">
+  <rect width="640" height="520" fill="#F4F2F1"/>
+  <rect x="0" y="0" width="640" height="520" fill="#FFFFFF"/>
+  <circle cx="322" cy="188" r="88" fill="#1A1A1A"/>
+  <path d="M164 520c18-122 87-205 158-205s140 83 158 205H164Z" fill="#1A1A1A"/>
+  <path d="M218 178c18-93 82-132 152-114 62 16 95 67 98 137-44-60-122-69-250-23Z" fill="#6B6B6B"/>
+  <rect x="0" y="0" width="640" height="520" fill="none" stroke="#E5E2E1"/>
+</svg>
