@@ -1,4 +1,4 @@
-import type { Invoice, InvoiceSummary } from "../types/invoice";
+import type { Invoice, InvoiceSummary, PayableInvoice } from "../types/invoice";
 
 export const invoiceSummary: InvoiceSummary = {
   totalRevenue: "$42,850.00",
@@ -33,3 +33,24 @@ export const invoices: Invoice[] = [
     initials: "M",
   },
 ];
+
+export const payableInvoice: PayableInvoice = {
+  id: "EL-2024-8842",
+  dueDate: "Dec 15, 2024",
+  status: "Pending",
+  total: "Ksh 60,500",
+  lineItems: [
+    {
+      description: "Editorial Shoot (Full Day)",
+      amount: "Ksh 45,000",
+    },
+    {
+      description: "Post-Production & Retouching",
+      amount: "Ksh 12,500",
+    },
+    {
+      description: "Travel Expenses (Nairobi Outskirts)",
+      amount: "Ksh 3,000",
+    },
+  ],
+};
