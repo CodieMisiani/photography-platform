@@ -1,7 +1,12 @@
-﻿import Button from "../components/ui/Button";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import { homeMetrics, homeProjects, homeServices } from "../data/homeFixtures";
+import Button from "../components/ui/Button";
+import {
+  homeMarqueeImages,
+  homeMetrics,
+  homeProjects,
+  homeServices,
+} from "../data/homeFixtures";
 
 export default function HomePage() {
   return (
@@ -9,27 +14,39 @@ export default function HomePage() {
       <Header />
 
       <main>
-        <section className="relative min-h-[calc(100vh-88px)] overflow-hidden bg-ink text-paper">
-          <div className="studio-drift absolute inset-0 bg-[url('https://lh3.googleusercontent.com/aida-public/AB6AXuDMdULg85Zw5V9QPtGOVei-QYyA1MmHsx2yc9ZBIGrUoRqh3pJP-dIhk1qDiv0NXMvCGogX4Dbmmk-QG5YzoFpIQb5nikCQkp-w_nJovpE9XwhYVmE7hJr37wmL_Rja9kXBI_jN-usYqCHqgoG7YqNlRF4uMvKHGByD0L43GiNS8uEDDwP0jjN6tLfsX33fr6PvHu2EY83uWwliWHb_1744mCbDmlM8kjsZ5f17MSvMdyY2qSE1WaFXCYM3V3_AUJy9hcCcGXbDSfQ')] bg-cover bg-center opacity-80" />
-          <div className="absolute inset-0 bg-ink/40" />
-          <div className="relative mx-auto flex h-full max-w-7xl flex-col justify-end px-6 pb-24">
-            <div className="max-w-4xl">
-              <p className="text-[0.75rem] uppercase tracking-[0.3em] text-grey-light">
-                Secure payment portal
-              </p>
-              <h1 className="mt-6 text-5xl font-display uppercase leading-tight tracking-[-0.04em] sm:text-6xl md:text-[5rem]">
-                Stories Worth
-                <br />
-                Remembering
-              </h1>
-              <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-                <Button className="border-paper text-paper hover:bg-paper hover:text-ink">
-                  Book Me
-                </Button>
-                <Button className="border-paper text-paper hover:bg-paper hover:text-ink">
-                  View Portfolio
-                </Button>
-              </div>
+        <section className="overflow-hidden bg-paper text-ink">
+          <div className="mx-auto grid min-h-[56vh] max-w-7xl grid-cols-1 items-end gap-12 px-6 pb-16 pt-24 md:grid-cols-[1.25fr_0.75fr] md:pb-20 md:pt-32">
+            <h1 className="max-w-4xl text-6xl font-display font-normal leading-[0.98] tracking-[-0.055em] text-ink sm:text-7xl md:text-[7.2rem]">
+              Photography for
+              <br />
+              Modern Stories
+            </h1>
+            <p className="max-w-xl pb-3 text-xl leading-7 tracking-[-0.02em] text-ink md:justify-self-end">
+              We deliver clean, high-quality studio photography with
+              professional lighting, sharp detail, and a refined look for
+              brands, portraits, and commercial projects.
+            </p>
+          </div>
+
+          <div
+            className="homepage-marquee border-y border-grey-light"
+            aria-label="Featured photography reel"
+          >
+            <div className="homepage-marquee__track">
+              {[...homeMarqueeImages, ...homeMarqueeImages].map(
+                (image, index) => (
+                  <figure
+                    className="homepage-marquee__item"
+                    key={`${image.title}-${index}`}
+                  >
+                    <img
+                      src={image.image}
+                      alt={image.title}
+                      loading={index > 2 ? "lazy" : "eager"}
+                    />
+                  </figure>
+                ),
+              )}
             </div>
           </div>
         </section>
@@ -139,9 +156,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="relative flex min-h-[60vh] items-center justify-center overflow-hidden bg-paper text-center">
-          <div className="absolute inset-0 bg-[url('https://lh3.googleusercontent.com/aida-public/AB6AXuAxO_b91v9O14XkXdG5fqt9ObZJC9dl06fS6WhSx6vNw60D8X0dSJDnjvhTYVJziV9d22HppVaeduVVkg6fang4UNm5v5NjJ1CaOExo9i8auJUWoxcfPjclJYC9Xb3AskXNjNftWONBaWIevjFOK2j5OEFiKyoWDOtJRaWgWnlOehgNonDnA63e1YGxByzxILHVPRgtNMwG-2N7jZafd9oCvMiVOsK494Zr4MUX9myh13XUlvJ8vdMkI_5ieYZQ4B_1QF3_FbpWly4')] bg-cover bg-center opacity-70" />
-          <div className="absolute inset-0 bg-paper/90" />
+        <section className="relative flex min-h-[60vh] items-center justify-center overflow-hidden border-t border-grey-light bg-paper text-center">
+          <div className="absolute inset-x-0 top-0 h-px bg-ink" />
           <div className="relative mx-auto max-w-4xl px-6">
             <h2 className="text-4xl font-display uppercase tracking-[-0.04em] text-ink sm:text-5xl">
               Let us capture your next story

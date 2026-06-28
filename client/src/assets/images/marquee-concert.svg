@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 520" role="img" aria-label="Concert photography composition in monochrome">
+  <rect width="640" height="520" fill="#1A1A1A"/>
+  <path d="M94 0h76L70 520H0L94 0ZM470 0h76l94 520h-70L470 0Z" fill="#6B6B6B"/>
+  <circle cx="320" cy="228" r="82" fill="#FFFFFF"/>
+  <path d="M216 520c16-136 56-220 104-220s88 84 104 220H216Z" fill="#FFFFFF"/>
+  <path d="M0 420c160-60 360-62 640 0v100H0V420Z" fill="#6B6B6B"/>
+</svg>

@@ -80,8 +80,75 @@ textarea {
   transform: perspective(1200px) rotateX(1.5deg) rotateY(-1.5deg) translateY(-2px);
 }
 
+.motion-button {
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.motion-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0.08;
+  transform: translateX(-105%);
+  transition: transform 420ms ease;
+}
+
+.motion-button:hover::after,
+.motion-button:focus-visible::after {
+  transform: translateX(0);
+}
+
+.motion-button > * {
+  position: relative;
+  z-index: 1;
+}
+
+a {
+  text-underline-offset: 0.24em;
+}
+
 .studio-drift {
   animation: studio-drift 8s ease-in-out infinite alternate;
+}
+
+.homepage-marquee {
+  inline-size: 100%;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.homepage-marquee__track {
+  display: flex;
+  inline-size: max-content;
+  will-change: transform;
+  animation: homepage-marquee 56s linear infinite;
+}
+
+.homepage-marquee__item {
+  flex: 0 0 auto;
+  inline-size: clamp(220px, 28vw, 460px);
+  block-size: clamp(220px, 24vw, 420px);
+  margin: 0;
+  overflow: hidden;
+  background: #f4f2f1;
+}
+
+.homepage-marquee__item img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+@keyframes homepage-marquee {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 @keyframes studio-drift {
@@ -96,7 +163,8 @@ textarea {
 @media (prefers-reduced-motion: reduce) {
   .studio-plane,
   .studio-plane:hover,
-  .studio-drift {
+  .studio-drift,
+  .homepage-marquee__track {
     animation: none;
     transform: none;
   }
