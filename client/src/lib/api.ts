@@ -38,6 +38,10 @@ export type QuoteRequestPayload = {
   description: string;
 };
 
+export type AdminUser = {
+  email: string;
+};
+
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: BodyInit | Record<string, unknown> | null;
 };
@@ -98,6 +102,15 @@ function prepareBody(body: RequestOptions["body"], headers: Headers) {
 }
 
 export const api = {
+  auth: {
+    login: (payload: { email: string; password: string }) =>
+      request<{ admin: AdminUser }>("/auth/login", {
+        method: "POST",
+        body: payload,
+      }),
+    logout: () => request<void>("/auth/logout", { method: "POST" }),
+    me: () => request<{ admin: AdminUser | null }>("/auth/me"),
+  },
   portfolio: {
     list: () => request<{ events: ApiPortfolioEvent[] }>("/portfolio"),
   },
