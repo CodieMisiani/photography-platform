@@ -1,6 +1,7 @@
 ﻿import Button from "../components/ui/Button";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import MonochromeHeroField from "../components/three/MonochromeHeroField";
 import { homeMetrics, homeProjects, homeServices } from "../data/homeFixtures";
 
 export default function HomePage() {
@@ -11,6 +12,7 @@ export default function HomePage() {
       <main>
         <section className="relative min-h-[calc(100vh-88px)] overflow-hidden bg-ink text-paper">
           <div className="studio-drift absolute inset-0 bg-[url('https://lh3.googleusercontent.com/aida-public/AB6AXuDMdULg85Zw5V9QPtGOVei-QYyA1MmHsx2yc9ZBIGrUoRqh3pJP-dIhk1qDiv0NXMvCGogX4Dbmmk-QG5YzoFpIQb5nikCQkp-w_nJovpE9XwhYVmE7hJr37wmL_Rja9kXBI_jN-usYqCHqgoG7YqNlRF4uMvKHGByD0L43GiNS8uEDDwP0jjN6tLfsX33fr6PvHu2EY83uWwliWHb_1744mCbDmlM8kjsZ5f17MSvMdyY2qSE1WaFXCYM3V3_AUJy9hcCcGXbDSfQ')] bg-cover bg-center opacity-80" />
+          <MonochromeHeroField />
           <div className="absolute inset-0 bg-ink/40" />
           <div className="relative mx-auto flex h-full max-w-7xl flex-col justify-end px-6 pb-24">
             <div className="max-w-4xl">
