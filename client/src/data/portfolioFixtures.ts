@@ -1,4 +1,4 @@
-import type { PortfolioItem } from "../types/portfolio";
+import type { PortfolioCmsProject, PortfolioItem } from "../types/portfolio";
 
 export const portfolioItems: PortfolioItem[] = [
   {
@@ -32,5 +32,28 @@ export const portfolioItems: PortfolioItem[] = [
     year: "2024",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuBsSoMWjl0c11q7RagoGwM8p6iEK28vjIupyohSQXE-UV9pCX_gqYw6IBZknXYJzZuVBJCBNpf5dsQEIH8Twx3sCnzvl4oqixJ_dr6daeGQVZpfxa_CLF7lPeEc_i-Y13ieStikNp3xx8uSbrqZf0jlXAOlvsDbx70JELdeGqgSEEcJ7aZQ07iMbWU7yLA5HAMg-bc_y8VOS9_LJtIUyNgSCXu2hmqvcMyfIevhdPPDbXCanwW2x8HdoGvyHY5JpUZNvc1WE8fxIsU",
+  },
+];
+
+export const portfolioCmsProjects: PortfolioCmsProject[] = [
+  {
+    id: "obsidian-echoes",
+    title: "Obsidian Echoes",
+    series: "Architectural Series",
+    category: "Minimalism",
+    date: "Oct 12, 2023",
+    status: "Featured",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCZgQA-5NvOkPKlWP7g49WWjF3deK6yPqkZJ7JR7kZOOblO2TD24NNzRyCuMgoSKeEL9cMwKzC5GCII3tPBh7_hE_v5n5wHvAN8p1SIWn4jG7nF1KJeeqMcbNSK1Zf8ZQCqJFPqyxYQgdjrDPKnTm18Dk643zuKce1hvEkRwfCRjYvZk1WTtvKPe99qvxEJstj8MEJGN_nAqBRFTW1VYHjZglkiMj5Xig-tgpfvW6XET9VfHXiMeaixFc2rw-Jx0mxWrw3tKXAR494",
+  },
+  {
+    id: "velvet-silence",
+    title: "Velvet Silence",
+    series: "Editorial Portraiture",
+    category: "Portrait",
+    date: "Sep 28, 2023",
+    status: "Published",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuAWa2MCeE_KY6O499EZ0fR9rcY2SuF6JxRE16CgZtaNkYBiIGrazVUjZpn8FdFIWbkuu6KKM_2KVP46F1feZQy7CmVceTlutM0LFZFDq9-KIrLFZw54rXuo2ClLvR2Tg3dtDdoa6oyMWaDPVhGGuRhSSDg7LeJBcTnaATvBIWUuMwhU6Hb1-L24yIvamO8j-VJn6Wf5PR2bMpR5zDAyoUqDBQjczBLexA1-SiVjlIWGp_RGSvMQcmV10fOr6mSPWyjxWPOrNox43co",
   },
 ];
