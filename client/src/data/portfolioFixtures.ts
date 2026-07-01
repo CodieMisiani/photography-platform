@@ -42,9 +42,13 @@ export const portfolioCmsProjects: PortfolioCmsProject[] = [
     series: "Architectural Series",
     category: "Minimalism",
     date: "Oct 12, 2023",
+    eventDate: "2023-10-12",
     status: "Featured",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuCZgQA-5NvOkPKlWP7g49WWjF3deK6yPqkZJ7JR7kZOOblO2TD24NNzRyCuMgoSKeEL9cMwKzC5GCII3tPBh7_hE_v5n5wHvAN8p1SIWn4jG7nF1KJeeqMcbNSK1Zf8ZQCqJFPqyxYQgdjrDPKnTm18Dk643zuKce1hvEkRwfCRjYvZk1WTtvKPe99qvxEJstj8MEJGN_nAqBRFTW1VYHjZglkiMj5Xig-tgpfvW6XET9VfHXiMeaixFc2rw-Jx0mxWrw3tKXAR494",
+    coverUrl:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCZgQA-5NvOkPKlWP7g49WWjF3deK6yPqkZJ7JR7kZOOblO2TD24NNzRyCuMgoSKeEL9cMwKzC5GCII3tPBh7_hE_v5n5wHvAN8p1SIWn4jG7nF1KJeeqMcbNSK1Zf8ZQCqJFPqyxYQgdjrDPKnTm18Dk643zuKce1hvEkRwfCRjYvZk1WTtvKPe99qvxEJstj8MEJGN_nAqBRFTW1VYHjZglkiMj5Xig-tgpfvW6XET9VfHXiMeaixFc2rw-Jx0mxWrw3tKXAR494",
+    isFeatured: true,
   },
   {
     id: "velvet-silence",
@@ -52,8 +56,12 @@ export const portfolioCmsProjects: PortfolioCmsProject[] = [
     series: "Editorial Portraiture",
     category: "Portrait",
     date: "Sep 28, 2023",
+    eventDate: "2023-09-28",
     status: "Published",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuAWa2MCeE_KY6O499EZ0fR9rcY2SuF6JxRE16CgZtaNkYBiIGrazVUjZpn8FdFIWbkuu6KKM_2KVP46F1feZQy7CmVceTlutM0LFZFDq9-KIrLFZw54rXuo2ClLvR2Tg3dtDdoa6oyMWaDPVhGGuRhSSDg7LeJBcTnaATvBIWUuMwhU6Hb1-L24yIvamO8j-VJn6Wf5PR2bMpR5zDAyoUqDBQjczBLexA1-SiVjlIWGp_RGSvMQcmV10fOr6mSPWyjxWPOrNox43co",
+    coverUrl:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuAWa2MCeE_KY6O499EZ0fR9rcY2SuF6JxRE16CgZtaNkYBiIGrazVUjZpn8FdFIWbkuu6KKM_2KVP46F1feZQy7CmVceTlutM0LFZFDq9-KIrLFZw54rXuo2ClLvR2Tg3dtDdoa6oyMWaDPVhGGuRhSSDg7LeJBcTnaATvBIWUuMwhU6Hb1-L24yIvamO8j-VJn6Wf5PR2bMpR5zDAyoUqDBQjczBLexA1-SiVjlIWGp_RGSvMQcmV10fOr6mSPWyjxWPOrNox43co",
+    isFeatured: false,
   },
 ];

@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: http://localhost:4000
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: photography_platform_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d photography_platform_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: server
+    env:
+      NODE_ENV: test
+      CLIENT_ORIGIN: http://localhost:5173
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/photography_platform_test
+      REDIS_URL: redis://localhost:6379
+      SESSION_COOKIE_NAME: studio_admin_session
+      SESSION_SECRET: ci-session-secret-change-for-production
+      COOKIE_SECURE: "false"
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: password-for-ci-only
+      ADMIN_PASSWORD_HASH: $2b$12$replace_with_bcrypt_hash
+      CLOUDINARY_CLOUD_NAME: test
+      CLOUDINARY_API_KEY: test
+      CLOUDINARY_API_SECRET: test
+      DARAJA_ENV: sandbox
+      DARAJA_CONSUMER_KEY: test
+      DARAJA_CONSUMER_SECRET: test
+      DARAJA_PASSKEY: test
+      DARAJA_SHORTCODE: "174379"
+      DARAJA_CALLBACK_URL: https://example.com/webhooks/daraja
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Migration check
+        run: npm run migrate
+
+      - name: Seed admin
+        run: npm run seed:admin
+
+      - name: Build
+        run: npm run build

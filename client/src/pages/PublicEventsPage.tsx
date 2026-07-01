@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Button from "../components/ui/Button";
-import { publicEvents } from "../data/eventFixtures";
 import type { EventCategory, PublicEvent } from "../types/event";
+import { api } from "../lib/api";
 
 const filterOptions = [
   "All Events",
@@ -16,13 +17,42 @@ type EventFilter = (typeof filterOptions)[number];
 
 export default function PublicEventsPage() {
   const [selectedFilter, setSelectedFilter] = useState<EventFilter>("All Events");
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["public-events"],
+    queryFn: api.publicEvents.list,
+  });
+
+  const publicEvents = useMemo(
+    () =>
+      (data?.events ?? []).map((event) => {
+        const eventDate = new Date(event.event_date);
+        return {
+          id: event.id,
+          day: String(eventDate.getDate()).padStart(2, "0"),
+          month: eventDate.toLocaleString("en", { month: "short" }).toUpperCase(),
+          category: "Workshop" as EventCategory,
+          title: event.title,
+          description: event.ticket_url
+            ? "A public studio event with ticketing available now."
+            : "A public studio event from the photography calendar.",
+          location: event.venue,
+          price:
+            Number(event.price) === 0
+              ? "Free"
+              : `Ksh ${Number(event.price).toLocaleString()}`,
+          image: event.image_url ?? "",
+          imageAlt: event.title,
+        };
+      }),
+    [data?.events],
+  );
 
   const filteredEvents = useMemo(
     () =>
       selectedFilter === "All Events"
         ? publicEvents
         : publicEvents.filter((event) => event.category === selectedFilter),
-    [selectedFilter],
+    [publicEvents, selectedFilter],
   );
 
   return (
@@ -71,7 +101,11 @@ export default function PublicEventsPage() {
         </section>
 
         <section className="mx-auto mb-24 max-w-7xl px-6">
-          {filteredEvents.length > 0 ? (
+          {isLoading ? (
+            <EventState message="Loading events" />
+          ) : isError ? (
+            <EventState message="Events could not load" action={() => refetch()} />
+          ) : filteredEvents.length > 0 ? (
             <div className="flex flex-col border-t border-grey-light">
               {filteredEvents.map((event) => (
                 <EventRow key={event.id} event={event} />
@@ -101,11 +135,13 @@ function EventRow({ event }: { event: PublicEvent }) {
       </time>
 
       <div className="aspect-[4/3] overflow-hidden bg-grey-faint">
-        <img
-          src={event.image}
-          alt={event.imageAlt}
-          className="h-full w-full object-cover grayscale"
-        />
+        {event.image ? (
+          <img
+            src={event.image}
+            alt={event.imageAlt}
+            className="h-full w-full object-cover grayscale"
+          />
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-4">
@@ -137,6 +173,17 @@ function StatusLabel({ category }: { category: EventCategory }) {
     <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey underline decoration-ink decoration-1 underline-offset-4">
       {category}
     </span>
+  );
+}
+
+function EventState({ message, action }: { message: string; action?: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-6 border-y border-grey-light py-24 text-center">
+      <p className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey">
+        {message}
+      </p>
+      {action ? <Button onClick={action}>Retry</Button> : null}
+    </div>
   );
 }
 

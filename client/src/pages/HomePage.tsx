@@ -16,7 +16,7 @@ export default function HomePage() {
       <main>
         <section className="overflow-hidden bg-paper text-ink">
           <div className="mx-auto grid min-h-[56vh] max-w-7xl grid-cols-1 items-end gap-12 px-6 pb-16 pt-24 md:grid-cols-[1.25fr_0.75fr] md:pb-20 md:pt-32">
-            <h1 className="max-w-4xl text-6xl font-display font-normal leading-[0.98] tracking-[-0.055em] text-ink sm:text-7xl md:text-[7.2rem]">
+            <h1 className="max-w-4xl text-5xl font-display font-normal leading-[0.98] tracking-[-0.055em] text-ink sm:text-7xl md:text-[7.2rem]">
               Photography for
               <br />
               Modern Stories
@@ -33,6 +33,7 @@ export default function HomePage() {
             aria-label="Featured photography reel"
           >
             <div className="homepage-marquee__track">
+              {/* Swap real portfolio photos in client/src/data/homeFixtures.ts via homeMarqueeImages. */}
               {[...homeMarqueeImages, ...homeMarqueeImages].map(
                 (image, index) => (
                   <figure
@@ -162,7 +163,7 @@ export default function HomePage() {
             <h2 className="text-4xl font-display uppercase tracking-[-0.04em] text-ink sm:text-5xl">
               Let us capture your next story
             </h2>
-            <Button className="mt-12 border-ink text-ink hover:bg-ink hover:text-paper">
+            <Button asLink to="/request-quote" className="mt-12 border-ink text-ink hover:bg-ink hover:text-paper">
               Start a project
             </Button>
           </div>
