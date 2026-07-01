@@ -23,6 +23,8 @@ Think of the system like a real studio:
 
 The browser runs the React/Vite frontend in `client`. React components call one typed API layer at `client/src/lib/api.ts`. That API layer calls the Express backend in `server`. Express validates requests with Zod, checks admin sessions with Redis, reads and writes Postgres through Knex, uploads portfolio images to Cloudinary, and triggers M-Pesa STK Push through Safaricom Daraja.
 
+The homepage image marquee reads from `homeMarqueeImages` in `client/src/data/homeFixtures.ts`. Swap real portfolio photo URLs there when production assets are ready; the homepage consumes the list automatically and duplicates it for the seamless loop.
+
 Flow in words:
 
 `React pages -> typed API client -> Express routes/controllers -> services -> Postgres/Redis/Cloudinary/Daraja`
@@ -164,10 +166,15 @@ Rollback:
 - DB-backed admin login seed flow.
 - Protected admin routes.
 - Portfolio CMS create/delete/feature and Cloudinary upload path.
-- Booking admin page with booking status changes and date block/unblock.
-- Quote inbox with status changes.
-- Invoice admin create/delete and invoice listing.
-- Public events admin create/delete/publish toggle.
+- Portfolio CMS full inline editing for title, category, event date, cover URL/upload, and featured state.
+- Booking admin page with full booking editing, booking status changes, and date block/unblock.
+- Quote inbox with status changes and internal notes.
+- Invoice admin create/edit/delete with multiple line items and computed totals.
+- Public invoice lookup shows itemized line items.
+- Public events admin create/edit/delete/publish toggle with image URL/upload support.
+- Public events render real uploaded event images when present.
+- Footer privacy/terms links resolve to real routes.
+- Navbar hover uses a center-morph underline and subtle letter-spacing transition with reduced-motion support.
 - Daraja STK Push trigger, webhook update, and frontend polling/failure timeout.
 - Health endpoint checks Postgres and Redis.
 - CI workflow for lint/build/typecheck/migration check.
@@ -177,9 +184,6 @@ Rollback:
 - Real Railway, Upstash, Vercel, Cloudinary, and Daraja provisioning was not completed from this workspace because account credentials and production domains are not available here.
 - Daraja sandbox was not verified end-to-end with a real phone prompt and public webhook URL.
 - Full automated Jest/React Testing Library/Supertest suites are not implemented yet.
-- Invoice line items are represented as a single service line in the frontend because the explicit database schema did not include an invoice line-items table.
-- Admin edit forms are partial: several screens support create/delete/status toggles, but full inline editing for every field is not complete.
-- Public events currently use the backend schema, which has no image column, so the public event image area degrades to a flat placeholder.
 
 ### Ideas To Add Later
 
@@ -187,7 +191,7 @@ Rollback:
 - Client gallery delivery portal with private download links.
 - Testimonial collection after completed shoots.
 - Analytics showing which portfolio categories generate the most enquiries.
-- Invoice line-item table with tax, discounts, and PDF export.
+- Invoice PDF export with tax and discount controls.
 - Admin activity log so changes can be audited.
 - Calendar month navigation and multi-month availability view.
 - Client self-service rescheduling flow.

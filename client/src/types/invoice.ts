@@ -4,14 +4,18 @@ export type Invoice = {
   id: string;
   databaseId?: string;
   client: string;
+  phone?: string;
   amount: string;
   dueDate: string;
   status: InvoiceStatus;
   initials: string;
+  lineItems?: InvoiceLineItem[];
 };
 
 export type InvoiceLineItem = {
   description: string;
+  quantity?: number;
+  unitPrice?: string;
   amount: string;
 };
 

@@ -33,6 +33,7 @@ export default function HomePage() {
             aria-label="Featured photography reel"
           >
             <div className="homepage-marquee__track">
+              {/* Swap real portfolio photos in client/src/data/homeFixtures.ts via homeMarqueeImages. */}
               {[...homeMarqueeImages, ...homeMarqueeImages].map(
                 (image, index) => (
                   <figure
@@ -162,7 +163,7 @@ export default function HomePage() {
             <h2 className="text-4xl font-display uppercase tracking-[-0.04em] text-ink sm:text-5xl">
               Let us capture your next story
             </h2>
-            <Button className="mt-12 border-ink text-ink hover:bg-ink hover:text-paper">
+            <Button asLink to="/request-quote" className="mt-12 border-ink text-ink hover:bg-ink hover:text-paper">
               Start a project
             </Button>
           </div>

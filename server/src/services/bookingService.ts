@@ -25,6 +25,17 @@ export async function updateBookingStatus(id: string, status: BookingStatus) {
   return updated;
 }
 
+export async function updateBooking(
+  id: string,
+  payload: Partial<Omit<BookingRow, "id">>,
+) {
+  const [updated] = await db<BookingRow>("bookings").where({ id }).update(payload).returning("*");
+  if (!updated) {
+    throw new AppError(404, "Booking not found", "BOOKING_NOT_FOUND");
+  }
+  return updated;
+}
+
 export async function listAvailability(from?: string, to?: string) {
   const blocksQuery = db<CalendarBlockRow>("calendar_blocks").select("blocked_date", "reason");
   const bookingsQuery = db<BookingRow>("bookings")

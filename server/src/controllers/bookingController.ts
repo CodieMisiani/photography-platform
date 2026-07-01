@@ -6,6 +6,7 @@ import {
   listAvailability,
   listBookings,
   listCalendarBlocks,
+  updateBooking,
   updateBookingStatus,
 } from "../services/bookingService.js";
 
@@ -20,6 +21,12 @@ export async function listAdminBookings(_req: Request, res: Response) {
 export async function patchBookingStatus(req: Request, res: Response) {
   res.status(200).json({
     booking: await updateBookingStatus(String(req.params.id), req.body.status),
+  });
+}
+
+export async function patchBooking(req: Request, res: Response) {
+  res.status(200).json({
+    booking: await updateBooking(String(req.params.id), req.body),
   });
 }
 

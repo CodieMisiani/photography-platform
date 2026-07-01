@@ -20,3 +20,17 @@ export async function updateQuoteStatus(id: string, status: QuoteStatus) {
   }
   return updated;
 }
+
+export async function updateQuoteRequest(
+  id: string,
+  payload: Partial<Pick<QuoteRequestRow, "status" | "notes">>,
+) {
+  const [updated] = await db<QuoteRequestRow>("quote_requests")
+    .where({ id })
+    .update(payload)
+    .returning("*");
+  if (!updated) {
+    throw new AppError(404, "Quote request not found", "QUOTE_NOT_FOUND");
+  }
+  return updated;
+}

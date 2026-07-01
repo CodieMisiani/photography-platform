@@ -23,8 +23,11 @@ export async function fetchPortfolioCmsProjects() {
         day: "2-digit",
         year: "numeric",
       }).format(new Date(event.event_date)),
-      status: event.is_featured ? "Featured" : "Published",
+      eventDate: event.event_date.slice(0, 10),
+      status: event.is_featured ? ("Featured" as const) : ("Published" as const),
       image: event.cover_url,
+      coverUrl: event.cover_url,
+      isFeatured: event.is_featured,
     })),
   };
 }

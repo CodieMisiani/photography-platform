@@ -5,6 +5,7 @@ import {
   getAvailability,
   listAdminBookings,
   listBlocks,
+  patchBooking,
   patchBookingStatus,
   removeBlock,
 } from "../controllers/bookingController.js";
@@ -14,6 +15,7 @@ import { validate } from "../middleware/validate.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {
   bookingCreateSchema,
+  bookingPatchSchema,
   bookingStatusSchema,
   calendarAvailabilityQuerySchema,
   calendarBlockCreateSchema,
@@ -40,6 +42,12 @@ bookingRoutes.patch(
   requireAdminSession,
   validate({ params: idParamsSchema, body: bookingStatusSchema }),
   asyncHandler(patchBookingStatus),
+);
+bookingRoutes.patch(
+  "/admin/bookings/:id",
+  requireAdminSession,
+  validate({ params: idParamsSchema, body: bookingPatchSchema }),
+  asyncHandler(patchBooking),
 );
 bookingRoutes.post(
   "/admin/calendar-blocks",

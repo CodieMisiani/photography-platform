@@ -84,6 +84,7 @@ textarea {
   position: relative;
   overflow: hidden;
   transform: translateZ(0);
+  transition-property: color, background-color, border-color, transform;
 }
 
 .motion-button::after {
@@ -97,6 +98,7 @@ textarea {
 }
 
 .motion-button:hover::after,
+.motion-button:active::after,
 .motion-button:focus-visible::after {
   transform: translateX(0);
 }
@@ -104,6 +106,45 @@ textarea {
 .motion-button > * {
   position: relative;
   z-index: 1;
+}
+
+.motion-button:hover,
+.motion-button:focus-visible,
+.motion-button:active {
+  color: #ffffff;
+}
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  width: fit-content;
+  color: #6b6b6b;
+  transition: color 180ms ease-out, letter-spacing 180ms ease-out;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -0.35rem;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 180ms ease-out;
+}
+
+.nav-link:hover,
+.nav-link:focus-visible,
+.nav-link--active {
+  color: #1a1a1a;
+  letter-spacing: 0.3em;
+}
+
+.nav-link:hover::after,
+.nav-link:focus-visible::after,
+.nav-link--active::after {
+  transform: scaleX(1);
 }
 
 a {
@@ -130,7 +171,7 @@ a {
 .homepage-marquee__item {
   flex: 0 0 auto;
   inline-size: clamp(220px, 28vw, 460px);
-  block-size: clamp(220px, 24vw, 420px);
+  aspect-ratio: 4 / 3;
   margin: 0;
   overflow: hidden;
   background: #f4f2f1;
@@ -167,5 +208,10 @@ a {
   .homepage-marquee__track {
     animation: none;
     transform: none;
+  }
+
+  .nav-link,
+  .nav-link::after {
+    transition: none;
   }
 }

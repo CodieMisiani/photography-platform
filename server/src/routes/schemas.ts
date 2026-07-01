@@ -36,6 +36,10 @@ export const bookingStatusSchema = z.object({
   status: z.enum(["pending", "confirmed", "declined"]),
 });
 
+export const bookingPatchSchema = bookingCreateSchema.partial().extend({
+  status: z.enum(["pending", "confirmed", "declined"]).optional(),
+});
+
 export const quoteCreateSchema = z.object({
   client_name: z.string().min(2).max(160),
   whatsapp: z.string().min(7).max(40),
@@ -47,11 +51,24 @@ export const quoteStatusSchema = z.object({
   status: z.enum(["new", "responded", "closed"]),
 });
 
+export const quotePatchSchema = z.object({
+  status: z.enum(["new", "responded", "closed"]).optional(),
+  notes: z.string().max(4000).optional().nullable(),
+});
+
+export const invoiceLineItemSchema = z.object({
+  id: z.string().uuid().optional(),
+  description: z.string().min(2).max(240),
+  quantity: z.coerce.number().int().positive(),
+  unit_price: z.coerce.number().min(0),
+});
+
 export const invoiceCreateSchema = z.object({
   invoice_no: z.string().min(3).max(80).optional(),
   client_name: z.string().min(2).max(160),
   phone: z.string().min(7).max(40),
-  amount: z.coerce.number().positive(),
+  amount: z.coerce.number().positive().optional(),
+  line_items: z.array(invoiceLineItemSchema).min(1).optional(),
 });
 
 export const invoicePatchSchema = invoiceCreateSchema
@@ -81,6 +98,7 @@ export const publicEventCreateSchema = z.object({
   venue: z.string().min(2).max(160),
   event_date: z.string().date(),
   ticket_url: z.string().url().optional().nullable(),
+  image_url: z.string().url().optional().nullable(),
   price: z.coerce.number().min(0),
   is_published: z.boolean().default(false),
 });

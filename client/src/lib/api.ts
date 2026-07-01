@@ -19,6 +19,16 @@ export type ApiInvoice = {
   status: "unpaid" | "paid" | "failed";
   mpesa_ref: string | null;
   paid_at: string | null;
+  line_items: ApiInvoiceLineItem[];
+};
+
+export type ApiInvoiceLineItem = {
+  id?: string;
+  invoice_id?: string;
+  description: string;
+  quantity: number;
+  unit_price: string;
+  created_at?: string;
 };
 
 export type ApiPublicEvent = {
@@ -27,6 +37,7 @@ export type ApiPublicEvent = {
   venue: string;
   event_date: string;
   ticket_url: string | null;
+  image_url: string | null;
   price: string;
   is_published: boolean;
 };
@@ -55,6 +66,7 @@ export type ApiBooking = BookingPayload & {
 export type ApiQuoteRequest = QuoteRequestPayload & {
   id: string;
   status: "new" | "responded" | "closed";
+  notes: string | null;
   created_at: string;
 };
 
@@ -178,6 +190,11 @@ export const api = {
         method: "PATCH",
         body: { status },
       }),
+    update: (id: string, payload: Partial<ApiBooking>) =>
+      request<{ booking: ApiBooking }>(`/admin/bookings/${id}`, {
+        method: "PATCH",
+        body: payload,
+      }),
     blockDate: (payload: { blocked_date: string; reason: string; booking_id?: string | null }) =>
       request<{ block: { id: string; blocked_date: string; reason: string } }>(
         "/admin/calendar-blocks",
@@ -200,15 +217,20 @@ export const api = {
         method: "PATCH",
         body: { status },
       }),
+    update: (id: string, payload: Partial<Pick<ApiQuoteRequest, "status" | "notes">>) =>
+      request<{ quote: ApiQuoteRequest }>(`/admin/quotes/${id}`, {
+        method: "PATCH",
+        body: payload,
+      }),
   },
   invoices: {
     list: () => request<{ invoices: ApiInvoice[] }>("/admin/invoices"),
-    create: (payload: { invoice_no?: string; client_name: string; phone: string; amount: number }) =>
+    create: (payload: { invoice_no?: string; client_name: string; phone: string; amount?: number; line_items?: Array<{ description: string; quantity: number; unit_price: number }> }) =>
       request<{ invoice: ApiInvoice }>("/admin/invoices", {
         method: "POST",
         body: payload,
       }),
-    update: (id: string, payload: Partial<{ client_name: string; phone: string; amount: number; status: ApiInvoice["status"]; mpesa_ref: string | null }>) =>
+    update: (id: string, payload: Partial<{ client_name: string; phone: string; amount: number; status: ApiInvoice["status"]; mpesa_ref: string | null; line_items: Array<{ description: string; quantity: number; unit_price: number }> }>) =>
       request<{ invoice: ApiInvoice }>(`/admin/invoices/${id}`, {
         method: "PATCH",
         body: payload,

@@ -2,13 +2,14 @@ import { Router } from "express";
 import {
   createPublicQuote,
   listAdminQuotes,
+  patchQuote,
   patchQuoteStatus,
 } from "../controllers/quoteController.js";
 import { requireAdminSession } from "../middleware/auth.js";
 import { publicWriteLimiter } from "../middleware/rateLimiters.js";
 import { validate } from "../middleware/validate.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { idParamsSchema, quoteCreateSchema, quoteStatusSchema } from "./schemas.js";
+import { idParamsSchema, quoteCreateSchema, quotePatchSchema, quoteStatusSchema } from "./schemas.js";
 
 export const quoteRoutes = Router();
 
@@ -24,4 +25,10 @@ quoteRoutes.patch(
   requireAdminSession,
   validate({ params: idParamsSchema, body: quoteStatusSchema }),
   asyncHandler(patchQuoteStatus),
+);
+quoteRoutes.patch(
+  "/admin/quotes/:id",
+  requireAdminSession,
+  validate({ params: idParamsSchema, body: quotePatchSchema }),
+  asyncHandler(patchQuote),
 );

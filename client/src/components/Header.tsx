@@ -114,8 +114,8 @@ function HeaderLink({ item }: { item: { label: string; to: string } }) {
     <NavLink
       to={item.to}
       className={({ isActive }) =>
-        `uppercase tracking-[0.25em] text-[0.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${
-          isActive ? "underline decoration-ink decoration-1 underline-offset-4" : "text-grey"
+        `nav-link uppercase tracking-[0.25em] text-[0.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${
+          isActive ? "nav-link--active" : ""
         }`
       }
     >

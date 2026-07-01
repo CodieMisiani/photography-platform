@@ -1,5 +1,6 @@
 import { Buffer } from "node:buffer";
-import type { InvoiceRow } from "../types/domain.js";
+import type { Knex } from "knex";
+import type { InvoiceLineItemRow, InvoiceRow } from "../types/domain.js";
 import { db } from "../db/knex.js";
 import { darajaConfig } from "../config/daraja.js";
 import { AppError } from "../utils/AppError.js";
@@ -22,26 +23,50 @@ type DarajaCallbackBody = {
 };
 
 export async function listInvoices() {
-  return db<InvoiceRow>("invoices").select("*").orderBy("invoice_no", "desc");
+  const invoices = await db<InvoiceRow>("invoices").select("*").orderBy("invoice_no", "desc");
+  return attachLineItems(invoices);
 }
 
 export async function createInvoice(payload: {
   invoice_no?: string;
   client_name: string;
   phone: string;
-  amount: number;
+  amount?: number;
+  line_items?: Array<{ description: string; quantity: number; unit_price: number }>;
 }) {
   const invoiceNo = payload.invoice_no ?? generateInvoiceNumber();
-  const [created] = await db<InvoiceRow>("invoices")
-    .insert({
-      invoice_no: invoiceNo,
-      client_name: payload.client_name,
-      phone: payload.phone,
-      amount: payload.amount.toFixed(2),
-      status: "unpaid",
-    })
-    .returning("*");
-  return created;
+  return db.transaction(async (trx) => {
+    const computedAmount = computeLineItemTotal(payload.line_items) ?? payload.amount ?? 0;
+    const [created] = await trx<InvoiceRow>("invoices")
+      .insert({
+        invoice_no: invoiceNo,
+        client_name: payload.client_name,
+        phone: payload.phone,
+        amount: computedAmount.toFixed(2),
+        status: "unpaid",
+      })
+      .returning("*");
+
+    if (payload.line_items?.length) {
+      await trx<InvoiceLineItemRow>("invoice_line_items").insert(
+        payload.line_items.map((item) => ({
+          invoice_id: created.id,
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unit_price.toFixed(2),
+        })),
+      );
+    } else if (payload.amount) {
+      await trx<InvoiceLineItemRow>("invoice_line_items").insert({
+        invoice_id: created.id,
+        description: "Photography services",
+        quantity: 1,
+        unit_price: payload.amount.toFixed(2),
+      });
+    }
+
+    return attachLineItemsToInvoice(created, trx);
+  });
 }
 
 export async function updateInvoice(
@@ -53,20 +78,46 @@ export async function updateInvoice(
     amount: number;
     status: InvoiceRow["status"];
     mpesa_ref: string | null;
+    line_items: Array<{ description: string; quantity: number; unit_price: number }>;
   }>,
 ) {
-  const updatePayload = {
-    ...payload,
-    amount: payload.amount === undefined ? undefined : payload.amount.toFixed(2),
-  };
-  const [updated] = await db<InvoiceRow>("invoices")
-    .where({ id })
-    .update(updatePayload)
-    .returning("*");
-  if (!updated) {
-    throw new AppError(404, "Invoice not found", "INVOICE_NOT_FOUND");
-  }
-  return updated;
+  return db.transaction(async (trx) => {
+    const computedAmount = computeLineItemTotal(payload.line_items);
+    const { line_items: _lineItems, amount, ...invoicePayload } = payload;
+    const updatePayload = {
+      ...invoicePayload,
+      amount:
+        computedAmount === undefined
+          ? amount === undefined
+            ? undefined
+            : amount.toFixed(2)
+          : computedAmount.toFixed(2),
+    };
+
+    const [updated] = await trx<InvoiceRow>("invoices")
+      .where({ id })
+      .update(updatePayload)
+      .returning("*");
+    if (!updated) {
+      throw new AppError(404, "Invoice not found", "INVOICE_NOT_FOUND");
+    }
+
+    if (payload.line_items) {
+      await trx<InvoiceLineItemRow>("invoice_line_items").where({ invoice_id: id }).delete();
+      if (payload.line_items.length) {
+        await trx<InvoiceLineItemRow>("invoice_line_items").insert(
+          payload.line_items.map((item) => ({
+            invoice_id: id,
+            description: item.description,
+            quantity: item.quantity,
+            unit_price: item.unit_price.toFixed(2),
+          })),
+        );
+      }
+    }
+
+    return attachLineItemsToInvoice(updated, trx);
+  });
 }
 
 export async function deleteInvoice(id: string) {
@@ -81,7 +132,7 @@ export async function findInvoiceByNumber(invoiceNo: string) {
   if (!invoice) {
     throw new AppError(404, "Invoice not found", "INVOICE_NOT_FOUND");
   }
-  return invoice;
+  return attachLineItemsToInvoice(invoice, db);
 }
 
 export async function findInvoiceById(id: string) {
@@ -89,7 +140,7 @@ export async function findInvoiceById(id: string) {
   if (!invoice) {
     throw new AppError(404, "Invoice not found", "INVOICE_NOT_FOUND");
   }
-  return invoice;
+  return attachLineItemsToInvoice(invoice, db);
 }
 
 export async function getInvoiceStatus(id: string) {
@@ -230,4 +281,32 @@ function normalizePhone(phone: string) {
     return digits;
   }
   return digits;
+}
+
+function computeLineItemTotal(
+  lineItems?: Array<{ quantity: number; unit_price: number }>,
+) {
+  if (!lineItems) {
+    return undefined;
+  }
+  return lineItems.reduce((total, item) => total + item.quantity * item.unit_price, 0);
+}
+
+async function attachLineItems(invoices: InvoiceRow[]) {
+  return Promise.all(invoices.map((invoice) => attachLineItemsToInvoice(invoice, db)));
+}
+
+async function attachLineItemsToInvoice(
+  invoice: InvoiceRow,
+  connection: Knex,
+) {
+  const lineItems = await connection<InvoiceLineItemRow>("invoice_line_items")
+    .select("*")
+    .where({ invoice_id: invoice.id })
+    .orderBy("created_at", "asc");
+
+  return {
+    ...invoice,
+    line_items: lineItems,
+  };
 }

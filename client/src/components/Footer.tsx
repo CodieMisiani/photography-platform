@@ -1,4 +1,6 @@
-﻿export default function Footer() {
+import { Link } from "react-router-dom";
+
+export default function Footer() {
   return (
     <footer className="border-t border-grey-light bg-paper py-14">
       <div className="mx-auto max-w-7xl px-6">
@@ -17,10 +19,10 @@
               Quick Links
             </p>
             <nav className="mt-5 flex flex-col gap-3 text-grey text-[0.9rem]">
-              <a href="/portfolio">Portfolio</a>
-              <a href="/request-quote">About</a>
-              <a href="/public-events">Journal</a>
-              <a href="/request-quote">Contact</a>
+              <Link to="/portfolio">Portfolio</Link>
+              <Link to="/request-quote">About</Link>
+              <Link to="/public-events">Journal</Link>
+              <Link to="/request-quote">Contact</Link>
             </nav>
           </div>
           <div className="md:col-span-4">
@@ -35,7 +37,7 @@
               />
               <button
                 type="button"
-                className="text-ink uppercase tracking-[0.25em] text-[0.75rem]"
+                className="text-ink uppercase tracking-[0.25em] text-[0.75rem] transition-colors hover:text-grey focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
               >
                 Send
               </button>
@@ -48,8 +50,8 @@
         <div className="mt-14 flex flex-col gap-4 border-t border-grey-light pt-6 text-[0.75rem] text-grey md:flex-row md:items-center md:justify-between">
           <span>(c) 2024 Elara Photography. All rights reserved.</span>
           <div className="flex flex-wrap gap-5">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/terms">Terms</Link>
           </div>
         </div>
       </div>

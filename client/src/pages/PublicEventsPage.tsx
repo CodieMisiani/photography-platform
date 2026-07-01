@@ -40,7 +40,7 @@ export default function PublicEventsPage() {
             Number(event.price) === 0
               ? "Free"
               : `Ksh ${Number(event.price).toLocaleString()}`,
-          image: "",
+          image: event.image_url ?? "",
           imageAlt: event.title,
         };
       }),
