@@ -56,6 +56,14 @@ These match `server/.env.example`.
 
 For the frontend, set `VITE_API_BASE_URL` to the backend URL.
 
+### Environment Variables - Where To Get Each One
+
+- Railway dashboard: `DATABASE_URL`, `REDIS_URL`, `PORT`.
+- Cloudinary dashboard: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
+- Safaricom Daraja developer portal: `DARAJA_CONSUMER_KEY`, `DARAJA_CONSUMER_SECRET`, `DARAJA_PASSKEY`, `DARAJA_SHORTCODE`, `DARAJA_CALLBACK_URL`.
+- Self-generated: `SESSION_SECRET` as a long random string, `SESSION_COOKIE_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
+- Vercel project settings: `VITE_API_BASE_URL`, set to the Railway backend URL.
+
 ### Local Setup
 
 1. Install frontend dependencies:

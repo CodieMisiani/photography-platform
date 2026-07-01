@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import Button from "./ui/Button";
 
 const navItems = [
@@ -11,8 +11,24 @@ const navItems = [
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const previousPathRef = useRef(location.pathname);
+
+  useEffect(() => {
+    if (previousPathRef.current === location.pathname) {
+      return;
+    }
+
+    previousPathRef.current = location.pathname;
+    if (!isOpen) {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => setIsOpen(false));
+    return () => window.cancelAnimationFrame(frame);
+  }, [isOpen, location.pathname]);
 
   useEffect(() => {
     if (!isOpen) {
