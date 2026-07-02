@@ -6,6 +6,7 @@ services:
     plan: free
     region: oregon
     buildCommand: npm install && npm run build
+    preDeployCommand: npm run seed:admin
     startCommand: npm start
     healthCheckPath: /health
     autoDeploy: true
