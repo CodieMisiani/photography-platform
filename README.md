@@ -88,10 +88,15 @@ cd server && npm run dev
 
 The backend is intended to be deployed on Railway with:
 
-- PostgreSQL service
-- Redis service
+- PostgreSQL service (for example from Neon)
+- Redis service (for example from Upstash)
 - production environment variables
 - admin credentials set through environment variables
+
+Example providers used for this project:
+
+- PostgreSQL: https://console.neon.tech/app/org-orange-unit-01460549/welcome?step=done
+- Redis: https://console.upstash.com/redis
 
 ### Frontend
 
@@ -107,6 +112,8 @@ The default admin login is:
 
 - Email: nimrodmisiani42@gmail.com
 - Password: PhotoStudio@Admin
+
+If the login does not work in production, the most common reason is that the backend was deployed before the new password was saved to the environment variables, or the admin user was not reseeded after the change.
 
 For security, rotate the admin password in production environment variables and reseed the admin account when handing the project over.
 
