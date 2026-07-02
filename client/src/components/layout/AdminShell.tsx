@@ -9,6 +9,7 @@ const adminLinks = [
   { label: "Bookings", to: "/admin/bookings" },
   { label: "Quotes", to: "/admin/quotes" },
   { label: "Public Events", to: "/admin/public-events" },
+  { label: "Settings", to: "/admin/settings" },
 ];
 
 export default function AdminShell({

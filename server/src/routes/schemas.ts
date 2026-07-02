@@ -104,3 +104,19 @@ export const publicEventCreateSchema = z.object({
 });
 
 export const publicEventPatchSchema = publicEventCreateSchema.partial();
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z
+    .string()
+    .min(10)
+    .regex(/(?=.*[a-z])/, "must contain lowercase")
+    .regex(/(?=.*[A-Z])/, "must contain uppercase")
+    .regex(/(?=.*\\d)/, "must contain number")
+    .regex(/(?=.*[^A-Za-z0-9])/, "must contain special char"),
+});
+
+export const changeEmailSchema = z.object({
+  currentPassword: z.string().min(1),
+  newEmail: z.string().email(),
+});
