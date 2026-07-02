@@ -67,7 +67,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 border-b border-grey-light bg-paper">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <NavLink to="/" className="font-display text-[1rem] uppercase tracking-[0.35em]">
-          Elara Studio
+          Malume
         </NavLink>
 
         <nav className="hidden gap-8 md:flex" aria-label="Primary navigation">
