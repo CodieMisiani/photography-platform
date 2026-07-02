@@ -8,13 +8,17 @@ const PortfolioPage = lazy(() => import("../pages/PortfolioPage"));
 const PublicEventsPage = lazy(() => import("../pages/PublicEventsPage"));
 const RequestQuotePage = lazy(() => import("../pages/RequestQuotePage"));
 const BookPage = lazy(() => import("../pages/BookPage"));
-const InvoiceManagementPage = lazy(() => import("../pages/InvoiceManagementPage"));
+const InvoiceManagementPage = lazy(
+  () => import("../pages/InvoiceManagementPage"),
+);
 const PayInvoicePage = lazy(() => import("../pages/PayInvoicePage"));
 const PortfolioCmsPage = lazy(() => import("../pages/PortfolioCmsPage"));
 const AdminLoginPage = lazy(() => import("../pages/AdminLoginPage"));
 const AdminBookingsPage = lazy(() => import("../pages/AdminBookingsPage"));
 const AdminQuotesPage = lazy(() => import("../pages/AdminQuotesPage"));
-const AdminPublicEventsPage = lazy(() => import("../pages/AdminPublicEventsPage"));
+const AdminPublicEventsPage = lazy(
+  () => import("../pages/AdminPublicEventsPage"),
+);
 const AdminSettingsPage = lazy(() => import("../pages/AdminSettingsPage"));
 const PolicyPage = lazy(() => import("../pages/PolicyPage"));
 
@@ -37,7 +41,10 @@ export default function AppRoutes() {
             <Route path="/admin/portfolio-cms" element={<PortfolioCmsPage />} />
             <Route path="/admin/bookings" element={<AdminBookingsPage />} />
             <Route path="/admin/quotes" element={<AdminQuotesPage />} />
-            <Route path="/admin/public-events" element={<AdminPublicEventsPage />} />
+            <Route
+              path="/admin/public-events"
+              element={<AdminPublicEventsPage />}
+            />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
           </Route>
           <Route path="*" element={<HomePage />} />

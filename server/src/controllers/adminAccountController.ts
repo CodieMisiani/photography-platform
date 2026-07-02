@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { db } from "../db/knex.js";
+import { env } from "../config/env.js";
 import { AppError } from "../utils/AppError.js";
 import { destroySession } from "../services/sessionService.js";
 
@@ -14,7 +15,7 @@ export async function changePassword(req: Request, res: Response) {
     throw new AppError(401, "Admin session required", "AUTH_REQUIRED");
 
   const admin = await db<{ id: string; password_hash: string }>("admin_users")
-    .where({ email: adminEmail })
+    .where("email", adminEmail)
     .first();
   if (!admin) throw new AppError(404, "Admin account not found", "NOT_FOUND");
 
@@ -42,7 +43,7 @@ export async function changeEmail(req: Request, res: Response) {
   const admin = await db<{ id: string; email: string; password_hash: string }>(
     "admin_users",
   )
-    .where({ email: adminEmail })
+    .where("email", adminEmail)
     .first();
   if (!admin) throw new AppError(404, "Admin account not found", "NOT_FOUND");
 
@@ -59,9 +60,9 @@ export async function changeEmail(req: Request, res: Response) {
     .update({ email: newEmail.toLowerCase(), updated_at: db.fn.now() });
 
   // Invalidate current session
-  const sessionId = req.cookies?.[
-    process.env.SESSION_COOKIE_NAME || "studio_admin_session"
-  ] as string | undefined;
+  const sessionId = req.cookies?.[env.SESSION_COOKIE_NAME] as
+    | string
+    | undefined;
   if (sessionId) {
     try {
       await destroySession(sessionId);
