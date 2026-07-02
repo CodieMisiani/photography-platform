@@ -86,7 +86,7 @@ cd server && npm run dev
 
 ### Backend
 
-The backend is intended to be deployed on Railway with:
+The backend is intended to be deployed on Render with:
 
 - PostgreSQL service (for example from Neon)
 - Redis service (for example from Upstash)
@@ -103,7 +103,7 @@ Example providers used for this project:
 The frontend is intended to be deployed on Vercel with:
 
 ```env
-VITE_API_BASE_URL=https://your-backend-url.railway.app
+VITE_API_BASE_URL=https://your-backend-url.onrender.com
 ```
 
 ## Admin Access
@@ -127,7 +127,7 @@ These services are wired through environment variables and can be enabled once c
 ## Handoff Notes for the Next Developer
 
 - Keep secrets in environment variables and deployment dashboard secrets, not in source control.
-- Use Railway for backend hosting and Vercel for frontend hosting.
+- Use Render for backend hosting and Vercel for frontend hosting.
 - Test the admin login flow after every environment change.
 - Reseed the admin account if credentials change:
 
