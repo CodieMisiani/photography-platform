@@ -1,4 +1,5 @@
 require("dotenv").config();
+require("tsx/cjs");
 
 const connection =
   process.env.DATABASE_URL ||
