@@ -66,8 +66,11 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-grey-light bg-paper">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <NavLink to="/" className="font-display text-[1rem] uppercase tracking-[0.35em]">
-          Elara Studio
+        <NavLink
+          to="/"
+          className="font-display text-[1rem] uppercase tracking-[0.35em]"
+        >
+          Malume
         </NavLink>
 
         <nav className="hidden gap-8 md:flex" aria-label="Primary navigation">
@@ -93,9 +96,15 @@ export default function Header() {
         >
           <span className="sr-only">{isOpen ? "Close menu" : "Open menu"}</span>
           <span className="flex flex-col gap-1" aria-hidden="true">
-            <span className={`h-px w-5 bg-current transition-transform ${isOpen ? "translate-y-1 rotate-45" : ""}`} />
-            <span className={`h-px w-5 bg-current transition-opacity ${isOpen ? "opacity-0" : ""}`} />
-            <span className={`h-px w-5 bg-current transition-transform ${isOpen ? "-translate-y-1 -rotate-45" : ""}`} />
+            <span
+              className={`h-px w-5 bg-current transition-transform ${isOpen ? "translate-y-1 rotate-45" : ""}`}
+            />
+            <span
+              className={`h-px w-5 bg-current transition-opacity ${isOpen ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`h-px w-5 bg-current transition-transform ${isOpen ? "-translate-y-1 -rotate-45" : ""}`}
+            />
           </span>
         </button>
       </div>
@@ -104,10 +113,15 @@ export default function Header() {
         id="mobile-menu"
         ref={menuRef}
         className={`border-t border-grey-light bg-paper px-6 transition-[max-height,opacity] duration-300 md:hidden ${
-          isOpen ? "max-h-screen opacity-100" : "max-h-0 overflow-hidden opacity-0"
+          isOpen
+            ? "max-h-screen opacity-100"
+            : "max-h-0 overflow-hidden opacity-0"
         }`}
       >
-        <nav className="flex flex-col gap-5 py-8" aria-label="Mobile navigation">
+        <nav
+          className="flex flex-col gap-5 py-8"
+          aria-label="Mobile navigation"
+        >
           {navItems.map((item) => (
             <HeaderLink key={item.to} item={item} />
           ))}

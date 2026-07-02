@@ -8,8 +8,8 @@ export const publicEvents: PublicEvent[] = [
     category: "Workshop",
     title: "Mastering Analogue: The Lightroom Session",
     description:
-      "Join Alexander Elara for an intensive deep dive into medium format film techniques and lighting mastery in our London studio.",
-    location: "Elara Main Studio, London",
+      "Join Malume Photography for an intensive deep dive into medium format film techniques and lighting mastery in our London studio.",
+    location: "Malume Main Studio, London",
     price: "$250.00",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuAn4z296YtB4ha_P5LEGQ8a0tKlcyUiYk7_8WqFEUHE4bBCelZNnYr8JMvnw_Z891OkeXxh8u0Be8fqCoNDJwXc5w2wx266uPB0mJpQSIGvDRBlHUnHydDNJYVeIkcplclKg1IB590TmVmGLzK8gxXff-iYGWtcy6dY89Ek7WmS-MaFnU3O-x3Z9hbbuHL2fD-8GAz5O1MFbYnnZUP5IZPiPvRX5A3p2AaDQ4a3KpGZ5fLCiRWXIVQUe6UY4VsOoKFN92_F2XILOkU",
@@ -37,7 +37,7 @@ export const publicEvents: PublicEvent[] = [
     title: "The Business of Light",
     description:
       "An evening lecture on balancing artistic vision with commercial viability in the high-end photography market.",
-    location: "Elara Studio",
+    location: "Malume Studio",
     price: "$45.00",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuDDJVt6bB6_6ZViUhzHvTuajsI7bg0soS_56IcZqcnWz9_FvXKWkh_3ItYvOgWhpvGhoDH-drKPf5BIBzNEKLVssZpIFMFBMnKwvhjWRND2pI3pZ8GbspkzORLJGNl__LguiRHcLRwliiy8pARFK53fQyBDLjfPU_9aezNRlvfZ1UMpQVEJ9KkNq1eB07TFCGI5FB-4tJ5aar_EZOUt1-3b6B6xpkVZ_ZVCw9FHgSCQ4PLoUhGutwbtr3h4QvJWBZ6vjcnBioxR1gw",

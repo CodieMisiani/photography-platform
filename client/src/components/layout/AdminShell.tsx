@@ -11,7 +11,11 @@ const adminLinks = [
   { label: "Public Events", to: "/admin/public-events" },
 ];
 
-export default function AdminShell({ children }: { children: React.ReactNode }) {
+export default function AdminShell({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const logoutMutation = useMutation({
@@ -27,15 +31,13 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-grey-light bg-paper p-6 md:flex">
         <div className="mb-10">
           <p className="font-display text-3xl font-semibold uppercase tracking-[-0.04em]">
-            Elara
+            Malume
           </p>
           <div className="mt-8 border-t border-grey-light pt-6">
             <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey">
               Admin
             </p>
-            <p className="mt-1 text-sm font-semibold uppercase">
-              Alexander Elara
-            </p>
+            <p className="mt-1 text-sm font-semibold uppercase">Malume</p>
           </div>
         </div>
         <nav className="flex flex-col border-t border-grey-light pt-4">
@@ -67,7 +69,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-grey-light bg-paper px-6 py-4 md:hidden">
         <span className="font-display text-2xl font-semibold uppercase">
-          Elara
+          Malume
         </span>
         <button
           type="button"
