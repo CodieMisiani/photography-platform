@@ -48,7 +48,10 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-14 flex flex-col gap-4 border-t border-grey-light pt-6 text-[0.75rem] text-grey md:flex-row md:items-center md:justify-between">
-          <span>© {new Date().getFullYear()} Malume Photography. All rights reserved.</span>
+          <span>
+            © {new Date().getFullYear()} Malume Photography. All rights
+            reserved.
+          </span>
           <div className="flex flex-wrap gap-5">
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>

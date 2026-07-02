@@ -11,7 +11,11 @@ const adminLinks = [
   { label: "Public Events", to: "/admin/public-events" },
 ];
 
-export default function AdminShell({ children }: { children: React.ReactNode }) {
+export default function AdminShell({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const logoutMutation = useMutation({
@@ -33,9 +37,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey">
               Admin
             </p>
-            <p className="mt-1 text-sm font-semibold uppercase">
-              Malume
-            </p>
+            <p className="mt-1 text-sm font-semibold uppercase">Malume</p>
           </div>
         </div>
         <nav className="flex flex-col border-t border-grey-light pt-4">
