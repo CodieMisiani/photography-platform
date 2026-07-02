@@ -3,7 +3,12 @@ import { ZodError } from "zod";
 import { env } from "../config/env.js";
 import { AppError } from "../utils/AppError.js";
 
-export const notFoundHandler: ErrorRequestHandler = (error, _req, res, _next) => {
+export const notFoundHandler: ErrorRequestHandler = (
+  error,
+  _req,
+  res,
+  _next,
+) => {
   if (error instanceof AppError) {
     res.status(error.statusCode).json({
       error: {
@@ -25,15 +30,12 @@ export const notFoundHandler: ErrorRequestHandler = (error, _req, res, _next) =>
     return;
   }
 
+  const isError = error instanceof Error;
   res.status(500).json({
     error: {
       code: "INTERNAL_SERVER_ERROR",
-      message:
-        env.NODE_ENV === "production"
-          ? "Something went wrong"
-          : error instanceof Error
-            ? error.message
-            : "Something went wrong",
+      message: isError ? error.message : "Something went wrong",
+      stack: isError ? error.stack : undefined,
     },
   });
 };

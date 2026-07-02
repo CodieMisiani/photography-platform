@@ -16,9 +16,15 @@ const sessionCookieOptions = {
 };
 
 export async function login(req: Request, res: Response) {
+  console.log("[authController] login start", { body: req.body });
   const admin = await verifyAdminCredentials(req.body.email, req.body.password);
+  console.log("[authController] verified admin", { admin });
   const sessionId = await createSession(admin.email);
+  console.log("[authController] session created", { sessionId });
   res.cookie(env.SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
+  console.log("[authController] cookie set", {
+    cookieName: env.SESSION_COOKIE_NAME,
+  });
   res.status(200).json({ admin });
 }
 

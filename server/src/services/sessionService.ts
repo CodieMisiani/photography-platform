@@ -12,11 +12,17 @@ export async function createSession(email: string): Promise<string> {
     createdAt: new Date().toISOString(),
   };
 
-  await redis.set(keyFor(sessionId), JSON.stringify(payload), "EX", SESSION_TTL_SECONDS);
+  console.log("[sessionService] createSession", { sessionId, email });
+  const payloadString = JSON.stringify(payload);
+  console.log("[sessionService] payloadString", { payloadString });
+  await redis.set(keyFor(sessionId), payloadString, "EX", SESSION_TTL_SECONDS);
+  console.log("[sessionService] redis.set succeeded", { sessionId });
   return sessionId;
 }
 
-export async function getSession(sessionId: string): Promise<AdminSession | null> {
+export async function getSession(
+  sessionId: string,
+): Promise<AdminSession | null> {
   const stored = await redis.get(keyFor(sessionId));
   if (!stored) {
     return null;
