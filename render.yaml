@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: photography-platform-backend
+    env: node
+    rootDirectory: server
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true

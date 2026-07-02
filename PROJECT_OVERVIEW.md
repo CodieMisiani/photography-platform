@@ -36,8 +36,8 @@ These match `server/.env.example`.
 - `NODE_ENV`: `development`, `test`, or `production`.
 - `PORT`: Backend port, usually `4000` locally.
 - `CLIENT_ORIGIN`: Frontend URL allowed by CORS, for example Vercel production URL.
-- `DATABASE_URL`: PostgreSQL connection string from Railway.
-- `REDIS_URL`: Redis connection string from Railway Redis or Upstash.
+- `DATABASE_URL`: PostgreSQL connection string from Neon.
+- `REDIS_URL`: Redis connection string from Upstash.
 - `SESSION_COOKIE_NAME`: Admin session cookie name.
 - `SESSION_SECRET`: Long random secret for signed cookies.
 - `COOKIE_SECURE`: `true` in production HTTPS, `false` locally.
@@ -58,47 +58,53 @@ For the frontend, set `VITE_API_BASE_URL` to the backend URL.
 
 ### Environment Variables - Where To Get Each One
 
-- Railway dashboard: `DATABASE_URL`, `REDIS_URL`, `PORT`.
+- Render dashboard: `DATABASE_URL`, `REDIS_URL`, `PORT`.
 - Cloudinary dashboard: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 - Safaricom Daraja developer portal: `DARAJA_CONSUMER_KEY`, `DARAJA_CONSUMER_SECRET`, `DARAJA_PASSKEY`, `DARAJA_SHORTCODE`, `DARAJA_CALLBACK_URL`.
 - Self-generated: `SESSION_SECRET` as a long random string, `SESSION_COOKIE_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
-- Vercel project settings: `VITE_API_BASE_URL`, set to the Railway backend URL.
+- Vercel project settings: `VITE_API_BASE_URL`, set to the Render backend URL.
 
 ### Local Setup
 
 1. Install frontend dependencies:
+
    ```bash
    cd client
    npm install
    ```
 
 2. Install backend dependencies:
+
    ```bash
    cd server
    npm install
    ```
 
-3. Create `server/.env` from `server/.env.example` and fill real local or Railway/Postgres/Redis values.
+3. Create `server/.env` from `server/.env.example` and fill real local or production PostgreSQL/Redis values.
 
 4. Run migrations:
+
    ```bash
    cd server
    npm run migrate
    ```
 
 5. Seed the admin user:
+
    ```bash
    cd server
    npm run seed:admin
    ```
 
 6. Start backend:
+
    ```bash
    cd server
    npm run dev
    ```
 
 7. Start frontend:
+
    ```bash
    cd client
    npm run dev
@@ -136,19 +142,19 @@ Full Jest/React Testing Library/Supertest test suites are still not built.
 Planned deployment:
 
 - Frontend: Vercel.
-- Backend API: Railway.
-- PostgreSQL: Railway managed Postgres.
-- Redis: Upstash or Railway Redis.
+- Backend API: Render.
+- PostgreSQL: Neon.
+- Redis: Upstash.
 - Media: Cloudinary.
 - Payments: Safaricom Daraja.
 
 To deploy:
 
-1. Create Railway backend service from `server`.
-2. Add Railway Postgres and Redis/Upstash URLs to backend env vars.
+1. Create a Render backend service from `server`.
+2. Add Neon Postgres and Upstash Redis URLs to backend env vars.
 3. Run `npm run migrate` and `npm run seed:admin` against production.
 4. Deploy frontend from `client` to Vercel.
-5. Set `VITE_API_BASE_URL` in Vercel to the Railway backend URL.
+5. Set `VITE_API_BASE_URL` in Vercel to the Render backend URL.
 6. Set Daraja callback URL to `https://your-api-domain/webhooks/daraja`.
 7. Confirm `/health` returns Postgres and Redis as healthy.
 8. Test admin login, booking creation, quote submission, invoice creation, and M-Pesa sandbox payment.
@@ -156,7 +162,7 @@ To deploy:
 Rollback:
 
 - Vercel: promote a previous deployment.
-- Railway: redeploy a previous successful build.
+- Render: redeploy a previous successful build.
 - Database: use backups/snapshots before running destructive migrations.
 
 ### What's Finished
@@ -189,7 +195,7 @@ Rollback:
 
 ### What's Not Yet Built
 
-- Real Railway, Upstash, Vercel, Cloudinary, and Daraja provisioning was not completed from this workspace because account credentials and production domains are not available here.
+- Real Render, Upstash, Vercel, Cloudinary, and Daraja provisioning was not completed from this workspace because account credentials and production domains are not available here.
 - Daraja sandbox was not verified end-to-end with a real phone prompt and public webhook URL.
 - Full automated Jest/React Testing Library/Supertest suites are not implemented yet.
 

@@ -4,15 +4,17 @@ const connection =
   process.env.DATABASE_URL ||
   "postgres://postgres:postgres@localhost:5432/photography_platform";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 module.exports = {
   client: "pg",
   connection,
   migrations: {
-    directory: "./src/db/migrations",
-    extension: "ts"
+    directory: isProduction ? "./dist/db/migrations" : "./src/db/migrations",
+    extension: isProduction ? "js" : "ts",
   },
   pool: {
     min: 0,
-    max: 10
-  }
+    max: 10,
+  },
 };
