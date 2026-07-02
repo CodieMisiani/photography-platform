@@ -15,6 +15,7 @@ const AdminLoginPage = lazy(() => import("../pages/AdminLoginPage"));
 const AdminBookingsPage = lazy(() => import("../pages/AdminBookingsPage"));
 const AdminQuotesPage = lazy(() => import("../pages/AdminQuotesPage"));
 const AdminPublicEventsPage = lazy(() => import("../pages/AdminPublicEventsPage"));
+const AdminSettingsPage = lazy(() => import("../pages/AdminSettingsPage"));
 const PolicyPage = lazy(() => import("../pages/PolicyPage"));
 
 export default function AppRoutes() {
@@ -37,6 +38,7 @@ export default function AppRoutes() {
             <Route path="/admin/bookings" element={<AdminBookingsPage />} />
             <Route path="/admin/quotes" element={<AdminQuotesPage />} />
             <Route path="/admin/public-events" element={<AdminPublicEventsPage />} />
+            <Route path="/admin/settings" element={<AdminSettingsPage />} />
           </Route>
           <Route path="*" element={<HomePage />} />
         </Routes>

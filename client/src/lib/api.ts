@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000";
 
 export type ApiPortfolioEvent = {
   id: string;
@@ -82,18 +83,17 @@ export class ApiError extends Error {
   public readonly status: number;
   public readonly code: string;
 
-  constructor(
-    message: string,
-    status: number,
-    code = "API_ERROR",
-  ) {
+  constructor(message: string, status: number, code = "API_ERROR") {
     super(message);
     this.status = status;
     this.code = code;
   }
 }
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+async function request<T>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
   const headers = new Headers(options.headers);
   const body = prepareBody(options.body, headers);
 
@@ -105,9 +105,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   });
 
   if (!response.ok) {
-    const payload = (await response.json().catch(() => null)) as
-      | { error?: { message?: string; code?: string } }
-      | null;
+    const payload = (await response.json().catch(() => null)) as {
+      error?: { message?: string; code?: string };
+    } | null;
     throw new ApiError(
       payload?.error?.message ?? "Request failed",
       response.status,
@@ -142,6 +142,19 @@ export const api = {
       }),
     logout: () => request<void>("/auth/logout", { method: "POST" }),
     me: () => request<{ admin: AdminUser | null }>("/auth/me"),
+    changePassword: (payload: {
+      currentPassword: string;
+      newPassword: string;
+    }) =>
+      request<{ ok: true }>("/admin/account/password", {
+        method: "PATCH",
+        body: payload,
+      }),
+    changeEmail: (payload: { currentPassword: string; newEmail: string }) =>
+      request<{ ok: true; reLoginRequired?: boolean }>("/admin/account/email", {
+        method: "PATCH",
+        body: payload,
+      }),
   },
   portfolio: {
     list: () => request<{ events: ApiPortfolioEvent[] }>("/portfolio"),
@@ -150,12 +163,16 @@ export const api = {
         method: "POST",
         body: payload,
       }),
-    update: (id: string, payload: Partial<Omit<ApiPortfolioEvent, "id" | "created_at">>) =>
+    update: (
+      id: string,
+      payload: Partial<Omit<ApiPortfolioEvent, "id" | "created_at">>,
+    ) =>
       request<{ event: ApiPortfolioEvent }>(`/portfolio/${id}`, {
         method: "PATCH",
         body: payload,
       }),
-    delete: (id: string) => request<void>(`/portfolio/${id}`, { method: "DELETE" }),
+    delete: (id: string) =>
+      request<void>(`/portfolio/${id}`, { method: "DELETE" }),
     upload: (file: File) => {
       const body = new FormData();
       body.append("image", file);
@@ -172,7 +189,11 @@ export const api = {
       if (to) params.set("to", to);
       const suffix = params.toString() ? `?${params.toString()}` : "";
       return request<{
-        unavailable_dates: Array<{ date: string; reason: string; source: string }>;
+        unavailable_dates: Array<{
+          date: string;
+          reason: string;
+          source: string;
+        }>;
       }>(`/calendar/availability${suffix}`);
     },
     create: (payload: BookingPayload) =>
@@ -182,9 +203,9 @@ export const api = {
       }),
     listAdmin: () => request<{ bookings: ApiBooking[] }>("/admin/bookings"),
     listBlocks: () =>
-      request<{ blocks: Array<{ id: string; blocked_date: string; reason: string }> }>(
-        "/admin/calendar-blocks",
-      ),
+      request<{
+        blocks: Array<{ id: string; blocked_date: string; reason: string }>;
+      }>("/admin/calendar-blocks"),
     updateStatus: (id: string, status: ApiBooking["status"]) =>
       request<{ booking: ApiBooking }>(`/admin/bookings/${id}/status`, {
         method: "PATCH",
@@ -195,7 +216,11 @@ export const api = {
         method: "PATCH",
         body: payload,
       }),
-    blockDate: (payload: { blocked_date: string; reason: string; booking_id?: string | null }) =>
+    blockDate: (payload: {
+      blocked_date: string;
+      reason: string;
+      booking_id?: string | null;
+    }) =>
       request<{ block: { id: string; blocked_date: string; reason: string } }>(
         "/admin/calendar-blocks",
         {
@@ -203,7 +228,8 @@ export const api = {
           body: payload,
         },
       ),
-    unblockDate: (id: string) => request<void>(`/admin/calendar-blocks/${id}`, { method: "DELETE" }),
+    unblockDate: (id: string) =>
+      request<void>(`/admin/calendar-blocks/${id}`, { method: "DELETE" }),
   },
   quotes: {
     create: (payload: QuoteRequestPayload) =>
@@ -217,7 +243,10 @@ export const api = {
         method: "PATCH",
         body: { status },
       }),
-    update: (id: string, payload: Partial<Pick<ApiQuoteRequest, "status" | "notes">>) =>
+    update: (
+      id: string,
+      payload: Partial<Pick<ApiQuoteRequest, "status" | "notes">>,
+    ) =>
       request<{ quote: ApiQuoteRequest }>(`/admin/quotes/${id}`, {
         method: "PATCH",
         body: payload,
@@ -225,35 +254,67 @@ export const api = {
   },
   invoices: {
     list: () => request<{ invoices: ApiInvoice[] }>("/admin/invoices"),
-    create: (payload: { invoice_no?: string; client_name: string; phone: string; amount?: number; line_items?: Array<{ description: string; quantity: number; unit_price: number }> }) =>
+    create: (payload: {
+      invoice_no?: string;
+      client_name: string;
+      phone: string;
+      amount?: number;
+      line_items?: Array<{
+        description: string;
+        quantity: number;
+        unit_price: number;
+      }>;
+    }) =>
       request<{ invoice: ApiInvoice }>("/admin/invoices", {
         method: "POST",
         body: payload,
       }),
-    update: (id: string, payload: Partial<{ client_name: string; phone: string; amount: number; status: ApiInvoice["status"]; mpesa_ref: string | null; line_items: Array<{ description: string; quantity: number; unit_price: number }> }>) =>
+    update: (
+      id: string,
+      payload: Partial<{
+        client_name: string;
+        phone: string;
+        amount: number;
+        status: ApiInvoice["status"];
+        mpesa_ref: string | null;
+        line_items: Array<{
+          description: string;
+          quantity: number;
+          unit_price: number;
+        }>;
+      }>,
+    ) =>
       request<{ invoice: ApiInvoice }>(`/admin/invoices/${id}`, {
         method: "PATCH",
         body: payload,
       }),
-    delete: (id: string) => request<void>(`/admin/invoices/${id}`, { method: "DELETE" }),
+    delete: (id: string) =>
+      request<void>(`/admin/invoices/${id}`, { method: "DELETE" }),
     lookup: (invoiceNo: string) =>
-      request<{ invoice: ApiInvoice }>(`/invoices/${encodeURIComponent(invoiceNo)}`),
+      request<{ invoice: ApiInvoice }>(
+        `/invoices/${encodeURIComponent(invoiceNo)}`,
+      ),
     pay: (id: string, phone: string) =>
-      request<{ invoice_id: string; checkout_request_id: string | null; status: string }>(
-        `/invoices/${id}/pay`,
-        {
-          method: "POST",
-          body: { phone },
-        },
-      ),
+      request<{
+        invoice_id: string;
+        checkout_request_id: string | null;
+        status: string;
+      }>(`/invoices/${id}/pay`, {
+        method: "POST",
+        body: { phone },
+      }),
     status: (id: string) =>
-      request<Pick<ApiInvoice, "id" | "invoice_no" | "status" | "mpesa_ref" | "paid_at">>(
-        `/invoices/${id}/status`,
-      ),
+      request<
+        Pick<
+          ApiInvoice,
+          "id" | "invoice_no" | "status" | "mpesa_ref" | "paid_at"
+        >
+      >(`/invoices/${id}/status`),
   },
   publicEvents: {
     list: () => request<{ events: ApiPublicEvent[] }>("/events"),
-    listAdmin: () => request<{ events: ApiPublicEvent[] }>("/admin/public-events"),
+    listAdmin: () =>
+      request<{ events: ApiPublicEvent[] }>("/admin/public-events"),
     create: (payload: Omit<ApiPublicEvent, "id">) =>
       request<{ event: ApiPublicEvent }>("/admin/public-events", {
         method: "POST",
@@ -264,6 +325,7 @@ export const api = {
         method: "PATCH",
         body: payload,
       }),
-    delete: (id: string) => request<void>(`/admin/public-events/${id}`, { method: "DELETE" }),
+    delete: (id: string) =>
+      request<void>(`/admin/public-events/${id}`, { method: "DELETE" }),
   },
 };
