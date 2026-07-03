@@ -23,7 +23,7 @@ const envSchema = z.object({
     .string()
     .optional()
     .transform((value) => value === "true"),
-  ADMIN_EMAIL: z.string().email().default("admin@example.com"),
+  ADMIN_EMAIL: z.string().email().default("admin@malumephotography.com"),
   ADMIN_PASSWORD: z.string().min(8).optional().default(""),
   ADMIN_PASSWORD_HASH: z.string().optional().default(""),
   CLOUDINARY_CLOUD_NAME: z.string().optional().default(""),
