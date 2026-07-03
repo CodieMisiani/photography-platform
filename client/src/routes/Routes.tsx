@@ -21,6 +21,7 @@ const AdminPublicEventsPage = lazy(
 );
 const AdminSettingsPage = lazy(() => import("../pages/AdminSettingsPage"));
 const PolicyPage = lazy(() => import("../pages/PolicyPage"));
+const AdminStatsPage = lazy(() => import("../pages/AdminStatsPage"));
 
 export default function AppRoutes() {
   return (
@@ -45,9 +46,8 @@ export default function AppRoutes() {
               path="/admin/public-events"
               element={<AdminPublicEventsPage />}
             />
-             <Route path="/admin/settings" element={<AdminSettingsPage />} />
-             <Route path="/admin/stats" element={<AdminStatsPage />} />
-          const AdminStatsPage = lazy(() => import("../pages/AdminStatsPage"));
+            <Route path="/admin/settings" element={<AdminSettingsPage />} />
+            <Route path="/admin/stats" element={<AdminStatsPage />} />
           </Route>
           <Route path="*" element={<HomePage />} />
         </Routes>
