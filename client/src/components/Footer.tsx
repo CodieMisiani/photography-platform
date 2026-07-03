@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { SITE_CONFIG } from "../config/site";
 
 export default function Footer() {
   return (
