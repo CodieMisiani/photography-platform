@@ -1,156 +1,88 @@
-# 📸 Photography Business Platform
+# Malume Photography Platform
 
-A modern photography business platform for event photographers with portfolio, booking, quote requests, admin CMS, invoices, and Daraja payments.
+A production-ready photography business platform with portfolio management, bookings, quote requests, invoices, M-Pesa Daraja payments, Cloudinary uploads, and a secure admin dashboard.
 
 ## Features
 
-- Portfolio showcase
-- Booking and availability management
-- Quote request handling
-- Admin CMS for portfolio and content
-- Invoice generation and payment flow
-- M-Pesa Daraja STK Push payments
-
-## Tech Stack
-
-### Frontend
-
-- React + TypeScript
-- Vite
-- Tailwind CSS
-- React Router
-- TanStack Query
-- Accessibility: keyboard navigation, focus management, skip links
-
-### Backend
-
-- Node.js
-- Express.js
-- TypeScript
-- Knex.js
-- PostgreSQL
-- Redis
+- Editorial portfolio and public events pages
+- Book Me calendar flow and separate Request a Quote flow
+- Admin dashboard for bookings, quotes, invoices, portfolio, stats, public events, settings, and newsletter subscribers
+- Redis-backed admin sessions
+- PostgreSQL migrations through Knex
+- Cloudinary media upload path
+- Daraja STK Push invoice payment flow
+- Kenya localization for KSh, +254 phone numbers, and DD/MM/YYYY dates
 
 ## Project Structure
 
-- client/: Vite frontend
-- server/: Express backend
-- docs/: project notes and references
+- `client/` - React + Vite + TypeScript + Tailwind frontend
+- `server/` - Node.js + Express + TypeScript backend
+- `docs/` - setup guides and handoff reports
+- `.github/workflows/` - CI checks
 
 ## Local Development
 
-### 1. Install dependencies
+1. Install dependencies:
+
+   ```bash
+   cd client
+   npm install
+   cd ../server
+   npm install
+   ```
+
+2. Start local PostgreSQL and Redis.
+
+3. Create `server/.env` from `server/.env.example` and fill real local values.
+
+   Admin credentials are set securely via the seed script against your live database. See `server/.env.example` for the variable names. Never commit real values.
+
+4. Run migrations and seed the admin:
+
+   ```bash
+   cd server
+   npm run migrate
+   npm run seed:admin
+   ```
+
+5. Start both apps:
+
+   ```bash
+   cd server
+   npm run dev
+   ```
+
+   ```bash
+   cd client
+   npm run dev
+   ```
+
+## Verification Commands
 
 ```bash
-cd client && npm install
-cd ../server && npm install
+cd client
+npm run lint
+npm run build
 ```
-
-### 2. Start local services
-
-- PostgreSQL
-- Redis
-
-### 3. Configure environment variables
-
-Create or update the backend environment file:
-
-```env
-NODE_ENV=development
-PORT=4000
-CLIENT_ORIGIN=http://localhost:5173
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/photography_platform
-REDIS_URL=redis://localhost:6379
-SESSION_COOKIE_NAME=studio_admin_session
-SESSION_SECRET=development-session-secret-change-me
-COOKIE_SECURE=false
-ADMIN_EMAIL=nimrodmisiani42@gmail.com
-ADMIN_PASSWORD=PhotoStudio@Admin
-```
-
-### 4. Run database migrations and seed admin
-
-```bash
-cd server
-npm run migrate
-npm run seed:admin
-```
-
-### 5. Start the app
-
-```bash
-cd client && npm run dev
-cd server && npm run dev
-```
-
-## Production Deployment Notes
-
-### Backend
-
-The backend is intended to be deployed on Render with:
-
-- PostgreSQL service (for example from Neon)
-- Redis service (for example from Upstash)
-- production environment variables
-- admin credentials set through environment variables
-
-Example providers used for this project:
-
-- PostgreSQL: https://console.neon.tech/app/org-orange-unit-01460549/welcome?step=done
-- Redis: https://console.upstash.com/redis
-
-### Frontend
-
-The frontend is intended to be deployed on Vercel with:
-
-```env
-VITE_API_BASE_URL=https://your-backend-url.onrender.com
-```
-
-### Accessibility
-
-- The site includes improved keyboard navigation and focus-visible styles.
-- Mobile navigation locks body scroll when open and supports touch outside-close.
-- A skip-link is included for keyboard users to jump to main content.
-
-## Admin Access
-
-The default admin login is:
-
-- Email: nimrodmisiani42@gmail.com
-- Password: PhotoStudio@Admin
-
-If the login does not work in production, the most common reason is that the backend was deployed before the new password was saved to the environment variables, or the admin user was not reseeded after the change.
-
-For security, rotate the admin password in production environment variables and reseed the admin account when handing the project over.
-
-## Cloudinary and Daraja
-
-These services are wired through environment variables and can be enabled once credentials are available.
-
-- Cloudinary: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
-- Daraja: DARAJA_CONSUMER_KEY, DARAJA_CONSUMER_SECRET, DARAJA_PASSKEY, DARAJA_SHORTCODE, DARAJA_CALLBACK_URL
-
-## Handoff Notes for the Next Developer
-
-- Keep secrets in environment variables and deployment dashboard secrets, not in source control.
-- Use Render for backend hosting and Vercel for frontend hosting.
-- Test the admin login flow after every environment change.
-- Reseed the admin account if credentials change:
 
 ```bash
 cd server
-npm run seed:admin
+npm run typecheck
+npm run build
 ```
 
-## Development Methodology
+## Deployment Notes
 
-This project follows:
+- Frontend: Vercel with `VITE_API_BASE_URL` pointing to the backend URL.
+- Backend: Railway with PostgreSQL and Redis/Upstash environment variables.
+- Media: Cloudinary credentials in Railway environment variables.
+- Payments: Safaricom Daraja credentials in Railway environment variables.
 
-- Software Development Life Cycle (SDLC)
-- Agile Methodology
-- 2-week sprint planning
+Never place real credentials in README files, source files, or tracked `.env` files. Use the deployment dashboard secret manager or a local untracked `server/.env`.
 
----
+## Setup Guides
 
-🚧 Project currently in active development
+- `docs/CLOUDINARY_SETUP.md`
+- `docs/DARAJA_SETUP.md`
+- `docs/ADDING_IMAGES.md`
+- `PROJECT_OVERVIEW.md`

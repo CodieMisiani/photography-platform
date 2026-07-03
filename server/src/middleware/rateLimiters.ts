@@ -29,3 +29,10 @@ export const accountChangeLimiter = rateLimit({
     return ipKeyGenerator(ip);
   },
 });
+
+export const newsletterLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 3,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+});

@@ -76,3 +76,10 @@ export type AdminSession = {
   email: string;
   createdAt: string;
 };
+
+export type NewsletterSubscriberRow = {
+  id: string;
+  email: string;
+  subscribed_at: string;
+  is_active: boolean;
+};

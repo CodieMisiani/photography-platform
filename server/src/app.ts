@@ -13,6 +13,7 @@ import { publicEventRoutes } from "./routes/publicEventRoutes.js";
 import { quoteRoutes } from "./routes/quoteRoutes.js";
 import { adminAccountRoutes } from "./routes/adminAccountRoutes.js";
 import { statsRoutes } from "./routes/statsRoutes.js";
+import { newsletterRoutes } from "./routes/newsletterRoutes.js";
 import { checkHealth } from "./services/healthService.js";
 import { asyncHandler } from "./utils/asyncHandler.js";
 
@@ -46,6 +47,7 @@ export function createApp() {
   app.use(invoiceRoutes);
   app.use(publicEventRoutes);
   app.use(statsRoutes);
+  app.use(newsletterRoutes);
   app.use(adminAccountRoutes);
 
   app.use((_req, _res, next) => {

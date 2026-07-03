@@ -4,11 +4,11 @@ export const SITE_CONFIG = {
   email: "hello@malumephotography.com",
   phone: "+254 700 000 000",
   social: {
-    facebook: "https://facebook.com/malumephotography",
-    instagram: "https://instagram.com/malumephotography",
+    tiktok: "https://tiktok.com/@malumephotography",
+    whatsapp: "https://wa.me/254700000000",
     twitter: "https://x.com/malumephotography",
+    facebook: "https://facebook.com/malumephotography",
     linkedin: "https://linkedin.com/company/malumephotography",
-    whatsapp: "+254700000000",
   },
   locale: {
     country: "KE",

@@ -129,3 +129,7 @@ export const statsPatchSchema = z.object({
   sort_order: z.coerce.number().int().optional(),
   is_visible: z.boolean().optional(),
 });
+
+export const newsletterSubscribeSchema = z.object({
+  email: z.string().trim().email().max(255),
+});

@@ -41,8 +41,8 @@ These match `server/.env.example`.
 - `SESSION_COOKIE_NAME`: Admin session cookie name.
 - `SESSION_SECRET`: Long random secret for signed cookies.
 - `COOKIE_SECURE`: `true` in production HTTPS, `false` locally.
-- `ADMIN_EMAIL`: Email address for the first admin user.
-- `ADMIN_PASSWORD`: Temporary password used by `npm run seed:admin`.
+- `ADMIN_EMAIL`: Placeholder variable name used by the admin seed script.
+- `ADMIN_PASSWORD`: Placeholder variable name used by the admin seed script. Set the real value only in an untracked local env file or deployment secret manager.
 - `ADMIN_PASSWORD_HASH`: Optional bcrypt hash fallback if no plain seed password is supplied.
 - `CLOUDINARY_CLOUD_NAME`: From Cloudinary dashboard.
 - `CLOUDINARY_API_KEY`: From Cloudinary dashboard.
@@ -58,11 +58,12 @@ For the frontend, set `VITE_API_BASE_URL` to the backend URL.
 
 ### Environment Variables - Where To Get Each One
 
-- Render dashboard: `DATABASE_URL`, `REDIS_URL`, `PORT`.
+- Railway dashboard: `DATABASE_URL`, `PORT`.
+- Upstash dashboard: `REDIS_URL`.
 - Cloudinary dashboard: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 - Safaricom Daraja developer portal: `DARAJA_CONSUMER_KEY`, `DARAJA_CONSUMER_SECRET`, `DARAJA_PASSKEY`, `DARAJA_SHORTCODE`, `DARAJA_CALLBACK_URL`.
-- Self-generated: `SESSION_SECRET` as a long random string, `SESSION_COOKIE_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
-- Vercel project settings: `VITE_API_BASE_URL`, set to the Render backend URL.
+- Self-generated: `SESSION_SECRET` as a long random string, `SESSION_COOKIE_NAME`, and admin seed values used only outside git.
+- Vercel project settings: `VITE_API_BASE_URL`, set to the Railway backend URL.
 
 ### Local Setup
 
@@ -142,19 +143,19 @@ Full Jest/React Testing Library/Supertest test suites are still not built.
 Planned deployment:
 
 - Frontend: Vercel.
-- Backend API: Render.
-- PostgreSQL: Neon.
+- Backend API: Railway.
+- PostgreSQL: Railway managed PostgreSQL.
 - Redis: Upstash.
 - Media: Cloudinary.
 - Payments: Safaricom Daraja.
 
 To deploy:
 
-1. Create a Render backend service from `server`.
-2. Add Neon Postgres and Upstash Redis URLs to backend env vars.
+1. Create a Railway backend service from `server`.
+2. Add Railway Postgres and Upstash Redis URLs to backend env vars.
 3. Run `npm run migrate` and `npm run seed:admin` against production.
 4. Deploy frontend from `client` to Vercel.
-5. Set `VITE_API_BASE_URL` in Vercel to the Render backend URL.
+5. Set `VITE_API_BASE_URL` in Vercel to the Railway backend URL.
 6. Set Daraja callback URL to `https://your-api-domain/webhooks/daraja`.
 7. Confirm `/health` returns Postgres and Redis as healthy.
 8. Test admin login, booking creation, quote submission, invoice creation, and M-Pesa sandbox payment.
@@ -162,7 +163,7 @@ To deploy:
 Rollback:
 
 - Vercel: promote a previous deployment.
-- Render: redeploy a previous successful build.
+- Railway: redeploy a previous successful build.
 - Database: use backups/snapshots before running destructive migrations.
 
 ### What's Finished
@@ -170,6 +171,7 @@ Rollback:
 - React/Vite/Tailwind frontend with the existing monochrome editorial design preserved.
 - Homepage refinement with clean hero and moving image marquee.
 - Mobile hamburger menu with keyboard/focus handling.
+- Admin mobile hamburger menu with route-close, outside-click close, Escape close, active state, and focus trap.
 - Public portfolio reads from the API.
 - Public events reads from the API.
 - Quote request form submits to `/quotes`.
@@ -187,6 +189,8 @@ Rollback:
 - Public invoice lookup shows itemized line items.
 - Public events admin create/edit/delete/publish toggle with image URL/upload support.
 - Public events render real uploaded event images when present.
+- Footer social links use the configured TikTok, WhatsApp, X, Facebook, and LinkedIn URLs.
+- Newsletter subscription is backed by `newsletter_subscribers`, a public subscribe endpoint, and an admin subscriber list with soft deactivate.
 - Footer privacy/terms links resolve to real routes.
 - Navbar hover uses a center-morph underline and subtle letter-spacing transition with reduced-motion support.
 - Daraja STK Push trigger, webhook update, and frontend polling/failure timeout.

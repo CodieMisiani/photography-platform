@@ -75,6 +75,13 @@ export type AdminUser = {
   email: string;
 };
 
+export type ApiNewsletterSubscriber = {
+  id: string;
+  email: string;
+  subscribed_at: string;
+  is_active: boolean;
+};
+
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: BodyInit | Record<string, unknown> | null;
 };
@@ -374,5 +381,21 @@ export const api = {
           is_visible: boolean;
         };
       }>(`/admin/stats/${id}`, { method: "PATCH", body: payload }),
+  },
+  newsletter: {
+    subscribe: (email: string) =>
+      request<{ ok: true }>("/newsletter/subscribe", {
+        method: "POST",
+        body: { email },
+      }),
+    listSubscribers: () =>
+      request<{ subscribers: ApiNewsletterSubscriber[] }>(
+        "/admin/newsletter/subscribers",
+      ),
+    deactivateSubscriber: (id: string) =>
+      request<{ subscriber: ApiNewsletterSubscriber }>(
+        `/admin/newsletter/subscribers/${id}/deactivate`,
+        { method: "PATCH" },
+      ),
   },
 };

@@ -1,7 +1,41 @@
+import { useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { SITE_CONFIG } from "../config/site";
+import { api } from "../lib/api";
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+  const [message, setMessage] = useState("");
+
+  async function handleSubscribe(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const trimmedEmail = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setStatus("error");
+      setMessage("Enter a valid email address.");
+      return;
+    }
+
+    setStatus("loading");
+    setMessage("");
+    try {
+      await api.newsletter.subscribe(trimmedEmail);
+      setEmail("");
+      setStatus("success");
+      setMessage("You're subscribed!");
+    } catch (error) {
+      setStatus("error");
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Subscription failed. Please try again.",
+      );
+    }
+  }
+
   return (
     <footer className="border-t border-grey-light bg-paper py-14">
       <div className="mx-auto max-w-7xl px-6">
@@ -30,19 +64,47 @@ export default function Footer() {
             <p className="font-semibold uppercase tracking-[0.25em] text-[0.75rem] text-grey">
               Newsletter
             </p>
-            <div className="mt-5 flex items-center border-b border-grey-light pb-2">
+            <form
+              onSubmit={handleSubscribe}
+              className="mt-5 flex flex-col gap-3 border-b border-grey-light pb-3 sm:flex-row sm:items-center"
+            >
+              <label htmlFor="newsletter-email" className="sr-only">
+                Email address
+              </label>
               <input
+                id="newsletter-email"
                 type="email"
-                placeholder="YOUR EMAIL ADDRESS"
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  if (status !== "loading") {
+                    setStatus("idle");
+                    setMessage("");
+                  }
+                }}
+                placeholder="Your email address"
                 className="w-full bg-transparent text-[0.9rem] text-ink placeholder:text-grey focus:outline-none"
+                autoComplete="email"
+                required
               />
               <button
-                type="button"
-                className="text-ink uppercase tracking-[0.25em] text-[0.75rem] transition-colors hover:text-grey focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+                type="submit"
+                disabled={status === "loading"}
+                className="min-h-11 text-left text-ink uppercase tracking-[0.25em] text-[0.75rem] transition-colors hover:text-grey focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink disabled:cursor-not-allowed disabled:text-grey sm:text-right"
               >
-                Send
+                {status === "loading" ? "Subscribing" : "Subscribe"}
               </button>
-            </div>
+            </form>
+            {message ? (
+              <p
+                className={`mt-3 text-[0.75rem] ${
+                  status === "error" ? "text-ink" : "text-grey"
+                }`}
+                role={status === "error" ? "alert" : "status"}
+              >
+                {message}
+              </p>
+            ) : null}
             <p className="mt-4 text-[0.7rem] uppercase tracking-[0.35em] text-grey">
               Join for studio updates and recent works.
             </p>
@@ -71,6 +133,48 @@ export default function Footer() {
           <div className="flex items-center gap-4">
             <nav className="flex gap-3">
               <SocialLink
+                href={SITE_CONFIG.social.tiktok}
+                label="Follow us on TikTok"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <path d="M17.24 2c.37 3.14 2.13 5.01 5.26 5.2v3.53a8.74 8.74 0 0 1-5.18-1.58v6.67c0 4.31-2.74 7.18-6.82 7.18A6.63 6.63 0 0 1 3.5 16.4c0-4.08 3.28-6.95 7.46-6.17v3.7c-1.92-.56-3.83.7-3.83 2.56 0 1.63 1.22 2.85 2.96 2.85 1.98 0 3.25-1.18 3.25-3.68V2h3.9z" />
+                </svg>
+              </SocialLink>
+              <SocialLink
+                href={SITE_CONFIG.social.whatsapp}
+                label="Follow us on WhatsApp"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <path d="M20.52 3.48A11.92 11.92 0 0 0 12 0C5.37 0 .12 5.25.12 11.88c0 2.08.54 4.03 1.48 5.75L0 24l6.6-1.73A11.88 11.88 0 0 0 12 24c6.63 0 11.88-5.25 11.88-12 0-3.2-1.25-6.2-3.36-8.52zM12 21.5c-1.7 0-3.37-.45-4.82-1.3l-.34-.2-3.93 1 1.04-3.82-.21-.38A9.5 9.5 0 1 1 21.5 12 9.46 9.46 0 0 1 12 21.5z" />
+                </svg>
+              </SocialLink>
+              <SocialLink
+                href={SITE_CONFIG.social.twitter}
+                label="Follow us on X (Twitter)"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <path d="M17.53 3h3.31l-7.23 8.26L22.1 21h-6.65l-5.2-6.8L4.29 21H.98l7.73-8.84L.57 3h6.81l4.7 6.22L17.53 3Zm-1.16 16.29h1.83L6.38 4.62H4.41l11.96 14.67Z" />
+                </svg>
+              </SocialLink>
+              <SocialLink
                 href={SITE_CONFIG.social.facebook}
                 label="Follow us on Facebook"
               >
@@ -85,37 +189,6 @@ export default function Footer() {
                 </svg>
               </SocialLink>
               <SocialLink
-                href={SITE_CONFIG.social.instagram}
-                label="Follow us on Instagram"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  aria-hidden
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="5" />
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8" />
-                </svg>
-              </SocialLink>
-              <SocialLink
-                href={SITE_CONFIG.social.twitter}
-                label="Follow us on X"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden
-                >
-                  <path d="M22 4.01c-.77.35-1.6.59-2.47.7a4.26 4.26 0 0 0-7.3 3.88A12.1 12.1 0 0 1 3 3.9a4.2 4.2 0 0 0 1.32 5.7c-.66-.02-1.28-.2-1.82-.5v.05c0 1.9 1.35 3.5 3.14 3.86-.52.14-1.07.18-1.64.07.46 1.44 1.78 2.5 3.35 2.53A8.56 8.56 0 0 1 2 18.58 12.08 12.08 0 0 0 8.29 20c7.55 0 11.68-6.26 11.68-11.68v-.53A8.3 8.3 0 0 0 22 4.01z" />
-                </svg>
-              </SocialLink>
-              <SocialLink
                 href={SITE_CONFIG.social.linkedin}
                 label="Follow us on LinkedIn"
               >
@@ -127,20 +200,6 @@ export default function Footer() {
                   aria-hidden
                 >
                   <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.1 1 2.5 1 4.98 2.12 4.98 3.5zM0 8h5v16H0V8zm7 0h4.8v2.2h.1c.7-1.3 2.4-2.2 4-2.2 4.3 0 5 2.8 5 6.5V24H16V14.6c0-2.2 0-5-3-5s-3.5 2.4-3.5 4.8V24H7V8z" />
-                </svg>
-              </SocialLink>
-              <SocialLink
-                href={SITE_CONFIG.social.whatsapp}
-                label="Chat with us on WhatsApp"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden
-                >
-                  <path d="M20.52 3.48A11.92 11.92 0 0 0 12 0C5.37 0 .12 5.25.12 11.88c0 2.08.54 4.03 1.48 5.75L0 24l6.6-1.73A11.88 11.88 0 0 0 12 24c6.63 0 11.88-5.25 11.88-12 0-3.2-1.25-6.2-3.36-8.52zM12 21.5c-1.7 0-3.37-.45-4.82-1.3l-.34-.2-3.93 1 1.04-3.82-.21-.38A9.5 9.5 0 1 1 21.5 12 9.46 9.46 0 0 1 12 21.5z" />
                 </svg>
               </SocialLink>
             </nav>
@@ -162,13 +221,13 @@ function SocialLink({
 }: {
   href: string;
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   if (!href)
     return (
       <span
         aria-hidden
-        className="w-11 h-11 inline-flex items-center justify-center"
+        className="inline-flex h-11 w-11 items-center justify-center"
       />
     );
   return (
@@ -177,7 +236,7 @@ function SocialLink({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-full text-grey hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+      className="inline-flex h-11 w-11 items-center justify-center text-grey transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
       style={{ minWidth: 44, minHeight: 44 }}
     >
       {children}

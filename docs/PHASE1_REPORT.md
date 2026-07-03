@@ -1,70 +1,48 @@
-# PHASE 1 REPORT — Malume Photography Platform
+# Phase 1 Report
 
-## FEATURE — Dynamic Portfolio Statistics + Kenya Localization
+PHASE 1 - FINAL AUDIT STATUS
 
-This report summarizes Phase 1 work completed and next feature work to be staged on feature branches:
+Date: 2026-07-04
+Branch: codex/phase1-final-audit
 
-- feature/dynamic-portfolio-stats
-- feature/kenya-localization
+| Section | Status |
+| --- | --- |
+| Rebrand | DONE |
+| SITE_CONFIG | FIXED |
+| Footer (5 icons + newsletter) | FIXED |
+| Admin account settings | FIXED |
+| Public site mobile nav | DONE |
+| Admin mobile nav | FIXED |
+| Kenya localization | DONE |
+| Dynamic portfolio stats | DONE |
+| README (credentials removed) | FIXED |
+| Documentation | FIXED |
+| Build (lint/typecheck/build) | DONE |
+| Git state | DONE |
 
-Follow the branching and commit standards: Conventional Commits, lint/typecheck/build must pass before commits, and merge to `main` via PRs.
+## Verification run
 
----
+- `client`: `npm run lint` passed.
+- `client`: `npm run build` passed.
+- `server`: `npm run typecheck` passed.
+- `server`: `npm run build` passed.
+- Old brand search for `elara` returned zero hits.
+- Foreign locale/currency search returned zero hits.
+- Dead `#` link and leaked admin credential search returned zero hits.
+- `git log --all --full-history -- server/.env` returned zero commits.
 
-## Summary of Phase 1 (work completed)
+## New documents created this pass
 
-- Rebranded visible site text from the legacy brand to "Malume" across frontend.
-- Added `client/src/config/site.ts` as single-source SITE_CONFIG and wired the footer social links.
-- Implemented admin account settings endpoints and frontend page (`/admin/settings`) for changing password and email.
-- Fixed production rate-limiter issue by adding `app.set('trust proxy', 1)` and updated the rate-limiter key generation to handle IPv6 safely.
-- Configured Knex to run TypeScript migrations in both development and Render production using `node --import tsx/esm` and updated server scripts accordingly.
-- Added `accountChangeLimiter` for sensitive admin operations (change password/email) with session-keyed rate limiting.
-- Built, typechecked, and validated client and server; migrations and seed scripts run successfully locally.
-- Accessibility improvements: mobile nav behavior, focus-visible styles, skip-link, body scroll lock, and touch outside-to-close handling.
-- Added `docs/ADDING_IMAGES.md` and updated `README.md` with accessibility notes.
+- `docs/CLOUDINARY_SETUP.md`
+- `docs/DARAJA_SETUP.md`
+- `docs/ADDING_IMAGES.md`
 
----
+## Items requiring manual action before go-live
 
-## Files changed (high level)
-
-- server/: multiple files (app.ts, middleware, routes, controllers, knex config, package.json scripts)
-- client/: components (Header, Footer, AdminSettingsPage), config/site.ts, lib/api additions, styles/globals.css
-- docs/: ADDED `ADDING_IMAGES.md`, `PHASE1_REPORT.md`
-
-Refer to the repository's git history for exact commits and Conventional Commit messages.
-
----
-
-## Outstanding / Next Tasks (Phase 1 → Phase 2 handoff)
-
-1. Implement and merge feature/dynamic-portfolio-stats:
-   - DB migration + seed `site_stats` table
-   - Public API `GET /stats`, admin endpoints, frontend API client methods
-   - `useCountUp` hook, `StatCard` component, admin UI for editing stats
-   - Tests, lint, typecheck, build
-2. Implement and merge feature/kenya-localization:
-   - Extend `SITE_CONFIG` with `locale` and `business`
-   - `format.ts` utilities (`formatKES`, `formatDate`, `formatPhone`)
-   - Server `server/src/config/locale.ts` with `kenyanPhone` validator and currency constants
-   - Audit and replace all hardcoded currency symbols, phone numbers, dates, and placeholder content
-   - Update invoices/quotes formatting and STK Push confirmation
-
----
-
-## How I validated Phase 1
-
-- Client: `npm ci`, `npm run lint`, `npm run build` succeeded locally.
-- Server: `npm run typecheck`, `npm run migrate`, `npm run seed:admin` succeeded; `GET /health` returned OK.
-- Performed functional auth tests (login, change password, change email) against local server; session invalidation confirmed.
-
----
-
-## Recommendation for next steps
-
-- Create `feature/dynamic-portfolio-stats` branch and implement Part 1 fully. Merge once lint/typecheck/build/tests pass.
-- Then create `feature/kenya-localization` from updated `main` and implement Part 2.
-- Add CI checks to run lint/typecheck/build and (optionally) headless axe accessibility checks on pull requests.
-
----
-
-If you want, I can now create the feature branches and scaffold the migrations, API routes, and client stubs for Part 1. Tell me to proceed and I'll create `feature/dynamic-portfolio-stats` and open a working branch with commits that pass the build pipeline locally.
+- Add real client phone, email, and address to `SITE_CONFIG`.
+- Add real social media profile URLs to `SITE_CONFIG.social`.
+- Fill `server/.env` with real `DATABASE_URL`, `REDIS_URL`, and `SESSION_SECRET`.
+- Follow `docs/CLOUDINARY_SETUP.md` to get and add Cloudinary credentials.
+- Follow `docs/DARAJA_SETUP.md` to get and add Daraja credentials and Paybill or Till details.
+- Set `DARAJA_CALLBACK_URL` to the production Railway domain after first deploy.
+- Change `DARAJA_ENV` from `sandbox` to `production` when ready for live payments.

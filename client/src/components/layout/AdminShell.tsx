@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 
@@ -14,9 +14,25 @@ const adminLinks = [
   { label: "Settings", to: "/admin/settings" },
 ];
 
+const adminMobileLinks = [
+  { label: "Dashboard", to: "/admin" },
+  { label: "Bookings", to: "/admin/bookings" },
+  { label: "Invoices", to: "/admin/invoices" },
+  { label: "Quotes", to: "/admin/quotes" },
+  { label: "Calendar", to: "/admin/calendar" },
+  { label: "Portfolio", to: "/admin/portfolio-cms" },
+  { label: "Stats", to: "/admin/stats" },
+  { label: "Settings", to: "/admin/settings" },
+];
+
 export default function AdminShell({ children }: { children: ReactNode }) {
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
+  const menuRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const previousPathRef = useRef(location.pathname);
   const logoutMutation = useMutation({
     mutationFn: api.auth.logout,
     onSuccess: async () => {
@@ -24,6 +40,75 @@ export default function AdminShell({ children }: { children: ReactNode }) {
       navigate("/admin/login", { replace: true });
     },
   });
+
+  useEffect(() => {
+    if (previousPathRef.current === location.pathname) {
+      return;
+    }
+
+    previousPathRef.current = location.pathname;
+    if (!isOpen) {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => setIsOpen(false));
+    return () => window.cancelAnimationFrame(frame);
+  }, [isOpen, location.pathname]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    function handlePointer(event: MouseEvent | TouchEvent) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        !toggleRef.current?.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+
+    function handleKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        toggleRef.current?.focus();
+      }
+      if (event.key === "Tab" && menuRef.current) {
+        trapFocus(event, menuRef.current);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointer);
+    document.addEventListener("touchstart", handlePointer);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handlePointer);
+      document.removeEventListener("touchstart", handlePointer);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    document.body.style.overflow = "hidden";
+    const frame = window.requestAnimationFrame(() => {
+      const first = menuRef.current?.querySelector<HTMLElement>(
+        "a[href], button:not([disabled])",
+      );
+      first?.focus();
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   return (
     <div className="min-h-screen bg-paper text-ink">
@@ -66,18 +151,75 @@ export default function AdminShell({ children }: { children: ReactNode }) {
         </button>
       </aside>
 
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-grey-light bg-paper px-6 py-4 md:hidden">
+      <header className="sticky top-0 z-40 border-b border-grey-light bg-paper md:hidden">
+        <div className="flex items-center justify-between px-6 py-4">
         <span className="font-display text-2xl font-semibold uppercase">
           Malume
         </span>
         <button
+          ref={toggleRef}
           type="button"
-          onClick={() => logoutMutation.mutate()}
-          disabled={logoutMutation.isPending}
-          className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+          aria-label={isOpen ? "Close admin menu" : "Open admin menu"}
+          aria-expanded={isOpen}
+          aria-controls="admin-mobile-menu"
+          onClick={() => setIsOpen((value) => !value)}
+          className="inline-flex h-10 w-10 items-center justify-center border border-ink text-ink transition-colors hover:bg-ink hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
         >
-          Logout
+          <span className="sr-only">
+            {isOpen ? "Close admin menu" : "Open admin menu"}
+          </span>
+          <span className="flex flex-col gap-1" aria-hidden="true">
+            <span
+              className={`h-px w-5 bg-current transition-transform ${isOpen ? "translate-y-1 rotate-45" : ""}`}
+            />
+            <span
+              className={`h-px w-5 bg-current transition-opacity ${isOpen ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`h-px w-5 bg-current transition-transform ${isOpen ? "-translate-y-1 -rotate-45" : ""}`}
+            />
+          </span>
         </button>
+        </div>
+        <div
+          id="admin-mobile-menu"
+          ref={menuRef}
+          className={`border-t border-grey-light bg-paper px-6 transition-[max-height,opacity] duration-300 ${
+            isOpen
+              ? "max-h-screen opacity-100"
+              : "max-h-0 overflow-hidden opacity-0"
+          }`}
+          aria-hidden={!isOpen}
+        >
+          <nav
+            className="flex flex-col gap-5 py-8"
+            aria-label="Admin mobile navigation"
+          >
+            {adminMobileLinks.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                tabIndex={isOpen ? 0 : -1}
+                className={({ isActive }) =>
+                  `nav-link uppercase tracking-[0.25em] text-[0.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${
+                    isActive ? "nav-link--active" : "text-grey"
+                  }`
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+            <button
+              type="button"
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
+              tabIndex={isOpen ? 0 : -1}
+              className="mt-3 border border-ink px-4 py-3 text-left text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-ink transition-colors hover:bg-ink hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink disabled:cursor-not-allowed disabled:border-grey disabled:text-grey"
+            >
+              {logoutMutation.isPending ? "Signing out" : "Logout"}
+            </button>
+          </nav>
+        </div>
       </header>
 
       <main className="min-h-screen px-6 py-12 md:ml-64 md:px-8">
@@ -85,4 +227,25 @@ export default function AdminShell({ children }: { children: ReactNode }) {
       </main>
     </div>
   );
+}
+
+function trapFocus(event: KeyboardEvent, container: HTMLElement) {
+  const focusable = Array.from(
+    container.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ),
+  ).filter((element) => element.tabIndex !== -1);
+  if (focusable.length === 0) {
+    return;
+  }
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
