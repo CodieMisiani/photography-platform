@@ -32,7 +32,7 @@ export default function AdminSettingsPage() {
   const changeEmailMutation = useMutation({
     mutationFn: (payload: { currentPassword: string; newEmail: string }) =>
       api.auth.changeEmail(payload),
-    onSuccess: (data) => {
+    onSuccess: () => {
       // invalidate auth and redirect to login
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
       navigate("/admin/login", {
@@ -95,8 +95,8 @@ export default function AdminSettingsPage() {
             </div>
 
             <div className="flex gap-3">
-              <Button type="submit" disabled={changePasswordMutation.isLoading}>
-                {changePasswordMutation.isLoading
+              <Button type="submit" disabled={changePasswordMutation.isPending}>
+                {changePasswordMutation.isPending
                   ? "Saving..."
                   : "Change password"}
               </Button>
@@ -133,8 +133,8 @@ export default function AdminSettingsPage() {
             />
 
             <div className="flex gap-3">
-              <Button type="submit" disabled={changeEmailMutation.isLoading}>
-                {changeEmailMutation.isLoading ? "Saving..." : "Change email"}
+              <Button type="submit" disabled={changeEmailMutation.isPending}>
+                {changeEmailMutation.isPending ? "Saving..." : "Change email"}
               </Button>
             </div>
           </div>
