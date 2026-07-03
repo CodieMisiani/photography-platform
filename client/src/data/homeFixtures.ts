@@ -15,12 +15,12 @@ export const homeMetrics: HomeMetric[] = [
 export const homeProjects: HomeProject[] = [
   {
     title: "The Eternal Union",
-    location: "Lake Como, Italy",
+    location: "Nairobi Arboretum, Kenya",
     image: weddingImage,
   },
   {
     title: "Sonic Resonance",
-    location: "London Metro",
+    location: "Nairobi Festival Grounds",
     image: concertImage,
   },
 ];
@@ -28,12 +28,12 @@ export const homeProjects: HomeProject[] = [
 export const homeMarqueeImages: HomeProject[] = [
   {
     title: "Modern Portrait",
-    location: "London Studio",
+    location: "Nairobi Studio",
     image: portraitImage,
   },
   {
     title: "Editorial Wedding",
-    location: "Lake Como",
+    location: "Diani Coast, Kenya",
     image: weddingImage,
   },
   {
@@ -43,12 +43,12 @@ export const homeMarqueeImages: HomeProject[] = [
   },
   {
     title: "Architectural Lines",
-    location: "Gallery Nord",
+    location: "Nairobi Art Gallery",
     image: architectureImage,
   },
   {
     title: "Live Performance",
-    location: "London Metro",
+    location: "Nairobi Festival Grounds",
     image: concertImage,
   },
 ];

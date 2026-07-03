@@ -8,7 +8,7 @@ export const publicEvents: PublicEvent[] = [
     category: "Workshop",
     title: "Mastering Analogue: The Lightroom Session",
     description:
-      "Join Malume Photography for an intensive deep dive into medium format film techniques and lighting mastery in our London studio.",
+      "Join Malume Photography for an intensive deep dive into medium format film techniques and lighting mastery in our Nairobi studio.",
     location: "Malume Main Studio, Nairobi",
     price: "KSh 25,000",
     image:
@@ -22,7 +22,7 @@ export const publicEvents: PublicEvent[] = [
     category: "Exhibition",
     title: "Urban Fragments: Solo Show",
     description:
-      "An exploration of street textures and forgotten shadows from 12 cities across the globe. Hosted at Gallery Nord.",
+      "An exploration of street textures and forgotten shadows across Nairobi. Hosted at Nairobi Art House.",
     location: "Nairobi Art House, Nairobi",
     price: "Free",
     image:
@@ -50,7 +50,7 @@ export const publicEvents: PublicEvent[] = [
     category: "Workshop",
     title: "Coastal Mist: 3-Day Retreat",
     description:
-      "An all-inclusive workshop focused on long-exposure landscape photography in the Scottish Highlands.",
+      "An all-inclusive workshop focused on long-exposure landscape photography along the Kenyan coast.",
     location: "Diani Beach, Kenya",
     price: "KSh 120,000",
     image:

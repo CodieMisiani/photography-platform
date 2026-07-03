@@ -10,27 +10,27 @@ export const invoiceSummary: InvoiceSummary = {
 export const invoices: Invoice[] = [
   {
     id: "INV-2024-089",
-    client: "Vogue Italia",
+    client: "Jua Kali Collective",
     amount: "KSh 12,500",
     dueDate: "Oct 24, 2024",
     status: "Sent",
-    initials: "V",
+    initials: "J",
   },
   {
     id: "INV-2024-088",
-    client: "Arc'teryx Editorial",
+    client: "Savanna Vogue",
     amount: "KSh 8,200",
     dueDate: "Oct 18, 2024",
     status: "Paid",
-    initials: "A",
+    initials: "S",
   },
   {
     id: "INV-2024-087",
-    client: "Museum of Modern Art",
+    client: "Nairobi Heritage Museum",
     amount: "KSh 15,000",
     dueDate: "Nov 02, 2024",
     status: "Draft",
-    initials: "M",
+    initials: "N",
   },
 ];
 

@@ -58,7 +58,9 @@ export default function RequestQuotePage() {
       setStep("success");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
-      setFormError("Your quote request could not be sent. Please check the details and try again.");
+      setFormError(
+        "Your quote request could not be sent. Please check the details and try again.",
+      );
     }
   }
 
@@ -112,7 +114,7 @@ export default function RequestQuotePage() {
                   Last minute? Call the studio
                 </p>
                 <p className="text-3xl font-display font-semibold text-ink">
-                  +1 (212) 555-0198
+                  +254 700 555 019
                 </p>
               </div>
             </div>
@@ -157,7 +159,9 @@ export default function RequestQuotePage() {
                   <CreativeBriefStep
                     description={formState.description}
                     isSubmitting={quoteMutation.isPending}
-                    onDescriptionChange={(value) => updateField("description", value)}
+                    onDescriptionChange={(value) =>
+                      updateField("description", value)
+                    }
                     onBack={() => setStep(2)}
                   />
                 ) : null}
@@ -218,7 +222,7 @@ function IdentityStep({
           id="mobile"
           name="mobile"
           label="WhatsApp / Mobile"
-          placeholder="+1 000 000 000"
+          placeholder="+254 700 000 000"
           type="tel"
           required
           value={formState.mobile}
@@ -229,7 +233,7 @@ function IdentityStep({
             id="email"
             name="email"
             label="Email Address"
-            placeholder="hello@studio.com"
+            placeholder="hello@malumephotography.com"
             type="email"
             required
             value={formState.email}
@@ -279,13 +283,13 @@ function EventDetailsStep({
           id="dateRange"
           name="dateRange"
           label="Date Range Preference"
-          placeholder="MM/DD/YYYY - MM/DD/YYYY"
+          placeholder="DD/MM/YYYY - DD/MM/YYYY"
           value={formState.dateRange}
           onChange={(event) => onFieldChange("dateRange", event.target.value)}
         />
         <fieldset className="md:col-span-2">
           <legend className="mb-4 text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey">
-            Estimated Budget (USD)
+            Estimated Budget (KSh)
           </legend>
           <div className="grid gap-px border border-grey-light bg-grey-light sm:grid-cols-3">
             {budgetOptions.map((option) => {
