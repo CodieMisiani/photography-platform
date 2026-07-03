@@ -5,6 +5,7 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Button from "../components/ui/Button";
 import FormField from "../components/ui/FormField";
+import { SITE_CONFIG } from "../config/site";
 import {
   budgetOptions,
   eventTypeOptions,
@@ -289,7 +290,7 @@ function EventDetailsStep({
         />
         <fieldset className="md:col-span-2">
           <legend className="mb-4 text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey">
-            Estimated Budget (KSh)
+            Estimated Budget ({SITE_CONFIG.locale.currencySymbol})
           </legend>
           <div className="grid gap-px border border-grey-light bg-grey-light sm:grid-cols-3">
             {budgetOptions.map((option) => {

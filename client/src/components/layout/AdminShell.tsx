@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../lib/api";
@@ -9,14 +10,11 @@ const adminLinks = [
   { label: "Bookings", to: "/admin/bookings" },
   { label: "Quotes", to: "/admin/quotes" },
   { label: "Public Events", to: "/admin/public-events" },
+  { label: "Stats", to: "/admin/stats" },
   { label: "Settings", to: "/admin/settings" },
 ];
 
-export default function AdminShell({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const logoutMutation = useMutation({

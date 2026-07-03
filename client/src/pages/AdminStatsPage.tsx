@@ -5,9 +5,19 @@ import Button from "../components/ui/Button";
 import FormField from "../components/ui/FormField";
 import { api } from "../lib/api";
 
+type AdminStat = {
+  id: string;
+  key: string;
+  label: string;
+  value: number;
+  suffix?: string | null;
+  sort_order: number;
+  is_visible: boolean;
+};
+
 export default function AdminStatsPage() {
   const queryClient = useQueryClient();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<{ stats: AdminStat[] }>({
     queryKey: ["admin", "stats"],
     queryFn: () => api.stats.adminList(),
   });
@@ -16,14 +26,19 @@ export default function AdminStatsPage() {
   >({});
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
-      api.stats.update(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<AdminStat>;
+    }) => api.stats.update(id, payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["admin", "stats"] });
     },
   });
 
-  function startEdit(stat: any) {
+  function startEdit(stat: AdminStat) {
     setEditing((s) => ({
       ...s,
       [stat.id]: {
@@ -67,7 +82,7 @@ export default function AdminStatsPage() {
         {isLoading ? <p>Loading...</p> : null}
 
         <section className="space-y-6">
-          {data?.stats.map((stat: any) => (
+          {data?.stats.map((stat) => (
             <div
               key={stat.id}
               className="flex items-center gap-4 border-b border-grey-light py-4"

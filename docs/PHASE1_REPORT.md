@@ -13,7 +13,7 @@ Follow the branching and commit standards: Conventional Commits, lint/typecheck/
 
 ## Summary of Phase 1 (work completed)
 
-- Rebranded visible site text from "Elara" to "Malume" across frontend.
+- Rebranded visible site text from the legacy brand to "Malume" across frontend.
 - Added `client/src/config/site.ts` as single-source SITE_CONFIG and wired the footer social links.
 - Implemented admin account settings endpoints and frontend page (`/admin/settings`) for changing password and email.
 - Fixed production rate-limiter issue by adding `app.set('trust proxy', 1)` and updated the rate-limiter key generation to handle IPv6 safely.

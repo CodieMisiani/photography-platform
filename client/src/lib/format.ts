@@ -16,7 +16,7 @@ export function formatDate(input: string | Date): string {
   // Use en-GB to get day-first formatting and Africa/Nairobi timezone
   try {
     return d.toLocaleDateString("en-GB", { timeZone: "Africa/Nairobi" });
-  } catch (err) {
+  } catch {
     // Fallback to manual formatting
     const day = String(d.getDate()).padStart(2, "0");
     const month = String(d.getMonth() + 1).padStart(2, "0");

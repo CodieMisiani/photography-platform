@@ -18,8 +18,10 @@ export function useCountUp(target: number, options: Options = {}) {
       "(prefers-reduced-motion: reduce)",
     ).matches;
     if (prefersReduced) {
-      setValue(target);
-      return;
+      frameRef.current = requestAnimationFrame(() => setValue(target));
+      return () => {
+        if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      };
     }
 
     let startTime: number | null = null;

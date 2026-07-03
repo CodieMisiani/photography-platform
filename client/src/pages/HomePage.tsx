@@ -1,6 +1,9 @@
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import StatCard from "../components/StatCard";
 import Button from "../components/ui/Button";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "../lib/api";
 import {
   homeMarqueeImages,
   homeMetrics,
@@ -9,6 +12,11 @@ import {
 } from "../data/homeFixtures";
 
 export default function HomePage() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["stats"],
+    queryFn: api.stats.get,
+  });
+
   return (
     <div className="bg-paper text-ink">
       <Header />
@@ -67,6 +75,37 @@ export default function HomePage() {
                 </span>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="bg-paper py-16">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-[0.75rem] uppercase tracking-[0.3em] text-grey">
+                  Business performance
+                </p>
+                <h2 className="mt-4 text-4xl font-display uppercase tracking-[-0.04em] text-ink sm:text-5xl">
+                  Trusted results for every client
+                </h2>
+              </div>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {data?.stats.map((stat) => (
+                <StatCard
+                  key={stat.id}
+                  label={stat.label}
+                  value={stat.value}
+                  suffix={stat.suffix}
+                />
+              ))}
+              {!data?.stats?.length && !isLoading ? (
+                <p className="col-span-full rounded border border-grey-light bg-paper p-8 text-center text-grey">
+                  Statistics are being prepared. Check back soon.
+                </p>
+              ) : null}
+            </div>
           </div>
         </section>
 
@@ -135,10 +174,7 @@ export default function HomePage() {
             </div>
             <div className="flex flex-col gap-8">
               {homeServices.map((service, index) => (
-                <div
-                  key={service.title}
-                  className="border-t border-grey pt-8"
-                >
+                <div key={service.title} className="border-t border-grey pt-8">
                   <div className="mb-6 flex items-baseline justify-between gap-4">
                     <h3 className="text-4xl uppercase tracking-[-0.04em]">
                       {service.title}
@@ -163,7 +199,11 @@ export default function HomePage() {
             <h2 className="text-4xl font-display uppercase tracking-[-0.04em] text-ink sm:text-5xl">
               Let us capture your next story
             </h2>
-            <Button asLink to="/request-quote" className="mt-12 border-ink text-ink hover:bg-ink hover:text-paper">
+            <Button
+              asLink
+              to="/request-quote"
+              className="mt-12 border-ink text-ink hover:bg-ink hover:text-paper"
+            >
               Start a project
             </Button>
           </div>

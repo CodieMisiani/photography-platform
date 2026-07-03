@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import Button from "../components/ui/Button";
 import type { EventCategory, PublicEvent } from "../types/event";
 import { api } from "../lib/api";
+import { formatKES } from "../lib/format";
 
 const filterOptions = [
   "All Events",
@@ -16,7 +17,8 @@ const filterOptions = [
 type EventFilter = (typeof filterOptions)[number];
 
 export default function PublicEventsPage() {
-  const [selectedFilter, setSelectedFilter] = useState<EventFilter>("All Events");
+  const [selectedFilter, setSelectedFilter] =
+    useState<EventFilter>("All Events");
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["public-events"],
     queryFn: api.publicEvents.list,
@@ -29,7 +31,9 @@ export default function PublicEventsPage() {
         return {
           id: event.id,
           day: String(eventDate.getDate()).padStart(2, "0"),
-          month: eventDate.toLocaleString("en", { month: "short" }).toUpperCase(),
+          month: eventDate
+            .toLocaleString("en", { month: "short" })
+            .toUpperCase(),
           category: "Workshop" as EventCategory,
           title: event.title,
           description: event.ticket_url
@@ -37,9 +41,7 @@ export default function PublicEventsPage() {
             : "A public studio event from the photography calendar.",
           location: event.venue,
           price:
-            Number(event.price) === 0
-              ? "Free"
-              : `Ksh ${Number(event.price).toLocaleString()}`,
+            Number(event.price) === 0 ? "Free" : formatKES(Number(event.price)),
           image: event.image_url ?? "",
           imageAlt: event.title,
         };
@@ -77,7 +79,10 @@ export default function PublicEventsPage() {
         </section>
 
         <section className="mx-auto mb-12 max-w-7xl px-6">
-          <div className="flex gap-4 overflow-x-auto pb-4" aria-label="Event filters">
+          <div
+            className="flex gap-4 overflow-x-auto pb-4"
+            aria-label="Event filters"
+          >
             {filterOptions.map((option) => {
               const isSelected = selectedFilter === option;
 
@@ -104,7 +109,10 @@ export default function PublicEventsPage() {
           {isLoading ? (
             <EventState message="Loading events" />
           ) : isError ? (
-            <EventState message="Events could not load" action={() => refetch()} />
+            <EventState
+              message="Events could not load"
+              action={() => refetch()}
+            />
           ) : filteredEvents.length > 0 ? (
             <div className="flex flex-col border-t border-grey-light">
               {filteredEvents.map((event) => (
@@ -176,7 +184,13 @@ function StatusLabel({ category }: { category: EventCategory }) {
   );
 }
 
-function EventState({ message, action }: { message: string; action?: () => void }) {
+function EventState({
+  message,
+  action,
+}: {
+  message: string;
+  action?: () => void;
+}) {
   return (
     <div className="flex flex-col items-center justify-center gap-6 border-y border-grey-light py-24 text-center">
       <p className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey">
