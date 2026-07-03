@@ -35,7 +35,7 @@ export default function Header() {
       return;
     }
 
-    function handlePointer(event: MouseEvent) {
+    function handlePointer(event: MouseEvent | TouchEvent) {
       if (
         menuRef.current &&
         !menuRef.current.contains(event.target as Node) &&
@@ -56,15 +56,42 @@ export default function Header() {
     }
 
     document.addEventListener("mousedown", handlePointer);
+    document.addEventListener("touchstart", handlePointer);
     document.addEventListener("keydown", handleKey);
     return () => {
       document.removeEventListener("mousedown", handlePointer);
+      document.removeEventListener("touchstart", handlePointer);
       document.removeEventListener("keydown", handleKey);
+    };
+  }, [isOpen]);
+
+  // Lock body scroll and focus first interactive element when menu opens
+  useEffect(() => {
+    if (!isOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    document.body.style.overflow = "hidden";
+
+    const frame = window.requestAnimationFrame(() => {
+      const first = menuRef.current?.querySelector<HTMLElement>(
+        "a[href], button:not([disabled]), input:not([disabled])",
+      );
+      first?.focus();
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-grey-light bg-paper">
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <NavLink
           to="/"
@@ -117,6 +144,7 @@ export default function Header() {
             ? "max-h-screen opacity-100"
             : "max-h-0 overflow-hidden opacity-0"
         }`}
+        aria-hidden={!isOpen}
       >
         <nav
           className="flex flex-col gap-5 py-8"

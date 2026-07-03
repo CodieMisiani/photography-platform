@@ -45,7 +45,9 @@ export default function AppRoutes() {
               path="/admin/public-events"
               element={<AdminPublicEventsPage />}
             />
-            <Route path="/admin/settings" element={<AdminSettingsPage />} />
+             <Route path="/admin/settings" element={<AdminSettingsPage />} />
+             <Route path="/admin/stats" element={<AdminStatsPage />} />
+          const AdminStatsPage = lazy(() => import("../pages/AdminStatsPage"));
           </Route>
           <Route path="*" element={<HomePage />} />
         </Routes>

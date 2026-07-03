@@ -328,4 +328,51 @@ export const api = {
     delete: (id: string) =>
       request<void>(`/admin/public-events/${id}`, { method: "DELETE" }),
   },
+  stats: {
+    get: () =>
+      request<{
+        stats: Array<{
+          id: string;
+          key: string;
+          label: string;
+          value: number;
+          suffix?: string | null;
+          sort_order: number;
+          is_visible: boolean;
+        }>;
+      }>("/stats"),
+    adminList: () =>
+      request<{
+        stats: Array<{
+          id: string;
+          key: string;
+          label: string;
+          value: number;
+          suffix?: string | null;
+          sort_order: number;
+          is_visible: boolean;
+        }>;
+      }>("/admin/stats"),
+    update: (
+      id: string,
+      payload: {
+        label?: string;
+        value?: number;
+        suffix?: string | null;
+        sort_order?: number;
+        is_visible?: boolean;
+      },
+    ) =>
+      request<{
+        stat: {
+          id: string;
+          key: string;
+          label: string;
+          value: number;
+          suffix?: string | null;
+          sort_order: number;
+          is_visible: boolean;
+        };
+      }>(`/admin/stats/${id}`, { method: "PATCH", body: payload }),
+  },
 };

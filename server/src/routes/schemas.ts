@@ -113,11 +113,19 @@ export const changePasswordSchema = z.object({
     .min(10)
     .regex(/(?=.*[a-z])/, "must contain lowercase")
     .regex(/(?=.*[A-Z])/, "must contain uppercase")
-    .regex(/(?=.*\\d)/, "must contain number")
+    .regex(/(?=.*\d)/, "must contain number")
     .regex(/(?=.*[^A-Za-z0-9])/, "must contain special char"),
 });
 
 export const changeEmailSchema = z.object({
   currentPassword: z.string().min(1),
   newEmail: z.string().email(),
+});
+
+export const statsPatchSchema = z.object({
+  label: z.string().min(1).max(160).optional(),
+  value: z.coerce.number().int().min(0).optional(),
+  suffix: z.string().max(16).optional().nullable(),
+  sort_order: z.coerce.number().int().optional(),
+  is_visible: z.boolean().optional(),
 });

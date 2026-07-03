@@ -20,6 +20,7 @@ A modern photography business platform for event photographers with portfolio, b
 - Tailwind CSS
 - React Router
 - TanStack Query
+- Accessibility: keyboard navigation, focus management, skip links
 
 ### Backend
 
@@ -105,6 +106,12 @@ The frontend is intended to be deployed on Vercel with:
 ```env
 VITE_API_BASE_URL=https://your-backend-url.onrender.com
 ```
+
+### Accessibility
+
+- The site includes improved keyboard navigation and focus-visible styles.
+- Mobile navigation locks body scroll when open and supports touch outside-close.
+- A skip-link is included for keyboard users to jump to main content.
 
 ## Admin Access
 

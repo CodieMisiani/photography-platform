@@ -22,7 +22,11 @@ export default function AdminSettingsPage() {
       setCurrentPassword("");
       setNewPassword("");
     },
-    onError: (err: any) => alert(err?.message ?? "Failed to change password"),
+    onError: (err: unknown) => {
+      const msg =
+        err instanceof Error ? err.message : "Failed to change password";
+      alert(msg);
+    },
   });
 
   // Change email state
@@ -40,7 +44,10 @@ export default function AdminSettingsPage() {
         state: { message: "Email updated. Please log in again." },
       });
     },
-    onError: (err: any) => alert(err?.message ?? "Failed to change email"),
+    onError: (err: unknown) => {
+      const msg = err instanceof Error ? err.message : "Failed to change email";
+      alert(msg);
+    },
   });
 
   function validateNewPassword(pw: string) {
