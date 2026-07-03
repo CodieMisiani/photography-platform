@@ -7,17 +7,20 @@ export const quoteSteps = [
   {
     number: "02",
     title: "Review",
-    description: "Alexander personally audits your brief for artistic alignment.",
+    description:
+      "Alexander personally audits your brief for artistic alignment.",
   },
   {
     number: "03",
     title: "Quote",
-    description: "A bespoke proposal including cinematography and print options.",
+    description:
+      "A bespoke proposal including cinematography and print options.",
   },
   {
     number: "04",
     title: "Book",
-    description: "Finalize your date with a secure digital contract and deposit.",
+    description:
+      "Finalize your date with a secure digital contract and deposit.",
   },
 ];
 
@@ -28,7 +31,11 @@ export const eventTypeOptions = [
   "Private Portraiture",
 ];
 
-export const budgetOptions = ["$5K - $10K", "$10K - $25K", "$25K+"];
+export const budgetOptions = [
+  "KSh 250,000 - KSh 500,000",
+  "KSh 500,000 - KSh 1,250,000",
+  "KSh 1,250,000+",
+];
 
 export const quoteImages = [
   {

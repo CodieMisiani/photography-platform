@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { kenyanPhone } from "../lib/validators/phone.js";
 
 export const idParamsSchema = z.object({
   id: z.string().uuid(),
@@ -25,7 +26,7 @@ export const portfolioPatchSchema = portfolioCreateSchema.partial();
 
 export const bookingCreateSchema = z.object({
   client_name: z.string().min(2).max(160),
-  whatsapp: z.string().min(7).max(40),
+  whatsapp: kenyanPhone,
   email: z.string().email(),
   event_date: z.string().date(),
   event_type: z.string().min(2).max(120),
@@ -42,7 +43,7 @@ export const bookingPatchSchema = bookingCreateSchema.partial().extend({
 
 export const quoteCreateSchema = z.object({
   client_name: z.string().min(2).max(160),
-  whatsapp: z.string().min(7).max(40),
+  whatsapp: kenyanPhone,
   email: z.string().email(),
   description: z.string().min(10).max(4000),
 });
@@ -66,7 +67,7 @@ export const invoiceLineItemSchema = z.object({
 export const invoiceCreateSchema = z.object({
   invoice_no: z.string().min(3).max(80).optional(),
   client_name: z.string().min(2).max(160),
-  phone: z.string().min(7).max(40),
+  phone: kenyanPhone,
   amount: z.coerce.number().positive().optional(),
   line_items: z.array(invoiceLineItemSchema).min(1).optional(),
 });
@@ -79,7 +80,7 @@ export const invoicePatchSchema = invoiceCreateSchema
   .partial();
 
 export const invoicePaySchema = z.object({
-  phone: z.string().min(7).max(40),
+  phone: kenyanPhone,
 });
 
 export const calendarAvailabilityQuerySchema = z.object({
