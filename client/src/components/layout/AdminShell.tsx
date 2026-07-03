@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import type { ReactNode } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import useMobileMenu from "../../hooks/useMobileMenu";
 import { api } from "../../lib/api";
 
 const adminLinks = [
@@ -26,13 +27,9 @@ const adminMobileLinks = [
 ];
 
 export default function AdminShell({ children }: { children: ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const queryClient = useQueryClient();
-  const menuRef = useRef<HTMLDivElement>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null);
-  const previousPathRef = useRef(location.pathname);
+  const { isOpen, menuRef, setIsOpen, toggleRef } = useMobileMenu();
   const logoutMutation = useMutation({
     mutationFn: api.auth.logout,
     onSuccess: async () => {
@@ -41,77 +38,15 @@ export default function AdminShell({ children }: { children: ReactNode }) {
     },
   });
 
-  useEffect(() => {
-    if (previousPathRef.current === location.pathname) {
-      return;
-    }
-
-    previousPathRef.current = location.pathname;
-    if (!isOpen) {
-      return;
-    }
-
-    const frame = window.requestAnimationFrame(() => setIsOpen(false));
-    return () => window.cancelAnimationFrame(frame);
-  }, [isOpen, location.pathname]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    function handlePointer(event: MouseEvent | TouchEvent) {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        !toggleRef.current?.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    }
-
-    function handleKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-        toggleRef.current?.focus();
-      }
-      if (event.key === "Tab" && menuRef.current) {
-        trapFocus(event, menuRef.current);
-      }
-    }
-
-    document.addEventListener("mousedown", handlePointer);
-    document.addEventListener("touchstart", handlePointer);
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handlePointer);
-      document.removeEventListener("touchstart", handlePointer);
-      document.removeEventListener("keydown", handleKey);
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      document.body.style.overflow = "";
-      return;
-    }
-
-    document.body.style.overflow = "hidden";
-    const frame = window.requestAnimationFrame(() => {
-      const first = menuRef.current?.querySelector<HTMLElement>(
-        "a[href], button:not([disabled])",
-      );
-      first?.focus();
-    });
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
   return (
     <div className="min-h-screen bg-paper text-ink">
+      {/* DIAGNOSIS
+       * Public menu component: client/src/components/Header.tsx
+       * Admin layout component: client/src/components/layout/AdminShell.tsx
+       * Breakpoint used by public menu: Tailwind default md, 768px
+       * Reason admin menu is missing/broken: admin navigation had its own duplicated mobile menu logic, making behavior easy to drift from the public hamburger.
+       * Approach to fix: share the public menu state, focus trap, Escape, outside-click, route-close, and body-scroll behavior through useMobileMenu while keeping admin desktop sidebar markup unchanged.
+       */}
       <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-grey-light bg-paper p-6 md:flex">
         <div className="mb-10">
           <p className="font-display text-3xl font-semibold uppercase tracking-[-0.04em]">
@@ -153,33 +88,33 @@ export default function AdminShell({ children }: { children: ReactNode }) {
 
       <header className="sticky top-0 z-40 border-b border-grey-light bg-paper md:hidden">
         <div className="flex items-center justify-between px-6 py-4">
-        <span className="font-display text-2xl font-semibold uppercase">
-          Malume
-        </span>
-        <button
-          ref={toggleRef}
-          type="button"
-          aria-label={isOpen ? "Close admin menu" : "Open admin menu"}
-          aria-expanded={isOpen}
-          aria-controls="admin-mobile-menu"
-          onClick={() => setIsOpen((value) => !value)}
-          className="inline-flex h-10 w-10 items-center justify-center border border-ink text-ink transition-colors hover:bg-ink hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
-        >
-          <span className="sr-only">
-            {isOpen ? "Close admin menu" : "Open admin menu"}
+          <span className="font-display text-2xl font-semibold uppercase">
+            Malume
           </span>
-          <span className="flex flex-col gap-1" aria-hidden="true">
-            <span
-              className={`h-px w-5 bg-current transition-transform ${isOpen ? "translate-y-1 rotate-45" : ""}`}
-            />
-            <span
-              className={`h-px w-5 bg-current transition-opacity ${isOpen ? "opacity-0" : ""}`}
-            />
-            <span
-              className={`h-px w-5 bg-current transition-transform ${isOpen ? "-translate-y-1 -rotate-45" : ""}`}
-            />
-          </span>
-        </button>
+          <button
+            ref={toggleRef}
+            type="button"
+            aria-label={isOpen ? "Close admin menu" : "Open admin menu"}
+            aria-expanded={isOpen}
+            aria-controls="admin-mobile-menu"
+            onClick={() => setIsOpen((value) => !value)}
+            className="inline-flex h-10 w-10 items-center justify-center border border-ink text-ink transition-colors hover:bg-ink hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+          >
+            <span className="sr-only">
+              {isOpen ? "Close admin menu" : "Open admin menu"}
+            </span>
+            <span className="flex flex-col gap-1" aria-hidden="true">
+              <span
+                className={`h-px w-5 bg-current transition-transform ${isOpen ? "translate-y-1 rotate-45" : ""}`}
+              />
+              <span
+                className={`h-px w-5 bg-current transition-opacity ${isOpen ? "opacity-0" : ""}`}
+              />
+              <span
+                className={`h-px w-5 bg-current transition-transform ${isOpen ? "-translate-y-1 -rotate-45" : ""}`}
+              />
+            </span>
+          </button>
         </div>
         <div
           id="admin-mobile-menu"
@@ -227,25 +162,4 @@ export default function AdminShell({ children }: { children: ReactNode }) {
       </main>
     </div>
   );
-}
-
-function trapFocus(event: KeyboardEvent, container: HTMLElement) {
-  const focusable = Array.from(
-    container.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    ),
-  ).filter((element) => element.tabIndex !== -1);
-  if (focusable.length === 0) {
-    return;
-  }
-
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-  if (event.shiftKey && document.activeElement === first) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && document.activeElement === last) {
-    event.preventDefault();
-    first.focus();
-  }
 }

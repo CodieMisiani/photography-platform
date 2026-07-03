@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import useMobileMenu from "../hooks/useMobileMenu";
 import Button from "./ui/Button";
 
 const navItems = [
@@ -10,82 +10,7 @@ const navItems = [
 ];
 
 export default function Header() {
-  const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
-  const menuRef = useRef<HTMLDivElement>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null);
-  const previousPathRef = useRef(location.pathname);
-
-  useEffect(() => {
-    if (previousPathRef.current === location.pathname) {
-      return;
-    }
-
-    previousPathRef.current = location.pathname;
-    if (!isOpen) {
-      return;
-    }
-
-    const frame = window.requestAnimationFrame(() => setIsOpen(false));
-    return () => window.cancelAnimationFrame(frame);
-  }, [isOpen, location.pathname]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    function handlePointer(event: MouseEvent | TouchEvent) {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        !toggleRef.current?.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    }
-
-    function handleKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-        toggleRef.current?.focus();
-      }
-      if (event.key === "Tab" && menuRef.current) {
-        trapFocus(event, menuRef.current);
-      }
-    }
-
-    document.addEventListener("mousedown", handlePointer);
-    document.addEventListener("touchstart", handlePointer);
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handlePointer);
-      document.removeEventListener("touchstart", handlePointer);
-      document.removeEventListener("keydown", handleKey);
-    };
-  }, [isOpen]);
-
-  // Lock body scroll and focus first interactive element when menu opens
-  useEffect(() => {
-    if (!isOpen) {
-      document.body.style.overflow = "";
-      return;
-    }
-
-    document.body.style.overflow = "hidden";
-
-    const frame = window.requestAnimationFrame(() => {
-      const first = menuRef.current?.querySelector<HTMLElement>(
-        "a[href], button:not([disabled]), input:not([disabled])",
-      );
-      first?.focus();
-    });
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  const { isOpen, menuRef, setIsOpen, toggleRef } = useMobileMenu();
 
   return (
     <header className="sticky top-0 z-50 border-b border-grey-light bg-paper">
@@ -151,13 +76,18 @@ export default function Header() {
           aria-label="Mobile navigation"
         >
           {navItems.map((item) => (
-            <HeaderLink key={item.to} item={item} />
+            <HeaderLink key={item.to} item={item} tabIndex={isOpen ? 0 : -1} />
           ))}
           <div className="grid gap-3 pt-4">
-            <Button asLink to="/book" className="w-full">
+            <Button asLink to="/book" className="w-full" tabIndex={isOpen ? 0 : -1}>
               Book Me
             </Button>
-            <Button asLink to="/request-quote" className="w-full">
+            <Button
+              asLink
+              to="/request-quote"
+              className="w-full"
+              tabIndex={isOpen ? 0 : -1}
+            >
               Request a Quote
             </Button>
           </div>
@@ -167,10 +97,17 @@ export default function Header() {
   );
 }
 
-function HeaderLink({ item }: { item: { label: string; to: string } }) {
+function HeaderLink({
+  item,
+  tabIndex,
+}: {
+  item: { label: string; to: string };
+  tabIndex?: number;
+}) {
   return (
     <NavLink
       to={item.to}
+      tabIndex={tabIndex}
       className={({ isActive }) =>
         `nav-link uppercase tracking-[0.25em] text-[0.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${
           isActive ? "nav-link--active" : ""
@@ -180,25 +117,4 @@ function HeaderLink({ item }: { item: { label: string; to: string } }) {
       {item.label}
     </NavLink>
   );
-}
-
-function trapFocus(event: KeyboardEvent, container: HTMLElement) {
-  const focusable = Array.from(
-    container.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    ),
-  );
-  if (focusable.length === 0) {
-    return;
-  }
-
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-  if (event.shiftKey && document.activeElement === first) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && document.activeElement === last) {
-    event.preventDefault();
-    first.focus();
-  }
 }
