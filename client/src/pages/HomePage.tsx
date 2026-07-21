@@ -1,6 +1,7 @@
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import StatCard from "../components/StatCard";
+import FadeUp from "../components/motion/FadeUp";
 import Button from "../components/ui/Button";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
@@ -62,10 +63,11 @@ export default function HomePage() {
 
         <section className="border-y border-grey-light bg-paper py-14">
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 md:grid-cols-4">
-            {homeMetrics.map((metric) => (
-              <div
+            {homeMetrics.map((metric, index) => (
+              <FadeUp
                 key={metric.label}
                 className="flex flex-col gap-3 text-center md:text-left"
+                delay={index * 120}
               >
                 <span className="text-[2rem] font-semibold tracking-[-0.05em] text-ink">
                   {metric.value}
@@ -73,14 +75,14 @@ export default function HomePage() {
                 <span className="text-sm uppercase tracking-[0.25em] text-grey">
                   {metric.label}
                 </span>
-              </div>
+              </FadeUp>
             ))}
           </div>
         </section>
 
         <section className="bg-paper py-16">
           <div className="mx-auto max-w-7xl px-6">
-            <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <FadeUp className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-[0.75rem] uppercase tracking-[0.3em] text-grey">
                   Business performance
@@ -89,12 +91,13 @@ export default function HomePage() {
                   Trusted results for every client
                 </h2>
               </div>
-            </div>
+            </FadeUp>
 
             <div className="grid gap-6 md:grid-cols-3">
-              {data?.stats.map((stat) => (
+              {data?.stats.map((stat, index) => (
                 <StatCard
                   key={stat.id}
+                  delay={200 + index * 100}
                   label={stat.label}
                   value={stat.value}
                   suffix={stat.suffix}

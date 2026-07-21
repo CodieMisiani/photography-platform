@@ -2,14 +2,17 @@ import { useEffect, useRef, useState } from "react";
 
 type Options = {
   duration?: number;
+  delay?: number;
+  enabled?: boolean;
   start?: number;
 };
 
 export function useCountUp(target: number, options: Options = {}) {
-  const { duration = 1500, start = 0 } = options;
+  const { delay = 0, duration = 1500, enabled, start = 0 } = options;
   const [value, setValue] = useState(start);
   const ref = useRef<HTMLDivElement | null>(null);
   const frameRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -19,6 +22,12 @@ export function useCountUp(target: number, options: Options = {}) {
     ).matches;
     if (prefersReduced) {
       frameRef.current = requestAnimationFrame(() => setValue(target));
+      return () => {
+        if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      };
+    }
+    if (enabled === false) {
+      frameRef.current = requestAnimationFrame(() => setValue(start));
       return () => {
         if (frameRef.current) cancelAnimationFrame(frameRef.current);
       };
@@ -41,12 +50,25 @@ export function useCountUp(target: number, options: Options = {}) {
       }
     }
 
-    // Observe element visibility
+    function startAnimation() {
+      timeoutRef.current = window.setTimeout(() => {
+        frameRef.current = requestAnimationFrame(step);
+      }, delay);
+    }
+
+    if (enabled === true) {
+      startAnimation();
+      return () => {
+        if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+        if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      };
+    }
+
     const el = ref.current;
     if (!el) {
-      // start immediately
-      frameRef.current = requestAnimationFrame(step);
+      startAnimation();
       return () => {
+        if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
         if (frameRef.current) cancelAnimationFrame(frameRef.current);
       };
     }
@@ -55,7 +77,7 @@ export function useCountUp(target: number, options: Options = {}) {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            frameRef.current = requestAnimationFrame(step);
+            startAnimation();
             observer.disconnect();
           }
         });
@@ -66,10 +88,11 @@ export function useCountUp(target: number, options: Options = {}) {
     observer.observe(el);
 
     return () => {
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
       observer.disconnect();
     };
-  }, [target, duration, start]);
+  }, [delay, duration, enabled, start, target]);
 
   return { value, ref } as const;
 }
