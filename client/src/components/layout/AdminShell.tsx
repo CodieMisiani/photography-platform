@@ -65,10 +65,10 @@ export default function AdminShell({ children }: { children: ReactNode }) {
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                `border-l py-3 pl-3 text-[0.75rem] font-semibold uppercase tracking-[0.25em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${
+                `border-l py-3 pl-3 text-[0.75rem] font-semibold uppercase tracking-[0.25em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   isActive
-                    ? "border-ink text-ink underline decoration-ink decoration-1 underline-offset-4"
-                    : "border-transparent text-grey"
+                    ? "border-accent bg-accent-muted text-accent underline decoration-accent decoration-1 underline-offset-4"
+                    : "border-transparent text-grey hover:text-accent"
                 }`
               }
             >
@@ -80,7 +80,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
           type="button"
           onClick={() => logoutMutation.mutate()}
           disabled={logoutMutation.isPending}
-          className="mt-auto border border-ink px-4 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-ink transition-colors hover:bg-ink hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink disabled:cursor-not-allowed disabled:border-grey disabled:text-grey"
+          className="mt-auto border border-accent bg-accent px-4 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-200 ease-out hover:border-accent-hover hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:border-grey disabled:bg-transparent disabled:text-grey disabled:opacity-50 active:scale-[0.98]"
         >
           {logoutMutation.isPending ? "Signing out" : "Logout"}
         </button>
@@ -98,7 +98,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
             aria-expanded={isOpen}
             aria-controls="admin-mobile-menu"
             onClick={() => setIsOpen((value) => !value)}
-            className="inline-flex h-10 w-10 items-center justify-center border border-ink text-ink transition-colors hover:bg-ink hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+            className="inline-flex h-10 w-10 items-center justify-center border border-accent text-accent transition-colors hover:bg-accent hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <span className="sr-only">
               {isOpen ? "Close admin menu" : "Open admin menu"}
@@ -136,8 +136,10 @@ export default function AdminShell({ children }: { children: ReactNode }) {
                 to={link.to}
                 tabIndex={isOpen ? 0 : -1}
                 className={({ isActive }) =>
-                  `nav-link uppercase tracking-[0.25em] text-[0.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${
-                    isActive ? "nav-link--active" : "text-grey"
+                  `nav-link uppercase tracking-[0.25em] text-[0.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                    isActive
+                      ? "nav-link--active bg-accent-muted px-2"
+                      : "text-grey"
                   }`
                 }
               >
@@ -149,7 +151,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
               onClick={() => logoutMutation.mutate()}
               disabled={logoutMutation.isPending}
               tabIndex={isOpen ? 0 : -1}
-              className="mt-3 border border-ink px-4 py-3 text-left text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-ink transition-colors hover:bg-ink hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink disabled:cursor-not-allowed disabled:border-grey disabled:text-grey"
+              className="mt-3 border border-accent bg-accent px-4 py-3 text-left text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-200 ease-out hover:border-accent-hover hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:border-grey disabled:bg-transparent disabled:text-grey disabled:opacity-50 active:scale-[0.98]"
             >
               {logoutMutation.isPending ? "Signing out" : "Logout"}
             </button>

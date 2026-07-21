@@ -44,7 +44,7 @@ export default function Header() {
           aria-expanded={isOpen}
           aria-controls="mobile-menu"
           onClick={() => setIsOpen((value) => !value)}
-          className="inline-flex h-10 w-10 items-center justify-center border border-ink text-ink transition-colors hover:bg-ink hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink md:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center border border-accent text-accent transition-colors hover:bg-accent hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
         >
           <span className="sr-only">{isOpen ? "Close menu" : "Open menu"}</span>
           <span className="flex flex-col gap-1" aria-hidden="true">
@@ -86,6 +86,7 @@ export default function Header() {
               asLink
               to="/request-quote"
               className="w-full"
+              variant="secondary"
               tabIndex={isOpen ? 0 : -1}
             >
               Request a Quote
@@ -109,7 +110,7 @@ function HeaderLink({
       to={item.to}
       tabIndex={tabIndex}
       className={({ isActive }) =>
-        `nav-link uppercase tracking-[0.25em] text-[0.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${
+        `nav-link uppercase tracking-[0.25em] text-[0.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
           isActive ? "nav-link--active" : ""
         }`
       }

@@ -143,7 +143,7 @@ export default function AdminStatsPage() {
                     >
                       Save
                     </Button>
-                    <Button onClick={() => cancelEdit(stat.id)}>Cancel</Button>
+                    <Button variant="neutral" onClick={() => cancelEdit(stat.id)}>Cancel</Button>
                   </>
                 ) : (
                   <Button onClick={() => startEdit(stat)}>Edit</Button>

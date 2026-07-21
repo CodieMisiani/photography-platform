@@ -84,10 +84,10 @@ export default function InvoiceManagementPage() {
                 key={filter}
                 type="button"
                 onClick={() => setSelectedFilter(filter)}
-                className={`text-[0.75rem] font-semibold uppercase tracking-[0.25em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${
+                className={`text-[0.75rem] font-semibold uppercase tracking-[0.25em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   selectedFilter === filter
-                    ? "text-ink underline decoration-ink decoration-1 underline-offset-4"
-                    : "text-grey"
+                    ? "text-accent underline decoration-accent decoration-1 underline-offset-4"
+                    : "text-grey hover:text-accent"
                 }`}
               >
                 {filter}
@@ -155,6 +155,7 @@ export default function InvoiceManagementPage() {
                     </Button>
                     <Button
                       disabled={!invoice.databaseId || deleteMutation.isPending}
+                      variant="danger"
                       onClick={() => invoice.databaseId && deleteMutation.mutate(invoice.databaseId)}
                     >
                       Delete
@@ -241,7 +242,7 @@ function InvoiceForm({
             <FormField id={`${title}-description-${index}`} label="Description" required value={item.description} onChange={(event) => updateLineItem(index, "description", event.target.value, setLineItems)} />
             <FormField id={`${title}-quantity-${index}`} label="Qty" type="number" min="1" required value={item.quantity} onChange={(event) => updateLineItem(index, "quantity", event.target.value, setLineItems)} />
             <FormField id={`${title}-price-${index}`} label="Unit Price" type="number" min="0" required value={item.unit_price} onChange={(event) => updateLineItem(index, "unit_price", event.target.value, setLineItems)} />
-            <Button type="button" onClick={() => setLineItems((current) => current.filter((_, itemIndex) => itemIndex !== index))}>
+            <Button type="button" variant="danger" onClick={() => setLineItems((current) => current.filter((_, itemIndex) => itemIndex !== index))}>
               Remove
             </Button>
           </div>
@@ -254,7 +255,7 @@ function InvoiceForm({
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Saving" : submitLabel}
         </Button>
-        {onCancel ? <Button type="button" onClick={onCancel}>Cancel</Button> : null}
+        {onCancel ? <Button type="button" variant="neutral" onClick={onCancel}>Cancel</Button> : null}
       </div>
     </form>
   );

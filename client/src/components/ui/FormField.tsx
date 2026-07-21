@@ -24,7 +24,7 @@ type SelectProps = SharedProps &
 type FormFieldProps = InputProps | TextareaProps | SelectProps;
 
 const fieldClasses =
-  "w-full border-0 border-b border-grey bg-transparent px-0 py-3 text-[1rem] text-ink placeholder:text-grey focus:border-ink focus:outline-none";
+  "w-full border-0 border-b border-grey bg-transparent px-0 py-3 text-[1rem] text-ink placeholder:text-grey focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
 
 export default function FormField(props: FormFieldProps) {
   const { label, id, helper } = props;

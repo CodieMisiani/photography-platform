@@ -94,8 +94,8 @@ export default function PublicEventsPage() {
                   onClick={() => setSelectedFilter(option)}
                   className={`whitespace-nowrap border px-6 py-2 text-[0.75rem] font-semibold uppercase tracking-[0.2em] transition-colors duration-200 ${
                     isSelected
-                      ? "border-ink bg-ink text-paper"
-                      : "border-grey-light bg-transparent text-ink hover:bg-ink hover:text-paper"
+                      ? "border-accent bg-accent text-white"
+                      : "border-grey-light bg-transparent text-ink hover:border-accent hover:text-accent"
                   }`}
                 >
                   {option}
@@ -178,7 +178,7 @@ function EventRow({ event }: { event: PublicEvent }) {
 
 function StatusLabel({ category }: { category: EventCategory }) {
   return (
-    <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey underline decoration-ink decoration-1 underline-offset-4">
+    <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey underline decoration-accent decoration-1 underline-offset-4">
       {category}
     </span>
   );

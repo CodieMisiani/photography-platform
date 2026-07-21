@@ -122,8 +122,8 @@ export default function BookPage() {
                       type="button"
                       disabled={blocked}
                       onClick={() => setSelectedDate(dateId)}
-                      className={`min-h-20 border-b border-r border-grey-light p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${
-                        selected ? "bg-ink text-paper" : "bg-paper text-ink"
+                      className={`min-h-20 border-b border-r border-grey-light p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                        selected ? "bg-accent text-white" : "bg-paper text-ink"
                       } ${blocked ? "cursor-not-allowed text-grey opacity-40" : "hover:bg-grey-faint"}`}
                     >
                       {day ? day.getDate() : ""}

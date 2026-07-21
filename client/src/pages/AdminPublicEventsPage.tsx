@@ -121,7 +121,7 @@ export default function AdminPublicEventsPage() {
                     <Button onClick={() => updateMutation.mutate({ id: event.id, payload: { is_published: !event.is_published } })}>
                       {event.is_published ? "Unpublish" : "Publish"}
                     </Button>
-                    <Button onClick={() => deleteMutation.mutate(event.id)} disabled={deleteMutation.isPending}>
+                    <Button variant="danger" onClick={() => deleteMutation.mutate(event.id)} disabled={deleteMutation.isPending}>
                       Delete
                     </Button>
                   </div>
@@ -167,7 +167,7 @@ function EditEventPanel({
       <EventFields form={form} onChange={setForm} onFileChange={setFile} />
       <div className="mt-8 flex flex-wrap gap-3">
         <Button type="submit" disabled={isSaving}>{isSaving ? "Saving" : "Save Event"}</Button>
-        <Button type="button" onClick={onCancel}>Cancel</Button>
+        <Button type="button" variant="neutral" onClick={onCancel}>Cancel</Button>
       </div>
     </form>
   );

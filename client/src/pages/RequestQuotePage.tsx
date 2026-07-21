@@ -93,7 +93,7 @@ export default function RequestQuotePage() {
                     <div
                       className={`flex h-8 w-8 shrink-0 items-center justify-center border text-[0.7rem] font-semibold uppercase tracking-[0.2em] ${
                         index === 0
-                          ? "border-ink bg-ink text-paper"
+                          ? "border-accent bg-accent text-white"
                           : "border-grey-light text-grey"
                       }`}
                     >
@@ -308,7 +308,7 @@ function EventDetailsStep({
                   />
                   <span
                     className={`block px-4 py-4 text-center text-[0.75rem] font-semibold uppercase tracking-[0.2em] ${
-                      isSelected ? "bg-ink text-paper" : "text-ink"
+                      isSelected ? "bg-accent text-white" : "text-ink"
                     }`}
                   >
                     {option}
@@ -323,7 +323,7 @@ function EventDetailsStep({
         <button
           type="button"
           onClick={onBack}
-          className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey underline decoration-ink decoration-1 underline-offset-4"
+          className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey underline decoration-ink decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
         >
           Back
         </button>
@@ -377,7 +377,7 @@ function CreativeBriefStep({
         <button
           type="button"
           onClick={onBack}
-          className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey underline decoration-ink decoration-1 underline-offset-4"
+          className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey underline decoration-ink decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
         >
           Back
         </button>

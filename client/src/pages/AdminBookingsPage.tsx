@@ -176,7 +176,7 @@ function BookingEditPanel({
       </div>
       <div className="mt-8 flex gap-3">
         <Button type="submit" disabled={isSaving}>{isSaving ? "Saving" : "Save Booking"}</Button>
-        <Button type="button" onClick={onCancel}>Cancel</Button>
+        <Button type="button" variant="neutral" onClick={onCancel}>Cancel</Button>
       </div>
     </form>
   );

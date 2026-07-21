@@ -214,7 +214,7 @@ export default function AdminSettingsPage() {
                   disabled={
                     !subscriber.is_active || deactivateMutation.isPending
                   }
-                  className="min-h-11 border border-ink px-4 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-ink transition-colors hover:bg-ink hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink disabled:cursor-not-allowed disabled:border-grey disabled:text-grey"
+                  className="min-h-11 border border-red-700 px-4 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-red-700 transition-colors hover:bg-red-700 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-700 disabled:cursor-not-allowed disabled:border-grey disabled:text-grey"
                 >
                   Deactivate
                 </button>
@@ -263,7 +263,7 @@ function TogglePasswordButton({
     <button
       type="button"
       onClick={onClick}
-      className="justify-self-start text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-grey transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+      className="justify-self-start text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-grey transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
     >
       {visible ? "Hide passwords" : "Show passwords"}
     </button>
