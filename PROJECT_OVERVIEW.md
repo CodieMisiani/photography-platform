@@ -171,7 +171,9 @@ Rollback:
 - React/Vite/Tailwind frontend with the existing monochrome editorial design preserved.
 - Homepage refinement with clean hero and moving image marquee.
 - Mobile hamburger menu with keyboard/focus handling.
-- Admin mobile hamburger menu with route-close, outside-click close, Escape close, active state, and focus trap.
+- Admin panel mobile hamburger navigation, sharing the public menu's focus trap, route-close, Escape close, outside-click close, active state, and breakpoint behavior.
+- Hero section staggered fade-up entrance animation, viewport-triggered and `prefers-reduced-motion` safe.
+- Stats section staggered card entrance with deferred count-up trigger.
 - Public portfolio reads from the API.
 - Public events reads from the API.
 - Quote request form submits to `/quotes`.
