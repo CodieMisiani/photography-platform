@@ -3,6 +3,11 @@ export const SITE_CONFIG = {
   tagline: "Capturing moments that last forever.",
   email: "hello@malumephotography.com",
   phone: "+254 700 000 000",
+  brand: {
+    accent: "#0077B5",
+    accentHover: "#005f91",
+    accentName: "Classic LinkedIn Blue",
+  },
   social: {
     tiktok: "https://tiktok.com/@malumephotography",
     whatsapp: "https://wa.me/254700000000",

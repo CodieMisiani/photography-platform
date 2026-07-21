@@ -29,6 +29,14 @@ Flow in words:
 
 `React pages -> typed API client -> Express routes/controllers -> services -> Postgres/Redis/Cloudinary/Daraja`
 
+### Brand Accent Color
+
+- Brand Accent Color: `#0077B5` (Classic LinkedIn Blue).
+- Defined in: `client/tailwind.config.ts` as the `accent` token, `client/src/styles/globals.css` as CSS variables, and `client/src/config/site.ts` in the `brand` block.
+- Applied to: CTAs, nav active/hover states, admin sidebar active states, status badges for paid/confirmed/new states, stats count-up numbers, footer link/icon hovers, and input focus rings.
+- Not applied to: page backgrounds, body typography, cards, destructive UI, the marquee, photography image treatments, or section layouts.
+- WCAG AA compliant: confirmed for accent text on white, white text on accent, accent on dark ink, and accent text on muted accent badge backgrounds.
+
 ### Environment Variables
 
 These match `server/.env.example`.

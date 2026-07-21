@@ -70,8 +70,8 @@ export default function PortfolioPage() {
                   onClick={() => setSelectedFilter(option)}
                   className={`uppercase tracking-[0.3em] text-[0.75rem] pb-1 transition-colors ${
                     selectedFilter === option
-                      ? "border-b border-ink text-ink"
-                      : "text-grey"
+                      ? "bg-accent px-3 py-2 text-white"
+                      : "text-grey hover:text-accent"
                   }`}
                 >
                   {option}
@@ -95,7 +95,7 @@ export default function PortfolioPage() {
         </section>
 
         <div className="mt-10 flex justify-center">
-          <Button className="border-ink text-ink hover:bg-ink hover:text-paper">
+          <Button variant="secondary">
             Load More Projects
           </Button>
         </div>
@@ -144,7 +144,7 @@ function PortfolioCard({ item }: { item: PortfolioItem }) {
         <h2 className="mt-4 text-2xl font-semibold uppercase tracking-[-0.03em] text-ink">
           {item.title}
         </h2>
-        <div className="mt-4 flex items-center gap-2 text-[0.75rem] uppercase tracking-[0.3em] text-ink">
+        <div className="mt-4 flex items-center gap-2 text-[0.75rem] uppercase tracking-[0.3em] text-ink transition-colors group-hover:text-accent">
           <span>View project</span>
           <svg
             className="h-4 w-4"

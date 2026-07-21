@@ -83,14 +83,14 @@ export default function Footer() {
                   }
                 }}
                 placeholder="Your email address"
-                className="w-full bg-transparent text-[0.9rem] text-ink placeholder:text-grey focus:outline-none"
+                className="w-full bg-transparent text-[0.9rem] text-ink placeholder:text-grey focus:outline-none focus:ring-2 focus:ring-accent/20"
                 autoComplete="email"
                 required
               />
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="min-h-11 text-left text-ink uppercase tracking-[0.25em] text-[0.75rem] transition-colors hover:text-grey focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink disabled:cursor-not-allowed disabled:text-grey sm:text-right"
+                className="min-h-11 text-left text-accent uppercase tracking-[0.25em] text-[0.75rem] transition-colors duration-150 hover:text-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:text-grey sm:text-right"
               >
                 {status === "loading" ? "Subscribing" : "Subscribe"}
               </button>
@@ -118,13 +118,13 @@ export default function Footer() {
             </span>
             <a
               href={`mailto:${SITE_CONFIG.email}`}
-              className="text-grey hover:text-ink"
+              className="text-grey transition-colors duration-150 hover:text-accent"
             >
               {SITE_CONFIG.email}
             </a>
             <a
               href={`tel:${SITE_CONFIG.phone}`}
-              className="text-grey hover:text-ink"
+              className="text-grey transition-colors duration-150 hover:text-accent"
             >
               {SITE_CONFIG.phone}
             </a>
@@ -204,8 +204,8 @@ export default function Footer() {
               </SocialLink>
             </nav>
             <div className="flex flex-wrap gap-5">
-              <Link to="/privacy">Privacy</Link>
-              <Link to="/terms">Terms</Link>
+              <Link className="transition-colors duration-150 hover:text-accent" to="/privacy">Privacy</Link>
+              <Link className="transition-colors duration-150 hover:text-accent" to="/terms">Terms</Link>
             </div>
           </div>
         </div>
@@ -236,7 +236,7 @@ function SocialLink({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="inline-flex h-11 w-11 items-center justify-center text-grey transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+      className="inline-flex h-11 w-11 items-center justify-center text-grey transition-colors duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       style={{ minWidth: 44, minHeight: 44 }}
     >
       {children}

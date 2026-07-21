@@ -107,6 +107,7 @@ export default function PortfolioCmsPage() {
                       {project.isFeatured ? "Unfeature" : "Feature"}
                     </Button>
                     <Button
+                      variant="danger"
                       onClick={() => deleteMutation.mutate(project.id)}
                       disabled={deleteMutation.isPending}
                     >
@@ -210,7 +211,7 @@ function ProjectForm({
         </label>
       </div>
       <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-        <Button type="button" onClick={onCancel ?? onDone}>Cancel</Button>
+        <Button type="button" variant="neutral" onClick={onCancel ?? onDone}>Cancel</Button>
         <Button type="submit" disabled={createMutation.isPending || isSaving}>
           {createMutation.isPending || isSaving ? "Saving" : project ? "Save Project" : "Publish Project"}
         </Button>

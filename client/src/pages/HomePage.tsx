@@ -124,7 +124,7 @@ export default function HomePage() {
                 </h2>
               </div>
               <a
-                className="inline-flex items-center gap-2 uppercase tracking-[0.3em] text-sm text-ink underline decoration-ink decoration-1 underline-offset-4"
+                className="inline-flex items-center gap-2 uppercase tracking-[0.3em] text-sm text-ink underline decoration-ink decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
                 href="/portfolio"
               >
                 Explore all projects
@@ -205,7 +205,8 @@ export default function HomePage() {
             <Button
               asLink
               to="/request-quote"
-              className="mt-12 border-ink text-ink hover:bg-ink hover:text-paper"
+              variant="secondary"
+              className="mt-12"
             >
               Start a project
             </Button>

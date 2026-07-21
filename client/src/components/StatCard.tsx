@@ -38,9 +38,9 @@ export default function StatCard({
       <p className="text-xs font-semibold uppercase tracking-widest text-grey">
         {label}
       </p>
-      <p className="mt-2 text-3xl font-display font-bold text-ink">
+      <p className="mt-2 text-3xl font-display font-bold text-accent">
         {current}
-        {suffix ? <span className="ml-1 text-base">{suffix}</span> : null}
+        {suffix ? <span className="ml-1 text-base text-accent">{suffix}</span> : null}
       </p>
     </div>
   );
