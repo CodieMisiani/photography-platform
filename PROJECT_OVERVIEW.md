@@ -14,14 +14,15 @@ Think of the system like a real studio:
 - The backend is the back office. It receives forms, checks login sessions, stores records, and talks to outside services.
 - Postgres is the filing cabinet. It keeps bookings, quotes, invoices, events, and portfolio records.
 - Redis is the wristband at the door. It remembers which admin is logged in for eight hours.
-- Cloudinary is the photo shelf. It stores uploaded portfolio images.
+- Cloudinary is the photo shelf. It stores uploaded portfolio and public event images.
+- SMTP email is the studio bell. It tells the admin when somebody joins the newsletter.
 - Daraja is the messenger to M-Pesa. It sends the STK Push prompt and reports whether the payment worked.
 
 ## Section B - Technical Setup & Handoff Doc
 
 ### Architecture
 
-The browser runs the React/Vite frontend in `client`. React components call one typed API layer at `client/src/lib/api.ts`. That API layer calls the Express backend in `server`. Express validates requests with Zod, checks admin sessions with Redis, reads and writes Postgres through Knex, uploads portfolio images to Cloudinary, and triggers M-Pesa STK Push through Safaricom Daraja.
+The browser runs the React/Vite frontend in `client`. React components call one typed API layer at `client/src/lib/api.ts`. That API layer calls the Express backend in `server`. Express validates requests with Zod, checks admin sessions with Redis, reads and writes Postgres through Knex, uploads portfolio and public event images to Cloudinary, sends newsletter signup notifications through SMTP, and triggers M-Pesa STK Push through Safaricom Daraja.
 
 The homepage image marquee reads from `homeMarqueeImages` in `client/src/data/homeFixtures.ts`. Swap real portfolio photo URLs there when production assets are ready; the homepage consumes the list automatically and duplicates it for the seamless loop.
 
@@ -55,6 +56,14 @@ These match `server/.env.example`.
 - `CLOUDINARY_CLOUD_NAME`: From Cloudinary dashboard.
 - `CLOUDINARY_API_KEY`: From Cloudinary dashboard.
 - `CLOUDINARY_API_SECRET`: From Cloudinary dashboard.
+- `CLOUDINARY_FOLDER`: Root Cloudinary folder. Defaults to `malume-photography`; uploads are separated into `/portfolio` and `/events`.
+- `SMTP_HOST`: SMTP server host for newsletter signup notifications.
+- `SMTP_PORT`: SMTP server port, usually `587` or `465`.
+- `SMTP_USER`: SMTP username.
+- `SMTP_PASS`: SMTP password or app password.
+- `SMTP_FROM`: Sender address shown on newsletter notification emails.
+- `SMTP_SECURE`: `true` for implicit TLS, usually port `465`; `false` for STARTTLS, usually port `587`.
+- `NEWSLETTER_NOTIFY_EMAIL`: Email address that receives new subscriber notifications. Defaults to `nimrodmisiani42@gmail.com`.
 - `DARAJA_ENV`: `sandbox` or `production`.
 - `DARAJA_CONSUMER_KEY`: From Safaricom Daraja app.
 - `DARAJA_CONSUMER_SECRET`: From Safaricom Daraja app.
@@ -69,6 +78,8 @@ For the frontend, set `VITE_API_BASE_URL` to the backend URL.
 - Railway dashboard: `DATABASE_URL`, `PORT`.
 - Upstash dashboard: `REDIS_URL`.
 - Cloudinary dashboard: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
+- SMTP provider dashboard: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
+- Studio inbox owner: `NEWSLETTER_NOTIFY_EMAIL`.
 - Safaricom Daraja developer portal: `DARAJA_CONSUMER_KEY`, `DARAJA_CONSUMER_SECRET`, `DARAJA_PASSKEY`, `DARAJA_SHORTCODE`, `DARAJA_CALLBACK_URL`.
 - Self-generated: `SESSION_SECRET` as a long random string, `SESSION_COOKIE_NAME`, and admin seed values used only outside git.
 - Vercel project settings: `VITE_API_BASE_URL`, set to the Railway backend URL.
@@ -90,6 +101,10 @@ For the frontend, set `VITE_API_BASE_URL` to the backend URL.
    ```
 
 3. Create `server/.env` from `server/.env.example` and fill real local or production PostgreSQL/Redis values.
+
+   For image uploads, also fill the Cloudinary variables. Existing rows that do not have `cover_public_id` or `image_public_id` still render, but Cloudinary deletion is skipped for those legacy records because the app cannot safely guess the old public ID.
+
+   For newsletter notifications, fill the SMTP variables. If SMTP is missing, subscriptions still save and the backend logs that the notification was skipped.
 
 4. Run migrations:
 
@@ -192,6 +207,7 @@ Rollback:
 - DB-backed admin login seed flow.
 - Protected admin routes.
 - Portfolio CMS create/delete/feature and Cloudinary upload path.
+- Portfolio and public event image uploads store Cloudinary public IDs and clean up old Cloudinary assets on replacement/delete when a public ID exists.
 - Portfolio CMS full inline editing for title, category, event date, cover URL/upload, and featured state.
 - Booking admin page with full booking editing, booking status changes, and date block/unblock.
 - Quote inbox with status changes and internal notes.
@@ -200,7 +216,7 @@ Rollback:
 - Public events admin create/edit/delete/publish toggle with image URL/upload support.
 - Public events render real uploaded event images when present.
 - Footer social links use the configured TikTok, WhatsApp, X, Facebook, and LinkedIn URLs.
-- Newsletter subscription is backed by `newsletter_subscribers`, a public subscribe endpoint, and an admin subscriber list with soft deactivate.
+- Newsletter subscription is backed by `newsletter_subscribers`, a public subscribe endpoint, admin subscriber list with soft deactivate, duplicate-aware visitor messaging, and SMTP notification emails to the configured admin inbox.
 - Footer privacy/terms links resolve to real routes.
 - Navbar hover uses a center-morph underline and subtle letter-spacing transition with reduced-motion support.
 - Daraja STK Push trigger, webhook update, and frontend polling/failure timeout.
