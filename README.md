@@ -9,7 +9,8 @@ A production-ready photography business platform with portfolio management, book
 - Admin dashboard for bookings, quotes, invoices, portfolio, stats, public events, settings, and newsletter subscribers
 - Redis-backed admin sessions
 - PostgreSQL migrations through Knex
-- Cloudinary media upload path
+- Cloudinary media upload path with public ID cleanup on replace/delete
+- Newsletter signup notifications through SMTP
 - Daraja STK Push invoice payment flow
 - Kenya localization for KSh, +254 phone numbers, and DD/MM/YYYY dates
 
@@ -75,7 +76,8 @@ npm run build
 
 - Frontend: Vercel with `VITE_API_BASE_URL` pointing to the backend URL.
 - Backend: Railway with PostgreSQL and Redis/Upstash environment variables.
-- Media: Cloudinary credentials in Railway environment variables.
+- Media: Cloudinary credentials in Railway/Render environment variables. Portfolio uploads go to `malume-photography/portfolio`; public event uploads go to `malume-photography/events`.
+- Newsletter: SMTP credentials and `NEWSLETTER_NOTIFY_EMAIL` in Railway/Render environment variables.
 - Payments: Safaricom Daraja credentials in Railway environment variables.
 
 Never place real credentials in README files, source files, or tracked `.env` files. Use the deployment dashboard secret manager or a local untracked `server/.env`.
