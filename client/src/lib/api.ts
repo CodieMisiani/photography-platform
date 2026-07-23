@@ -397,10 +397,13 @@ export const api = {
   },
   newsletter: {
     subscribe: (email: string) =>
-      request<{ ok: true }>("/newsletter/subscribe", {
+      request<{ ok: true; alreadySubscribed: boolean; message: string }>(
+        "/newsletter/subscribe",
+        {
         method: "POST",
         body: { email },
-      }),
+        },
+      ),
     listSubscribers: () =>
       request<{ subscribers: ApiNewsletterSubscriber[] }>(
         "/admin/newsletter/subscribers",

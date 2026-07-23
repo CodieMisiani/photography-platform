@@ -30,6 +30,19 @@ const envSchema = z.object({
   CLOUDINARY_API_KEY: z.string().optional().default(""),
   CLOUDINARY_API_SECRET: z.string().optional().default(""),
   CLOUDINARY_FOLDER: z.string().optional().default("malume-photography"),
+  SMTP_HOST: z.string().optional().default(""),
+  SMTP_PORT: z.coerce.number().int().positive().default(587),
+  SMTP_USER: z.string().optional().default(""),
+  SMTP_PASS: z.string().optional().default(""),
+  SMTP_FROM: z.string().optional().default(""),
+  SMTP_SECURE: z
+    .string()
+    .optional()
+    .transform((value) => value === "true"),
+  NEWSLETTER_NOTIFY_EMAIL: z
+    .string()
+    .email()
+    .default("nimrodmisiani42@gmail.com"),
   DARAJA_ENV: z.enum(["sandbox", "production"]).default("sandbox"),
   DARAJA_CONSUMER_KEY: z.string().optional().default(""),
   DARAJA_CONSUMER_SECRET: z.string().optional().default(""),
