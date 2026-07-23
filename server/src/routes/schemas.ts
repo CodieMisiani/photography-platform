@@ -18,6 +18,7 @@ export const portfolioCreateSchema = z.object({
   title: z.string().min(2).max(160),
   category: z.string().min(2).max(80),
   cover_url: z.string().url(),
+  cover_public_id: z.string().min(1).max(255).optional().nullable(),
   event_date: z.string().date(),
   is_featured: z.boolean().default(false),
 });
@@ -100,6 +101,7 @@ export const publicEventCreateSchema = z.object({
   event_date: z.string().date(),
   ticket_url: z.string().url().optional().nullable(),
   image_url: z.string().url().optional().nullable(),
+  image_public_id: z.string().min(1).max(255).optional().nullable(),
   price: z.coerce.number().min(0),
   is_published: z.boolean().default(false),
 });

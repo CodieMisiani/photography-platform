@@ -5,7 +5,7 @@ import {
   listPortfolioEvents,
   updatePortfolioEvent,
 } from "../services/portfolioService.js";
-import { uploadPortfolioImage } from "../services/mediaService.js";
+import { uploadMedia } from "../services/mediaService.js";
 
 export async function listPortfolio(req: Request, res: Response) {
   res.status(200).json({ events: await listPortfolioEvents() });
@@ -25,5 +25,5 @@ export async function removePortfolio(req: Request, res: Response) {
 }
 
 export async function uploadPortfolioAsset(req: Request, res: Response) {
-  res.status(201).json(await uploadPortfolioImage(req.file));
+  res.status(201).json(await uploadMedia(req.file, { folder: "portfolio" }));
 }
