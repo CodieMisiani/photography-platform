@@ -3,14 +3,24 @@ import type { NewsletterSubscriberRow } from "../types/domain.js";
 
 export async function subscribeToNewsletter(
   email: string,
-): Promise<{ subscriber: NewsletterSubscriberRow; created: boolean }> {
+): Promise<{
+  subscriber: NewsletterSubscriberRow;
+  created: boolean;
+  alreadySubscribed: boolean;
+  reactivated: boolean;
+}> {
   const normalizedEmail = email.trim().toLowerCase();
   const existing = await db<NewsletterSubscriberRow>("newsletter_subscribers")
     .where({ email: normalizedEmail })
     .first();
 
   if (existing?.is_active) {
-    return { subscriber: existing, created: false };
+    return {
+      subscriber: existing,
+      created: false,
+      alreadySubscribed: true,
+      reactivated: false,
+    };
   }
 
   if (existing) {
@@ -20,7 +30,12 @@ export async function subscribeToNewsletter(
       .where({ id: existing.id })
       .update({ is_active: true, subscribed_at: db.fn.now() })
       .returning("*");
-    return { subscriber, created: false };
+    return {
+      subscriber,
+      created: false,
+      alreadySubscribed: false,
+      reactivated: true,
+    };
   }
 
   const [subscriber] = await db<NewsletterSubscriberRow>(
@@ -29,7 +44,12 @@ export async function subscribeToNewsletter(
     .insert({ email: normalizedEmail })
     .returning("*");
 
-  return { subscriber, created: true };
+  return {
+    subscriber,
+    created: true,
+    alreadySubscribed: false,
+    reactivated: false,
+  };
 }
 
 export async function listNewsletterSubscribers(): Promise<

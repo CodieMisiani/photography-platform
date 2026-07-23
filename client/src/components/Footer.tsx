@@ -22,10 +22,12 @@ export default function Footer() {
     setStatus("loading");
     setMessage("");
     try {
-      await api.newsletter.subscribe(trimmedEmail);
-      setEmail("");
+      const result = await api.newsletter.subscribe(trimmedEmail);
+      if (!result.alreadySubscribed) {
+        setEmail("");
+      }
       setStatus("success");
-      setMessage("You're subscribed!");
+      setMessage(result.message);
     } catch (error) {
       setStatus("error");
       setMessage(
