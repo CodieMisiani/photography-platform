@@ -7,6 +7,7 @@ export type EventRow = {
   title: string;
   category: string;
   cover_url: string;
+  cover_public_id: string | null;
   event_date: string;
   is_featured: boolean;
   created_at: string;
@@ -68,6 +69,7 @@ export type PublicEventRow = {
   event_date: string;
   ticket_url: string | null;
   image_url: string | null;
+  image_public_id: string | null;
   price: string;
   is_published: boolean;
 };

@@ -6,6 +6,7 @@ export type ApiPortfolioEvent = {
   title: string;
   category: string;
   cover_url: string;
+  cover_public_id: string | null;
   event_date: string;
   is_featured: boolean;
   created_at: string;
@@ -39,6 +40,7 @@ export type ApiPublicEvent = {
   event_date: string;
   ticket_url: string | null;
   image_url: string | null;
+  image_public_id: string | null;
   price: string;
   is_published: boolean;
 };
@@ -183,7 +185,7 @@ export const api = {
     upload: (file: File) => {
       const body = new FormData();
       body.append("image", file);
-      return request<{ url: string; public_id: string }>("/portfolio/uploads", {
+      return request<{ secure_url: string; url: string; public_id: string }>("/portfolio/uploads", {
         method: "POST",
         body,
       });
@@ -334,6 +336,17 @@ export const api = {
       }),
     delete: (id: string) =>
       request<void>(`/admin/public-events/${id}`, { method: "DELETE" }),
+    upload: (file: File) => {
+      const body = new FormData();
+      body.append("image", file);
+      return request<{ secure_url: string; url: string; public_id: string }>(
+        "/admin/public-events/uploads",
+        {
+          method: "POST",
+          body,
+        },
+      );
+    },
   },
   stats: {
     get: () =>

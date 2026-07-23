@@ -6,6 +6,7 @@ import {
   listPublishedPublicEvents,
   updatePublicEvent,
 } from "../services/publicEventService.js";
+import { uploadMedia } from "../services/mediaService.js";
 
 export async function listEvents(_req: Request, res: Response) {
   res.status(200).json({ events: await listPublishedPublicEvents() });
@@ -26,4 +27,8 @@ export async function patchAdminEvent(req: Request, res: Response) {
 export async function removeAdminEvent(req: Request, res: Response) {
   await deletePublicEvent(String(req.params.id));
   res.status(204).send();
+}
+
+export async function uploadPublicEventAsset(req: Request, res: Response) {
+  res.status(201).json(await uploadMedia(req.file, { folder: "events" }));
 }

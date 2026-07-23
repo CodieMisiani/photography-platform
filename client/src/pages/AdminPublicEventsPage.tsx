@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminShell from "../components/layout/AdminShell";
@@ -13,6 +13,7 @@ type EventFormState = {
   event_date: string;
   ticket_url: string;
   image_url: string;
+  image_public_id: string | null;
   price: string;
   is_published: boolean;
 };
@@ -23,6 +24,7 @@ const emptyForm: EventFormState = {
   event_date: "",
   ticket_url: "",
   image_url: "",
+  image_public_id: null,
   price: "0",
   is_published: false,
 };
@@ -31,6 +33,11 @@ export default function AdminPublicEventsPage() {
   const queryClient = useQueryClient();
   const [form, setForm] = useState(emptyForm);
   const [file, setFile] = useState<File | null>(null);
+  const localPreviewUrl = useFilePreview(file);
+  const [uploadStatus, setUploadStatus] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
+  const [uploadError, setUploadError] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const events = useQuery({
     queryKey: ["admin-public-events"],
@@ -38,12 +45,17 @@ export default function AdminPublicEventsPage() {
   });
   const createMutation = useMutation({
     mutationFn: async () => {
-      const uploaded = file ? await api.portfolio.upload(file) : null;
-      return api.publicEvents.create(toPayload(form, uploaded?.url));
+      const uploaded = await uploadSelectedEventFile(
+        file,
+        setUploadStatus,
+        setUploadError,
+      );
+      return api.publicEvents.create(toPayload(form, uploaded));
     },
     onSuccess: async () => {
       setForm(emptyForm);
       setFile(null);
+      setUploadStatus("idle");
       await queryClient.invalidateQueries({ queryKey: ["admin-public-events"] });
     },
   });
@@ -76,7 +88,18 @@ export default function AdminPublicEventsPage() {
 
         <form className="mb-12 border border-grey-light bg-grey-faint p-8" onSubmit={handleSubmit}>
           <h2 className="mb-8 text-2xl font-display font-semibold uppercase">Create Event</h2>
-          <EventFields form={form} onChange={setForm} onFileChange={setFile} />
+          <EventFields
+            form={form}
+            onChange={setForm}
+            onFileChange={(nextFile) => {
+              setFile(nextFile);
+              setUploadStatus("idle");
+              setUploadError("");
+            }}
+            uploadStatus={uploadStatus}
+            uploadError={uploadError}
+            previewUrl={localPreviewUrl}
+          />
           <Button type="submit" disabled={createMutation.isPending} className="mt-8">
             {createMutation.isPending ? "Creating" : "Create Event"}
           </Button>
@@ -90,13 +113,13 @@ export default function AdminPublicEventsPage() {
                 <EditEventPanel
                   event={event}
                   onCancel={() => setEditingId(null)}
-                  onSave={async (payload, imageFile) => {
-                    const uploaded = imageFile ? await api.portfolio.upload(imageFile) : null;
+                  onSave={async (payload, uploaded) => {
                     await updateMutation.mutateAsync({
                       id: event.id,
                       payload: {
                         ...payload,
                         image_url: uploaded?.url ?? payload.image_url,
+                        image_public_id: uploaded?.public_id ?? payload.image_public_id,
                       },
                     });
                     setEditingId(null);
@@ -121,7 +144,19 @@ export default function AdminPublicEventsPage() {
                     <Button onClick={() => updateMutation.mutate({ id: event.id, payload: { is_published: !event.is_published } })}>
                       {event.is_published ? "Unpublish" : "Publish"}
                     </Button>
-                    <Button variant="danger" onClick={() => deleteMutation.mutate(event.id)} disabled={deleteMutation.isPending}>
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Delete this public event permanently? This also removes its Cloudinary image when available.",
+                          )
+                        ) {
+                          deleteMutation.mutate(event.id);
+                        }
+                      }}
+                      disabled={deleteMutation.isPending}
+                    >
                       Delete
                     </Button>
                   </div>
@@ -143,7 +178,10 @@ function EditEventPanel({
 }: {
   event: ApiPublicEvent;
   onCancel: () => void;
-  onSave: (payload: Omit<ApiPublicEvent, "id">, file: File | null) => Promise<void>;
+  onSave: (
+    payload: Omit<ApiPublicEvent, "id">,
+    uploaded: UploadedMedia | null,
+  ) => Promise<void>;
   isSaving: boolean;
 }) {
   const [form, setForm] = useState<EventFormState>({
@@ -152,19 +190,41 @@ function EditEventPanel({
     event_date: event.event_date.slice(0, 10),
     ticket_url: event.ticket_url ?? "",
     image_url: event.image_url ?? "",
+    image_public_id: event.image_public_id,
     price: event.price,
     is_published: event.is_published,
   });
   const [file, setFile] = useState<File | null>(null);
+  const localPreviewUrl = useFilePreview(file);
+  const [uploadStatus, setUploadStatus] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
+  const [uploadError, setUploadError] = useState("");
 
-  function handleSubmit(submitEvent: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(submitEvent: FormEvent<HTMLFormElement>) {
     submitEvent.preventDefault();
-    void onSave(toPayload(form), file);
+    const uploaded = await uploadSelectedEventFile(
+      file,
+      setUploadStatus,
+      setUploadError,
+    );
+    await onSave(toPayload(form, uploaded), uploaded);
   }
 
   return (
     <form className="border border-grey-light bg-grey-faint p-6" onSubmit={handleSubmit}>
-      <EventFields form={form} onChange={setForm} onFileChange={setFile} />
+      <EventFields
+        form={form}
+        onChange={setForm}
+        onFileChange={(nextFile) => {
+          setFile(nextFile);
+          setUploadStatus("idle");
+          setUploadError("");
+        }}
+        uploadStatus={uploadStatus}
+        uploadError={uploadError}
+        previewUrl={localPreviewUrl}
+      />
       <div className="mt-8 flex flex-wrap gap-3">
         <Button type="submit" disabled={isSaving}>{isSaving ? "Saving" : "Save Event"}</Button>
         <Button type="button" variant="neutral" onClick={onCancel}>Cancel</Button>
@@ -177,14 +237,21 @@ function EventFields({
   form,
   onChange,
   onFileChange,
+  uploadStatus,
+  uploadError,
+  previewUrl,
 }: {
   form: EventFormState;
   onChange: (value: EventFormState) => void;
   onFileChange: (file: File | null) => void;
+  uploadStatus?: "idle" | "uploading" | "success" | "error";
+  uploadError?: string;
+  previewUrl?: string;
 }) {
   const setField = (field: keyof EventFormState, value: string | boolean) => {
     onChange({ ...form, [field]: value });
   };
+  const resolvedPreviewUrl = previewUrl || form.image_url;
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
@@ -209,6 +276,18 @@ function EventFields({
           onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
           className="w-full border border-dashed border-ink bg-paper p-8 text-[0.75rem] font-semibold uppercase tracking-[0.2em]"
         />
+        {uploadStatus === "uploading" ? <UploadNote message="Uploading image" /> : null}
+        {uploadStatus === "success" ? <UploadNote message="Image uploaded successfully" /> : null}
+        {uploadStatus === "error" ? (
+          <UploadNote message={uploadError || "Image upload failed"} tone="error" />
+        ) : null}
+        {resolvedPreviewUrl ? (
+          <img
+            src={resolvedPreviewUrl}
+            alt={previewUrl ? "Selected event preview" : "Current event preview"}
+            className="mt-4 h-32 w-48 object-cover grayscale"
+          />
+        ) : null}
       </div>
       <label className="flex items-center gap-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-grey">
         <input type="checkbox" checked={form.is_published} onChange={(event) => setField("is_published", event.target.checked)} />
@@ -218,14 +297,74 @@ function EventFields({
   );
 }
 
-function toPayload(form: EventFormState, uploadedUrl?: string): Omit<ApiPublicEvent, "id"> {
+type UploadedMedia = Awaited<ReturnType<typeof api.publicEvents.upload>>;
+
+function useFilePreview(file: File | null) {
+  const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : ""), [file]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  return previewUrl;
+}
+
+function toPayload(
+  form: EventFormState,
+  uploaded?: UploadedMedia | null,
+): Omit<ApiPublicEvent, "id"> {
   return {
     title: form.title,
     venue: form.venue,
     event_date: form.event_date,
     ticket_url: form.ticket_url || null,
-    image_url: (uploadedUrl ?? form.image_url) || null,
+    image_url: (uploaded?.url ?? form.image_url) || null,
+    image_public_id: uploaded?.public_id ?? form.image_public_id,
     price: Number(form.price).toFixed(2),
     is_published: form.is_published,
   };
+}
+
+async function uploadSelectedEventFile(
+  file: File | null,
+  setStatus: (status: "idle" | "uploading" | "success" | "error") => void,
+  setError: (message: string) => void,
+) {
+  if (!file) {
+    return null;
+  }
+
+  setStatus("uploading");
+  setError("");
+  try {
+    const uploaded = await api.publicEvents.upload(file);
+    setStatus("success");
+    return uploaded;
+  } catch (error) {
+    setStatus("error");
+    setError(error instanceof Error ? error.message : "Image upload failed");
+    throw error;
+  }
+}
+
+function UploadNote({
+  message,
+  tone = "info",
+}: {
+  message: string;
+  tone?: "info" | "error";
+}) {
+  return (
+    <p
+      className={`mt-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] ${
+        tone === "error" ? "text-red-700" : "text-grey"
+      }`}
+    >
+      {message}
+    </p>
+  );
 }

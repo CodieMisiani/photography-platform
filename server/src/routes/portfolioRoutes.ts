@@ -1,4 +1,3 @@
-import multer from "multer";
 import { Router } from "express";
 import {
   createPortfolio,
@@ -8,11 +7,10 @@ import {
   uploadPortfolioAsset,
 } from "../controllers/portfolioController.js";
 import { requireAdminSession } from "../middleware/auth.js";
+import { mediaUpload } from "../services/mediaService.js";
 import { validate } from "../middleware/validate.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { idParamsSchema, portfolioCreateSchema, portfolioPatchSchema } from "./schemas.js";
-
-const upload = multer({ storage: multer.memoryStorage() });
 
 export const portfolioRoutes = Router();
 
@@ -38,6 +36,6 @@ portfolioRoutes.delete(
 portfolioRoutes.post(
   "/uploads",
   requireAdminSession,
-  upload.single("image"),
+  mediaUpload.single("image"),
   asyncHandler(uploadPortfolioAsset),
 );

@@ -27,6 +27,7 @@ export async function fetchPortfolioCmsProjects() {
       status: event.is_featured ? ("Featured" as const) : ("Published" as const),
       image: event.cover_url,
       coverUrl: event.cover_url,
+      coverPublicId: event.cover_public_id,
       isFeatured: event.is_featured,
     })),
   };

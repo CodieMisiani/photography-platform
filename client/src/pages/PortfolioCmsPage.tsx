@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminShell from "../components/layout/AdminShell";
@@ -108,7 +108,15 @@ export default function PortfolioCmsPage() {
                     </Button>
                     <Button
                       variant="danger"
-                      onClick={() => deleteMutation.mutate(project.id)}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Delete this portfolio item permanently? This also removes its Cloudinary image when available.",
+                          )
+                        ) {
+                          deleteMutation.mutate(project.id);
+                        }
+                      }}
                       disabled={deleteMutation.isPending}
                     >
                       Delete
@@ -142,16 +150,28 @@ function ProjectForm({
   const [category, setCategory] = useState(project?.category ?? "Portraits");
   const [eventDate, setEventDate] = useState(project?.eventDate ?? "");
   const [coverUrl, setCoverUrl] = useState(project?.coverUrl ?? "");
+  const [coverPublicId] = useState(project?.coverPublicId ?? null);
   const [file, setFile] = useState<File | null>(null);
+  const localPreviewUrl = useFilePreview(file);
+  const previewUrl = localPreviewUrl || coverUrl;
+  const [uploadStatus, setUploadStatus] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
+  const [uploadError, setUploadError] = useState("");
   const [isFeatured, setIsFeatured] = useState(project?.isFeatured ?? false);
   const createMutation = useMutation({
     mutationFn: async () => {
-      const uploaded = file ? await api.portfolio.upload(file) : null;
+      const uploaded = await uploadSelectedPortfolioFile(
+        file,
+        setUploadStatus,
+        setUploadError,
+      );
       return api.portfolio.create({
         title,
         category,
         event_date: eventDate,
         cover_url: uploaded?.url ?? coverUrl,
+        cover_public_id: uploaded?.public_id ?? coverPublicId,
         is_featured: isFeatured,
       });
     },
@@ -164,12 +184,17 @@ function ProjectForm({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (project && onSave) {
-      const uploaded = file ? await api.portfolio.upload(file) : null;
+      const uploaded = await uploadSelectedPortfolioFile(
+        file,
+        setUploadStatus,
+        setUploadError,
+      );
       onSave({
         title,
         category,
         event_date: eventDate,
         cover_url: uploaded?.url ?? coverUrl,
+        cover_public_id: uploaded?.public_id ?? coverPublicId,
         is_featured: isFeatured,
       });
       return;
@@ -201,9 +226,30 @@ function ProjectForm({
             id={`projectImage-${project?.id ?? "new"}`}
             type="file"
             accept="image/jpeg,image/png,image/webp"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            onChange={(event) => {
+              setFile(event.target.files?.[0] ?? null);
+              setUploadStatus("idle");
+              setUploadError("");
+            }}
             className="w-full border border-dashed border-ink bg-paper p-8 text-[0.75rem] font-semibold uppercase tracking-[0.2em]"
           />
+          {file ? (
+            <p className="mt-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-grey">
+              Ready to upload: {file.name}
+            </p>
+          ) : null}
+          {uploadStatus === "uploading" ? <UploadNote message="Uploading image" /> : null}
+          {uploadStatus === "success" ? <UploadNote message="Image uploaded successfully" /> : null}
+          {uploadStatus === "error" ? (
+            <UploadNote message={uploadError || "Image upload failed"} tone="error" />
+          ) : null}
+          {previewUrl ? (
+            <img
+              src={previewUrl}
+              alt={localPreviewUrl ? "Selected cover preview" : "Current cover preview"}
+              className="mt-4 h-32 w-24 object-cover grayscale"
+            />
+          ) : null}
         </div>
         <label className="flex items-center gap-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-grey">
           <input type="checkbox" checked={isFeatured} onChange={(event) => setIsFeatured(event.target.checked)} />
@@ -217,5 +263,59 @@ function ProjectForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+function useFilePreview(file: File | null) {
+  const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : ""), [file]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  return previewUrl;
+}
+
+async function uploadSelectedPortfolioFile(
+  file: File | null,
+  setStatus: (status: "idle" | "uploading" | "success" | "error") => void,
+  setError: (message: string) => void,
+) {
+  if (!file) {
+    return null;
+  }
+
+  setStatus("uploading");
+  setError("");
+  try {
+    const uploaded = await api.portfolio.upload(file);
+    setStatus("success");
+    return uploaded;
+  } catch (error) {
+    setStatus("error");
+    setError(error instanceof Error ? error.message : "Image upload failed");
+    throw error;
+  }
+}
+
+function UploadNote({
+  message,
+  tone = "info",
+}: {
+  message: string;
+  tone?: "info" | "error";
+}) {
+  return (
+    <p
+      className={`mt-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] ${
+        tone === "error" ? "text-red-700" : "text-grey"
+      }`}
+    >
+      {message}
+    </p>
   );
 }

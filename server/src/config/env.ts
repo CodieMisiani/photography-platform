@@ -29,6 +29,7 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().optional().default(""),
   CLOUDINARY_API_KEY: z.string().optional().default(""),
   CLOUDINARY_API_SECRET: z.string().optional().default(""),
+  CLOUDINARY_FOLDER: z.string().optional().default("malume-photography"),
   DARAJA_ENV: z.enum(["sandbox", "production"]).default("sandbox"),
   DARAJA_CONSUMER_KEY: z.string().optional().default(""),
   DARAJA_CONSUMER_SECRET: z.string().optional().default(""),

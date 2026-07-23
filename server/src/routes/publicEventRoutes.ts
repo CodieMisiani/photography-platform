@@ -5,10 +5,12 @@ import {
   listEvents,
   patchAdminEvent,
   removeAdminEvent,
+  uploadPublicEventAsset,
 } from "../controllers/publicEventController.js";
 import { requireAdminSession } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { mediaUpload } from "../services/mediaService.js";
 import {
   idParamsSchema,
   publicEventCreateSchema,
@@ -19,6 +21,12 @@ export const publicEventRoutes = Router();
 
 publicEventRoutes.get("/events", asyncHandler(listEvents));
 publicEventRoutes.get("/admin/public-events", requireAdminSession, asyncHandler(listAdminEvents));
+publicEventRoutes.post(
+  "/admin/public-events/uploads",
+  requireAdminSession,
+  mediaUpload.single("image"),
+  asyncHandler(uploadPublicEventAsset),
+);
 publicEventRoutes.post(
   "/admin/public-events",
   requireAdminSession,
