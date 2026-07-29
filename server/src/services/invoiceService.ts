@@ -23,7 +23,9 @@ type DarajaCallbackBody = {
 };
 
 export async function listInvoices() {
-  const invoices = await db<InvoiceRow>("invoices").select("*").orderBy("invoice_no", "desc");
+  const invoices = await db<InvoiceRow>("invoices")
+    .select("*")
+    .orderBy("invoice_no", "desc");
   return attachLineItems(invoices);
 }
 
@@ -32,11 +34,16 @@ export async function createInvoice(payload: {
   client_name: string;
   phone: string;
   amount?: number;
-  line_items?: Array<{ description: string; quantity: number; unit_price: number }>;
+  line_items?: Array<{
+    description: string;
+    quantity: number;
+    unit_price: number;
+  }>;
 }) {
   const invoiceNo = payload.invoice_no ?? generateInvoiceNumber();
   return db.transaction(async (trx) => {
-    const computedAmount = computeLineItemTotal(payload.line_items) ?? payload.amount ?? 0;
+    const computedAmount =
+      computeLineItemTotal(payload.line_items) ?? payload.amount ?? 0;
     const [created] = await trx<InvoiceRow>("invoices")
       .insert({
         invoice_no: invoiceNo,
@@ -78,7 +85,11 @@ export async function updateInvoice(
     amount: number;
     status: InvoiceRow["status"];
     mpesa_ref: string | null;
-    line_items: Array<{ description: string; quantity: number; unit_price: number }>;
+    line_items: Array<{
+      description: string;
+      quantity: number;
+      unit_price: number;
+    }>;
   }>,
 ) {
   return db.transaction(async (trx) => {
@@ -103,7 +114,9 @@ export async function updateInvoice(
     }
 
     if (payload.line_items) {
-      await trx<InvoiceLineItemRow>("invoice_line_items").where({ invoice_id: id }).delete();
+      await trx<InvoiceLineItemRow>("invoice_line_items")
+        .where({ invoice_id: id })
+        .delete();
       if (payload.line_items.length) {
         await trx<InvoiceLineItemRow>("invoice_line_items").insert(
           payload.line_items.map((item) => ({
@@ -128,7 +141,9 @@ export async function deleteInvoice(id: string) {
 }
 
 export async function findInvoiceByNumber(invoiceNo: string) {
-  const invoice = await db<InvoiceRow>("invoices").where({ invoice_no: invoiceNo }).first();
+  const invoice = await db<InvoiceRow>("invoices")
+    .where({ invoice_no: invoiceNo })
+    .first();
   if (!invoice) {
     throw new AppError(404, "Invoice not found", "INVOICE_NOT_FOUND");
   }
@@ -166,34 +181,43 @@ export async function startInvoicePayment(id: string, phone: string) {
     `${darajaConfig.shortcode}${darajaConfig.passkey}${timestamp}`,
   ).toString("base64");
 
-  const response = await fetch(`${darajaConfig.baseUrl}/mpesa/stkpush/v1/processrequest`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+  const response = await fetch(
+    `${darajaConfig.baseUrl}/mpesa/stkpush/v1/processrequest`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        BusinessShortCode: darajaConfig.shortcode,
+        Password: password,
+        Timestamp: timestamp,
+        TransactionType: "CustomerPayBillOnline",
+        Amount: Math.ceil(Number(invoice.amount)),
+        PartyA: normalizePhone(phone),
+        PartyB: darajaConfig.shortcode,
+        PhoneNumber: normalizePhone(phone),
+        CallBackURL: darajaConfig.callbackUrl,
+        AccountReference: invoice.invoice_no,
+        TransactionDesc: `Payment for ${invoice.invoice_no}`,
+      }),
     },
-    body: JSON.stringify({
-      BusinessShortCode: darajaConfig.shortcode,
-      Password: password,
-      Timestamp: timestamp,
-      TransactionType: "CustomerPayBillOnline",
-      Amount: Math.ceil(Number(invoice.amount)),
-      PartyA: normalizePhone(phone),
-      PartyB: darajaConfig.shortcode,
-      PhoneNumber: normalizePhone(phone),
-      CallBackURL: darajaConfig.callbackUrl,
-      AccountReference: invoice.invoice_no,
-      TransactionDesc: `Payment for ${invoice.invoice_no}`,
-    }),
-  });
+  );
 
   if (!response.ok) {
-    throw new AppError(502, "M-Pesa payment request failed", "DARAJA_STK_FAILED");
+    throw new AppError(
+      502,
+      "M-Pesa payment request failed",
+      "DARAJA_STK_FAILED",
+    );
   }
 
   const data = (await response.json()) as { CheckoutRequestID?: string };
   if (data.CheckoutRequestID) {
-    await db<InvoiceRow>("invoices").where({ id }).update({ mpesa_ref: data.CheckoutRequestID });
+    await db<InvoiceRow>("invoices")
+      .where({ id })
+      .update({ mpesa_ref: data.CheckoutRequestID });
   }
 
   return {
@@ -203,27 +227,49 @@ export async function startInvoicePayment(id: string, phone: string) {
   };
 }
 
-export async function applyDarajaCallback(payload: DarajaCallbackBody) {
+export async function applyDarajaCallback(
+  payload: DarajaCallbackBody | undefined,
+) {
+  if (!payload) {
+    throw new AppError(
+      400,
+      "Missing Daraja callback payload",
+      "INVALID_DARAJA_CALLBACK",
+    );
+  }
+
   const callback = payload.Body?.stkCallback;
+
   if (!callback?.CheckoutRequestID) {
-    throw new AppError(400, "Invalid Daraja callback payload", "INVALID_DARAJA_CALLBACK");
+    throw new AppError(
+      400,
+      "Invalid Daraja callback payload",
+      "INVALID_DARAJA_CALLBACK",
+    );
   }
 
   const metadata = callback.CallbackMetadata?.Item ?? [];
-  const receipt = metadata.find((item) => item.Name === "MpesaReceiptNumber")?.Value;
+  const receipt = metadata.find(
+    (item) => item.Name === "MpesaReceiptNumber",
+  )?.Value;
   const isPaid = callback.ResultCode === 0;
 
   const [updated] = await db<InvoiceRow>("invoices")
     .where({ mpesa_ref: callback.CheckoutRequestID })
     .update({
       status: isPaid ? "paid" : "failed",
-      mpesa_ref: isPaid && receipt ? String(receipt) : callback.CheckoutRequestID,
+      mpesa_ref:
+        isPaid && receipt ? String(receipt) : callback.CheckoutRequestID,
       paid_at: isPaid ? db.fn.now() : null,
     })
     .returning("*");
 
   if (!updated) {
-    throw new AppError(404, "Matching invoice payment was not found", "INVOICE_PAYMENT_NOT_FOUND");
+    throw new AppError(
+      404,
+      "Matching invoice payment was not found",
+      "INVOICE_PAYMENT_NOT_FOUND",
+    );
   }
 
   return updated;
@@ -249,12 +295,20 @@ async function getDarajaAccessToken() {
   );
 
   if (!response.ok) {
-    throw new AppError(502, "Could not authenticate with Daraja", "DARAJA_AUTH_FAILED");
+    throw new AppError(
+      502,
+      "Could not authenticate with Daraja",
+      "DARAJA_AUTH_FAILED",
+    );
   }
 
   const data = (await response.json()) as { access_token?: string };
   if (!data.access_token) {
-    throw new AppError(502, "Daraja did not return an access token", "DARAJA_AUTH_FAILED");
+    throw new AppError(
+      502,
+      "Daraja did not return an access token",
+      "DARAJA_AUTH_FAILED",
+    );
   }
   return data.access_token;
 }
@@ -289,17 +343,19 @@ function computeLineItemTotal(
   if (!lineItems) {
     return undefined;
   }
-  return lineItems.reduce((total, item) => total + item.quantity * item.unit_price, 0);
+  return lineItems.reduce(
+    (total, item) => total + item.quantity * item.unit_price,
+    0,
+  );
 }
 
 async function attachLineItems(invoices: InvoiceRow[]) {
-  return Promise.all(invoices.map((invoice) => attachLineItemsToInvoice(invoice, db)));
+  return Promise.all(
+    invoices.map((invoice) => attachLineItemsToInvoice(invoice, db)),
+  );
 }
 
-async function attachLineItemsToInvoice(
-  invoice: InvoiceRow,
-  connection: Knex,
-) {
+async function attachLineItemsToInvoice(invoice: InvoiceRow, connection: Knex) {
   const lineItems = await connection<InvoiceLineItemRow>("invoice_line_items")
     .select("*")
     .where({ invoice_id: invoice.id })
