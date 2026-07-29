@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import AdminShell from "../components/layout/AdminShell";
@@ -19,11 +19,24 @@ export default function AdminSettingsPage() {
   const [newEmail, setNewEmail] = useState("");
   const [showEmailPassword, setShowEmailPassword] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [subscriberSearch, setSubscriberSearch] = useState("");
 
   const subscribers = useQuery({
     queryKey: ["admin", "newsletter", "subscribers"],
     queryFn: api.newsletter.listSubscribers,
   });
+  const filteredSubscribers = useMemo(() => {
+    const normalizedSearch = subscriberSearch.trim().toLowerCase();
+    const subscriberList = subscribers.data?.subscribers ?? [];
+
+    if (!normalizedSearch) {
+      return subscriberList;
+    }
+
+    return subscriberList.filter((subscriber) =>
+      subscriber.email.toLowerCase().includes(normalizedSearch),
+    );
+  }, [subscriberSearch, subscribers.data?.subscribers]);
 
   const changePasswordMutation = useMutation({
     mutationFn: api.auth.changePassword,
@@ -177,7 +190,7 @@ export default function AdminSettingsPage() {
         </div>
 
         <section className="mt-16">
-          <div className="flex flex-col gap-2 border-b border-grey-light pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-5 border-b border-grey-light pb-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="text-sm font-semibold uppercase tracking-[0.25em]">
                 Newsletter Subscribers
@@ -185,6 +198,16 @@ export default function AdminSettingsPage() {
               <p className="mt-2 text-sm text-grey">
                 {subscribers.data?.subscribers.length ?? 0} captured emails
               </p>
+            </div>
+            <div className="w-full sm:max-w-xs">
+              <FormField
+                id="subscriberSearch"
+                label="Search Subscribers"
+                type="search"
+                value={subscriberSearch}
+                onChange={(event) => setSubscriberSearch(event.target.value)}
+                placeholder="Filter by email"
+              />
             </div>
           </div>
 
@@ -196,7 +219,12 @@ export default function AdminSettingsPage() {
             {subscribers.data?.subscribers.length === 0 ? (
               <SubscriberState text="No subscribers yet" />
             ) : null}
-            {subscribers.data?.subscribers.map((subscriber) => (
+            {subscribers.data?.subscribers.length ? (
+              filteredSubscribers.length === 0 ? (
+                <SubscriberState text="No subscribers match that search" />
+              ) : null
+            ) : null}
+            {filteredSubscribers.map((subscriber) => (
               <article
                 key={subscriber.id}
                 className="grid gap-4 py-5 sm:grid-cols-[1fr_auto] sm:items-center"
