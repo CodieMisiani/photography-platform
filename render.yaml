@@ -7,6 +7,6 @@ services:
     region: oregon
     buildCommand: npm install && npm run build
     preDeployCommand: npm run migrate && npm run seed:admin
-    startCommand: npm start
+    startCommand: npm run start:render
     healthCheckPath: /health
     autoDeploy: true
