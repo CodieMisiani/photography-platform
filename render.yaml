@@ -2,7 +2,7 @@ services:
   - type: web
     name: photography-platform-backend
     env: node
-    rootDirectory: server
+    rootDir: server
     plan: free
     region: oregon
     buildCommand: npm install && npm run build
