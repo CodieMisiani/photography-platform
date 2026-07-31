@@ -1,6 +1,14 @@
 import type { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
+  const hasNewsletterSubscribers = await knex.schema.hasTable(
+    "newsletter_subscribers",
+  );
+
+  if (hasNewsletterSubscribers) {
+    return;
+  }
+
   await knex.schema.createTable("newsletter_subscribers", (table) => {
     table.uuid("id").primary().defaultTo(knex.raw("gen_random_uuid()"));
     table.string("email", 255).notNullable().unique();
