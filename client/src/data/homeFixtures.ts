@@ -1,9 +1,11 @@
 import type { HomeMetric, HomeProject, HomeService } from "../types/home";
-import architectureImage from "../assets/images/marquee-architecture.svg";
-import concertImage from "../assets/images/marquee-concert.svg";
-import portraitImage from "../assets/images/marquee-portrait.svg";
-import studioImage from "../assets/images/marquee-studio.svg";
-import weddingImage from "../assets/images/marquee-wedding.svg";
+import celebrationToastImage from "../assets/images/home/celebration-toast.jpg";
+import couplePortraitImage from "../assets/images/home/couple-portrait.jpg";
+import editorialPortraitImage from "../assets/images/home/editorial-portrait.jpg";
+import familyCelebrationImage from "../assets/images/home/family-celebration.jpg";
+import fieldArrivalImage from "../assets/images/home/field-arrival.jpg";
+import groupPortraitImage from "../assets/images/home/group-portrait.jpg";
+import roadsideStyleImage from "../assets/images/home/roadside-style.jpg";
 
 export const homeMetrics: HomeMetric[] = [
   { value: "500+", label: "Events Captured" },
@@ -14,42 +16,42 @@ export const homeMetrics: HomeMetric[] = [
 
 export const homeProjects: HomeProject[] = [
   {
-    title: "The Eternal Union",
-    location: "Nairobi Arboretum, Kenya",
-    image: weddingImage,
+    title: "Family Celebration",
+    location: "Nairobi, Kenya",
+    image: familyCelebrationImage,
   },
   {
-    title: "Sonic Resonance",
-    location: "Nairobi Festival Grounds",
-    image: concertImage,
+    title: "Editorial Arrival",
+    location: "Limuru, Kenya",
+    image: fieldArrivalImage,
   },
 ];
 
 export const homeMarqueeImages: HomeProject[] = [
   {
-    title: "Modern Portrait",
-    location: "Nairobi Studio",
-    image: portraitImage,
+    title: "Editorial Portrait",
+    location: "Limuru, Kenya",
+    image: editorialPortraitImage,
   },
   {
-    title: "Editorial Wedding",
-    location: "Diani Coast, Kenya",
-    image: weddingImage,
+    title: "Couple Portrait",
+    location: "Limuru, Kenya",
+    image: couplePortraitImage,
   },
   {
-    title: "Commercial Detail",
-    location: "Studio Tabletop",
-    image: studioImage,
+    title: "Celebration Toast",
+    location: "Nairobi, Kenya",
+    image: celebrationToastImage,
   },
   {
-    title: "Architectural Lines",
-    location: "Nairobi Art Gallery",
-    image: architectureImage,
+    title: "Roadside Style",
+    location: "Limuru, Kenya",
+    image: roadsideStyleImage,
   },
   {
-    title: "Live Performance",
-    location: "Nairobi Festival Grounds",
-    image: concertImage,
+    title: "Group Portrait",
+    location: "Nairobi, Kenya",
+    image: groupPortraitImage,
   },
 ];
 
