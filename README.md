@@ -88,5 +88,7 @@ Never place real credentials in README files, source files, or tracked `.env` fi
 - `docs/CLOUDINARY_SETUP.md`
 - `docs/admin-image-upload.md`
 - `docs/DARAJA_SETUP.md`
+- `docs/TESTING_DARAJA.md`
+- `docs/ADMIN_INVOICE_GUIDE.md`
 - `docs/ADDING_IMAGES.md`
 - `PROJECT_OVERVIEW.md`

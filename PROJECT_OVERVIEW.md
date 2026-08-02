@@ -219,9 +219,13 @@ Rollback:
 - Newsletter subscription is backed by `newsletter_subscribers`, a public subscribe endpoint, admin subscriber list with soft deactivate, duplicate-aware visitor messaging, and SMTP notification emails to the configured admin inbox.
 - Footer privacy/terms links resolve to real routes.
 - Navbar hover uses a center-morph underline and subtle letter-spacing transition with reduced-motion support.
+- Warm editorial visual system with brass accents, warmer paper/ink tokens, Cormorant Garamond display typography, richer public/admin surface states, and improved focus treatment.
+- 2026 interaction polish: scroll progress bar, portfolio lightbox, booking confirmation animation, floating WhatsApp CTA, warm editorial empty states, scroll-aware navbar, footer micro-interactions, portfolio card zoom, CTA pulse, service-card lift, and arrow-link nudges.
 - Daraja STK Push trigger, webhook update, and frontend polling/failure timeout.
 - Health endpoint checks Postgres and Redis.
 - CI workflow for lint/build/typecheck/migration check.
+- `docs/TESTING_DARAJA.md` for sandbox/production M-Pesa STK Push verification.
+- `docs/ADMIN_INVOICE_GUIDE.md` for invoice creation, sharing, and payment tracking.
 
 ### What's Not Yet Built
 
