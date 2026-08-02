@@ -130,12 +130,12 @@ export default function HomePage() {
                 </h2>
               </div>
               <a
-                className="inline-flex items-center gap-2 uppercase tracking-[0.3em] text-sm text-text-primary underline decoration-ink decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+                className="group inline-flex items-center gap-2 uppercase tracking-[0.3em] text-sm text-text-primary underline decoration-ink decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
                 href="/portfolio"
               >
                 Explore all projects
                 <svg
-                  className="h-4 w-4"
+                  className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-1"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.5"
@@ -186,7 +186,10 @@ export default function HomePage() {
             </div>
             <div className="flex flex-col gap-8">
               {homeServices.map((service, index) => (
-                <div key={service.title} className="border-t border-ink-warm pt-8">
+                <div
+                  key={service.title}
+                  className="border-t border-ink-warm pt-8 transition-all duration-200 hover:-translate-y-1 hover:border-brass"
+                >
                   <div className="mb-6 flex items-baseline justify-between gap-4">
                     <h3 className="text-4xl uppercase tracking-[-0.04em]">
                       {service.title}
@@ -216,7 +219,7 @@ export default function HomePage() {
               asLink
               to="/request-quote"
               variant="secondary"
-              className="mt-12"
+              className="cta-primary mt-12"
             >
               Start a project
             </Button>

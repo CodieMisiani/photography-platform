@@ -219,6 +219,10 @@ a {
   -webkit-text-fill-color: transparent;
 }
 
+.whatsapp-fab {
+  border-radius: 9999px !important;
+}
+
 .studio-drift {
   animation: studio-drift 8s ease-in-out infinite alternate;
 }
@@ -301,6 +305,66 @@ a {
   }
 }
 
+@keyframes pulse-once {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 119, 181, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(0, 119, 181, 0);
+  }
+}
+
+.cta-primary {
+  animation: pulse-once 1.2s ease-out 2s 1 forwards;
+}
+
+.booking-confirmation__circle {
+  animation: confirm-circle 400ms ease-out both;
+}
+
+.booking-confirmation__check {
+  stroke-dasharray: 32;
+  stroke-dashoffset: 32;
+  animation: draw-check 600ms ease-out 200ms forwards;
+}
+
+.booking-confirmation__headline {
+  opacity: 0;
+  animation: fade-up 400ms ease-out 500ms forwards;
+}
+
+.booking-confirmation__copy {
+  opacity: 0;
+  animation: fade-up 400ms ease-out 700ms forwards;
+}
+
+@keyframes confirm-circle {
+  from {
+    transform: scale(0.8);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes draw-check {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .studio-plane,
   .studio-plane:hover,
@@ -311,7 +375,23 @@ a {
   }
 
   .nav-link,
-  .nav-link::after {
+  .nav-link::after,
+  .cta-primary,
+  .booking-confirmation__circle,
+  .booking-confirmation__check,
+  .booking-confirmation__headline,
+  .booking-confirmation__copy {
     transition: none;
+    animation: none;
+  }
+
+  .booking-confirmation__check {
+    stroke-dashoffset: 0;
+  }
+
+  .booking-confirmation__headline,
+  .booking-confirmation__copy {
+    opacity: 1;
+    transform: none;
   }
 }

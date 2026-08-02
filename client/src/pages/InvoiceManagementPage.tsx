@@ -3,6 +3,7 @@ import type { Dispatch, FormEvent, ReactNode, SetStateAction } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminShell from "../components/layout/AdminShell";
 import Button from "../components/ui/Button";
+import AdminEmptyState from "../components/ui/AdminEmptyState";
 import FormField from "../components/ui/FormField";
 import MetricTile from "../components/ui/MetricTile";
 import StatusText from "../components/ui/StatusText";
@@ -115,8 +116,17 @@ export default function InvoiceManagementPage() {
           </div>
           {isLoading ? <p className="border-b border-grey-light py-8 text-sm text-grey">Loading invoices</p> : null}
           {isError ? <p className="border-b border-grey-light py-8 text-sm text-grey">Invoices could not load</p> : null}
+          {!isLoading && !isError && filteredInvoices.length === 0 ? (
+            <AdminEmptyState
+              icon="receipt"
+              title="No invoices yet"
+              message="Create your first invoice to get started."
+              actionLabel="Create Invoice"
+              onAction={() => setIsCreating(true)}
+            />
+          ) : null}
           {filteredInvoices.map((invoice) => (
-            <article key={invoice.id} className="border-b border-grey-light py-8">
+            <article key={invoice.id} className="border-b border-grey-light py-8 transition-colors duration-150 hover:bg-paper-warm">
               {editingId === invoice.databaseId ? (
                 <InvoiceForm
                   title={`Edit ${invoice.id}`}

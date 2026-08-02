@@ -68,7 +68,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
                 `border-l py-3 pl-3 text-[0.75rem] font-semibold uppercase tracking-[0.25em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   isActive
                     ? "border-accent bg-accent-muted text-accent underline decoration-accent decoration-1 underline-offset-4"
-                    : "border-transparent text-text-inverse/70 hover:text-accent"
+                    : "border-transparent text-text-inverse/70 transition-all duration-150 hover:border-brass hover:bg-ink-rich hover:text-text-inverse"
                 }`
               }
             >
@@ -80,7 +80,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
           type="button"
           onClick={() => logoutMutation.mutate()}
           disabled={logoutMutation.isPending}
-          className="mt-auto border border-accent bg-accent px-4 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-200 ease-out hover:border-accent-hover hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:border-grey disabled:bg-transparent disabled:text-grey disabled:opacity-50 active:scale-[0.98]"
+          className="mt-auto border border-accent bg-accent px-4 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-200 ease-out hover:border-accent-hover hover:bg-accent-hover hover:shadow-md hover:shadow-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:border-grey disabled:bg-transparent disabled:text-grey disabled:opacity-50 active:scale-[0.97]"
         >
           {logoutMutation.isPending ? "Signing out" : "Logout"}
         </button>
@@ -151,7 +151,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
               onClick={() => logoutMutation.mutate()}
               disabled={logoutMutation.isPending}
               tabIndex={isOpen ? 0 : -1}
-              className="mt-3 border border-accent bg-accent px-4 py-3 text-left text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-200 ease-out hover:border-accent-hover hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:border-grey disabled:bg-transparent disabled:text-grey disabled:opacity-50 active:scale-[0.98]"
+              className="mt-3 border border-accent bg-accent px-4 py-3 text-left text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-200 ease-out hover:border-accent-hover hover:bg-accent-hover hover:shadow-md hover:shadow-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:border-grey disabled:bg-transparent disabled:text-grey disabled:opacity-50 active:scale-[0.97]"
             >
               {logoutMutation.isPending ? "Signing out" : "Logout"}
             </button>

@@ -1,5 +1,7 @@
 import { NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
 import useMobileMenu from "../hooks/useMobileMenu";
+import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
 import Button from "./ui/Button";
 
 const navItems = [
@@ -11,16 +13,33 @@ const navItems = [
 
 export default function Header() {
   const { isOpen, menuRef, setIsOpen, toggleRef } = useMobileMenu();
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const update = () => setIsScrolled(window.scrollY > 80);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-paper-deep bg-paper/95 backdrop-blur">
+    <header
+      className={`sticky top-0 z-50 border-b transition-all ${
+        prefersReducedMotion ? "duration-0" : "duration-300"
+      } ${
+        isScrolled
+          ? "border-ink-warm bg-ink-rich/90 text-text-inverse backdrop-blur-md"
+          : "border-paper-deep bg-paper/95 text-text-primary backdrop-blur"
+      }`}
+    >
       <a href="#main" className="skip-link">
         Skip to content
       </a>
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <NavLink
           to="/"
-          className="font-display text-[1rem] uppercase tracking-[0.35em] text-text-primary"
+          className="font-display text-[1rem] uppercase tracking-[0.35em] transition-opacity duration-150 hover:opacity-80"
         >
           Malume
         </NavLink>
@@ -64,7 +83,7 @@ export default function Header() {
       <div
         id="mobile-menu"
         ref={menuRef}
-        className={`border-t border-paper-deep bg-paper px-6 transition-[max-height,opacity] duration-300 md:hidden ${
+        className={`border-t border-paper-deep bg-paper px-6 text-text-primary transition-[max-height,opacity] duration-300 md:hidden ${
           isOpen
             ? "max-h-screen opacity-100"
             : "max-h-0 overflow-hidden opacity-0"

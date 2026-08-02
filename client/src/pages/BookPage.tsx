@@ -24,6 +24,7 @@ export default function BookPage() {
   const monthEnd = monthEndDate.toISOString().slice(0, 10);
   const [selectedDate, setSelectedDate] = useState("");
   const [message, setMessage] = useState("");
+  const [bookingSuccess, setBookingSuccess] = useState(false);
   const [form, setForm] = useState<BookingForm>({
     client_name: "",
     whatsapp: "",
@@ -49,13 +50,14 @@ export default function BookPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage("");
+    setBookingSuccess(false);
     try {
       await bookingMutation.mutateAsync({
         ...form,
         event_date: selectedDate,
         notes: form.notes || null,
       });
-      setMessage("Booking request sent. We will confirm availability shortly.");
+      setBookingSuccess(true);
       setSelectedDate("");
       setForm({
         client_name: "",
@@ -138,7 +140,9 @@ export default function BookPage() {
             <h2 className="mb-6 text-2xl font-display font-semibold uppercase">
               Booking Details
             </h2>
-            {selectedDate ? (
+            {bookingSuccess ? (
+              <BookingConfirmation />
+            ) : selectedDate ? (
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <p className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-brass">
                   Selected date: {selectedDate}
@@ -167,6 +171,37 @@ export default function BookPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+function BookingConfirmation() {
+  return (
+    <section className="booking-confirmation text-center" role="status">
+      <div className="booking-confirmation__circle mx-auto mb-8 flex h-20 w-20 items-center justify-center border border-accent">
+        <svg
+          width="42"
+          height="42"
+          viewBox="0 0 42 42"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            className="booking-confirmation__check"
+            d="M11 22.5 18.5 30 31 13"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="square"
+            strokeLinejoin="miter"
+          />
+        </svg>
+      </div>
+      <h3 className="booking-confirmation__headline text-3xl font-display font-semibold uppercase text-text-primary">
+        Booking received
+      </h3>
+      <p className="booking-confirmation__copy mt-4 text-sm leading-7 text-text-muted">
+        We will confirm availability shortly and follow up with the next steps.
+      </p>
+    </section>
   );
 }
 

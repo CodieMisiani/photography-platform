@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminShell from "../components/layout/AdminShell";
 import Button from "../components/ui/Button";
+import AdminEmptyState from "../components/ui/AdminEmptyState";
 import FormField from "../components/ui/FormField";
 import StatusText from "../components/ui/StatusText";
 import { api, type ApiPublicEvent } from "../lib/api";
@@ -107,8 +108,17 @@ export default function AdminPublicEventsPage() {
 
         <section className="border-t border-grey-light">
           {events.isLoading ? <p className="border-b border-grey-light py-8 text-sm text-grey">Loading events</p> : null}
+          {!events.isLoading && !events.isError && (events.data?.events ?? []).length === 0 ? (
+            <AdminEmptyState
+              icon="star"
+              title="No events listed"
+              message="Add your first public event."
+              actionLabel="Add Event"
+              onAction={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            />
+          ) : null}
           {(events.data?.events ?? []).map((event) => (
-            <article key={event.id} className="border-b border-grey-light py-8">
+            <article key={event.id} className="border-b border-grey-light py-8 transition-colors duration-150 hover:bg-paper-warm">
               {editingId === event.id ? (
                 <EditEventPanel
                   event={event}

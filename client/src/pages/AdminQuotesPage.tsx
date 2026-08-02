@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminShell from "../components/layout/AdminShell";
 import Button from "../components/ui/Button";
+import AdminEmptyState from "../components/ui/AdminEmptyState";
 import FormField from "../components/ui/FormField";
 import StatusText from "../components/ui/StatusText";
 import { api, type ApiQuoteRequest } from "../lib/api";
@@ -37,8 +38,15 @@ export default function AdminQuotesPage() {
         <section className="border-t border-grey-light">
           {quotes.isLoading ? <p className="border-b border-grey-light py-8 text-sm text-grey">Loading quotes</p> : null}
           {quotes.isError ? <p className="border-b border-grey-light py-8 text-sm text-grey">Quotes could not load</p> : null}
+          {!quotes.isLoading && !quotes.isError && (quotes.data?.quotes ?? []).length === 0 ? (
+            <AdminEmptyState
+              icon="chat"
+              title="No quote requests yet"
+              message="Quote requests from clients will appear here."
+            />
+          ) : null}
           {(quotes.data?.quotes ?? []).map((quote) => (
-            <article key={quote.id} className="border-b border-grey-light py-8">
+            <article key={quote.id} className="border-b border-grey-light py-8 transition-colors duration-150 hover:bg-paper-warm">
               {editingId === quote.id ? (
                 <QuoteEditPanel
                   quote={quote}

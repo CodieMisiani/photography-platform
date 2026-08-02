@@ -2,6 +2,7 @@ import { Suspense, lazy } from "react";
 import { Route, Routes } from "react-router-dom";
 import AdminRoute from "../components/auth/AdminRoute";
 import PageTransition from "../components/motion/PageTransition";
+import PublicExperienceLayer from "../components/PublicExperienceLayer";
 
 const HomePage = lazy(() => import("../pages/HomePage"));
 const PortfolioPage = lazy(() => import("../pages/PortfolioPage"));
@@ -27,6 +28,7 @@ const AdminDashboardPage = lazy(() => import("../pages/AdminDashboardPage"));
 export default function AppRoutes() {
   return (
     <Suspense fallback={<RouteFallback />}>
+      <PublicExperienceLayer />
       <PageTransition>
         <Routes>
           <Route path="/" element={<HomePage />} />

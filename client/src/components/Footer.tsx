@@ -27,7 +27,7 @@ export default function Footer() {
         setEmail("");
       }
       setStatus("success");
-      setMessage(result.message);
+      setMessage("You're in.");
     } catch (error) {
       setStatus("error");
       setMessage(
@@ -56,10 +56,10 @@ export default function Footer() {
               Quick Links
             </p>
             <nav className="mt-5 flex flex-col gap-3 text-text-inverse/70 text-[0.9rem]">
-              <Link to="/portfolio">Portfolio</Link>
-              <Link to="/request-quote">About</Link>
-              <Link to="/public-events">Journal</Link>
-              <Link to="/request-quote">Contact</Link>
+              <FooterLink to="/portfolio">Portfolio</FooterLink>
+              <FooterLink to="/request-quote">About</FooterLink>
+              <FooterLink to="/public-events">Journal</FooterLink>
+              <FooterLink to="/request-quote">Contact</FooterLink>
             </nav>
           </div>
           <div className="md:col-span-4">
@@ -68,7 +68,9 @@ export default function Footer() {
             </p>
             <form
               onSubmit={handleSubscribe}
-              className="mt-5 flex flex-col gap-3 border-b border-ink-studio pb-3 sm:flex-row sm:items-center"
+              className={`mt-5 flex flex-col gap-3 border-b border-ink-studio pb-3 transition-all duration-300 sm:flex-row sm:items-center ${
+                status === "success" ? "scale-95 opacity-0" : "scale-100 opacity-100"
+              }`}
             >
               <label htmlFor="newsletter-email" className="sr-only">
                 Email address
@@ -85,21 +87,23 @@ export default function Footer() {
                   }
                 }}
                 placeholder="Your email address"
-                className="w-full bg-transparent text-[0.9rem] text-text-inverse placeholder:text-text-inverse/50 focus:outline-none focus:ring-2 focus:ring-accent/20"
+                className="w-full bg-transparent text-[0.9rem] text-text-inverse placeholder:text-text-inverse/50 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-ink-warm"
                 autoComplete="email"
                 required
               />
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="min-h-11 text-left text-accent uppercase tracking-[0.25em] text-[0.75rem] transition-colors duration-150 hover:text-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:text-text-inverse/40 sm:text-right"
+                className="min-h-11 border border-accent px-4 py-2 text-left text-accent uppercase tracking-[0.25em] text-[0.75rem] transition-all duration-200 hover:bg-accent-hover hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:text-text-inverse/40 sm:text-right"
               >
                 {status === "loading" ? "Subscribing" : "Subscribe"}
               </button>
             </form>
             {message ? (
               <p
-                className={`mt-3 text-[0.75rem] ${
+                className={`mt-3 text-[0.75rem] transition-opacity duration-300 ${
+                  status === "success" ? "opacity-100 delay-200" : "opacity-100"
+                } ${
                   status === "error" ? "text-text-inverse" : "text-text-inverse/70"
                 }`}
                 role={status === "error" ? "alert" : "status"}
@@ -120,13 +124,13 @@ export default function Footer() {
             </span>
             <a
               href={`mailto:${SITE_CONFIG.email}`}
-              className="text-text-inverse/60 transition-colors duration-150 hover:text-accent"
+              className="text-text-inverse/60 underline-offset-4 transition-colors duration-150 hover:text-accent hover:underline"
             >
               {SITE_CONFIG.email}
             </a>
             <a
               href={`tel:${SITE_CONFIG.phone}`}
-              className="text-text-inverse/60 transition-colors duration-150 hover:text-accent"
+              className="text-text-inverse/60 underline-offset-4 transition-colors duration-150 hover:text-accent hover:underline"
             >
               {SITE_CONFIG.phone}
             </a>
@@ -206,8 +210,8 @@ export default function Footer() {
               </SocialLink>
             </nav>
             <div className="flex flex-wrap gap-5">
-              <Link className="transition-colors duration-150 hover:text-accent" to="/privacy">Privacy</Link>
-              <Link className="transition-colors duration-150 hover:text-accent" to="/terms">Terms</Link>
+              <FooterLink to="/privacy">Privacy</FooterLink>
+              <FooterLink to="/terms">Terms</FooterLink>
             </div>
           </div>
         </div>
@@ -238,10 +242,21 @@ function SocialLink({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="inline-flex h-11 w-11 items-center justify-center text-text-inverse/60 transition-colors duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      className="inline-flex h-11 w-11 items-center justify-center text-text-inverse/60 transition-all duration-200 hover:-translate-y-0.5 hover:scale-110 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       style={{ minWidth: 44, minHeight: 44 }}
     >
       {children}
     </a>
+  );
+}
+
+function FooterLink({ to, children }: { to: string; children: ReactNode }) {
+  return (
+    <Link
+      to={to}
+      className="underline-offset-4 transition-colors duration-150 hover:text-accent hover:underline"
+    >
+      {children}
+    </Link>
   );
 }

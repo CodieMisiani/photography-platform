@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminShell from "../components/layout/AdminShell";
 import Button from "../components/ui/Button";
+import AdminEmptyState from "../components/ui/AdminEmptyState";
 import FormField from "../components/ui/FormField";
 import MetricTile from "../components/ui/MetricTile";
 import StatusText from "../components/ui/StatusText";
@@ -60,8 +61,17 @@ export default function PortfolioCmsPage() {
         <section className="border-t border-grey-light">
           {isLoading ? <p className="border-b border-grey-light py-8 text-sm text-grey">Loading portfolio</p> : null}
           {isError ? <p className="border-b border-grey-light py-8 text-sm text-grey">Portfolio could not load</p> : null}
+          {!isLoading && !isError && (data?.projects ?? []).length === 0 ? (
+            <AdminEmptyState
+              icon="image"
+              title="No portfolio items yet"
+              message="Upload your first photo to get started."
+              actionLabel="Add Photo"
+              onAction={() => setIsAdding(true)}
+            />
+          ) : null}
           {(data?.projects ?? []).map((project) => (
-            <article key={project.id} className="border-b border-grey-light py-8">
+            <article key={project.id} className="border-b border-grey-light py-8 transition-colors duration-150 hover:bg-paper-warm">
               {editingId === project.id ? (
                 <ProjectForm
                   project={project}

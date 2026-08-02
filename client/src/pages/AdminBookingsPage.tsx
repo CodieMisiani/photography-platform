@@ -3,6 +3,7 @@ import type { Dispatch, FormEvent, SetStateAction } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminShell from "../components/layout/AdminShell";
 import Button from "../components/ui/Button";
+import AdminEmptyState from "../components/ui/AdminEmptyState";
 import FormField from "../components/ui/FormField";
 import StatusText from "../components/ui/StatusText";
 import { api, type ApiBooking } from "../lib/api";
@@ -79,7 +80,7 @@ export default function AdminBookingsPage() {
             <div className="space-y-4">
               {blocks.isLoading ? <p className="text-sm text-grey">Loading blocks</p> : null}
               {(blocks.data?.blocks ?? []).map((block) => (
-                <div key={block.id} className="flex items-center justify-between gap-4 border-b border-grey-light pb-4">
+                <div key={block.id} className="flex items-center justify-between gap-4 border-b border-grey-light pb-4 transition-colors duration-150 hover:bg-paper-warm">
                   <div>
                     <p className="text-sm font-semibold uppercase">{block.blocked_date}</p>
                     <p className="text-sm text-grey">{block.reason}</p>
@@ -99,8 +100,15 @@ export default function AdminBookingsPage() {
         <section className="border-t border-grey-light">
           {bookings.isLoading ? <AdminState message="Loading bookings" /> : null}
           {bookings.isError ? <AdminState message="Bookings could not load" /> : null}
+          {!bookings.isLoading && !bookings.isError && (bookings.data?.bookings ?? []).length === 0 ? (
+            <AdminEmptyState
+              icon="calendar"
+              title="No bookings yet"
+              message="Client bookings will appear here."
+            />
+          ) : null}
           {(bookings.data?.bookings ?? []).map((booking) => (
-            <article key={booking.id} className="border-b border-grey-light py-8">
+            <article key={booking.id} className="border-b border-grey-light py-8 transition-colors duration-150 hover:bg-paper-warm">
               {editingId === booking.id ? (
                 <BookingEditPanel
                   booking={booking}
