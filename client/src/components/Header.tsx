@@ -7,7 +7,9 @@ import Button from "./ui/Button";
 const navItems = [
   { label: "Home", to: "/" },
   { label: "Portfolio", to: "/portfolio" },
-  { label: "Public Events", to: "/public-events" },
+  { label: "About", to: "/about" },
+  { label: "Journal", to: "/journal" },
+  { label: "Events", to: "/public-events" },
   { label: "Request a Quote", to: "/request-quote" },
 ];
 

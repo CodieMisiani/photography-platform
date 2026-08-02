@@ -2,39 +2,40 @@ export const quoteSteps = [
   {
     number: "01",
     title: "Request",
-    description: "Submit your event details via our refined quote portal.",
+    description: "Share the date, setting, and kind of story you want covered.",
   },
   {
     number: "02",
     title: "Review",
     description:
-      "Alexander personally audits your brief for artistic alignment.",
+      "The studio reviews the brief, timing, and visual priorities with care.",
   },
   {
     number: "03",
     title: "Quote",
     description:
-      "A bespoke proposal including cinematography and print options.",
+      "You receive a clear proposal shaped around scope, coverage, and delivery.",
   },
   {
     number: "04",
     title: "Book",
     description:
-      "Finalize your date with a secure digital contract and deposit.",
+      "Confirm the date, then we prepare the shoot plan and next steps.",
   },
 ];
 
 export const eventTypeOptions = [
-  "Editorial / High Fashion",
-  "Cinematic Wedding",
+  "Wedding",
+  "Portrait Session",
+  "Corporate Story",
   "Commercial Campaign",
-  "Private Portraiture",
+  "Public Event",
 ];
 
 export const budgetOptions = [
-  "KSh 250,000 - KSh 500,000",
-  "KSh 500,000 - KSh 1,250,000",
-  "KSh 1,250,000+",
+  "KSh 35,000 - KSh 75,000",
+  "KSh 75,000 - KSh 150,000",
+  "KSh 150,000+",
 ];
 
 export const quoteImages = [

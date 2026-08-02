@@ -47,8 +47,8 @@ export default function Footer() {
               {SITE_CONFIG.name}
             </p>
             <p className="mt-4 max-w-xl text-[0.95rem] text-text-inverse/70">
-              Elevating visual storytelling through a lens of sophistication and
-              modern luxury.
+              Quiet, cinematic photography for people, brands, and gatherings
+              that deserve to be remembered with care.
             </p>
           </div>
           <div className="md:col-span-2 md:col-start-7">
@@ -57,8 +57,8 @@ export default function Footer() {
             </p>
             <nav className="mt-5 flex flex-col gap-3 text-text-inverse/70 text-[0.9rem]">
               <FooterLink to="/portfolio">Portfolio</FooterLink>
-              <FooterLink to="/request-quote">About</FooterLink>
-              <FooterLink to="/public-events">Journal</FooterLink>
+              <FooterLink to="/about">About</FooterLink>
+              <FooterLink to="/journal">Journal</FooterLink>
               <FooterLink to="/request-quote">Contact</FooterLink>
             </nav>
           </div>
@@ -254,9 +254,13 @@ function FooterLink({ to, children }: { to: string; children: ReactNode }) {
   return (
     <Link
       to={to}
-      className="underline-offset-4 transition-colors duration-150 hover:text-accent hover:underline"
+      className="group inline-flex w-fit items-center gap-2 underline-offset-4 transition-all duration-150 hover:translate-x-1 hover:text-accent hover:underline"
     >
       {children}
+      <span
+        className="h-px w-0 bg-current transition-[width] duration-150 group-hover:w-4"
+        aria-hidden="true"
+      />
     </Link>
   );
 }

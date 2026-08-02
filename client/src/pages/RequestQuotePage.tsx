@@ -84,8 +84,8 @@ export default function RequestQuotePage() {
                 The Creative Journey
               </h1>
               <p className="mb-10 text-[1rem] leading-8 text-text-secondary">
-                Every commission begins with a conversation. We ensure every
-                detail is intentional.
+                Every commission begins with a clear conversation. Tell us what
+                matters most, and we will shape the coverage around it.
               </p>
               <div className="space-y-10">
                 {quoteSteps.map((item, index) => (
@@ -115,7 +115,7 @@ export default function RequestQuotePage() {
                   Last minute? Call the studio
                 </p>
                 <p className="text-3xl font-display font-semibold text-text-primary">
-                  +254 700 555 019
+                  {SITE_CONFIG.business.phone}
                 </p>
               </div>
             </div>
@@ -223,7 +223,7 @@ function IdentityStep({
           id="mobile"
           name="mobile"
           label="WhatsApp / Mobile"
-          placeholder="+254 700 000 000"
+          placeholder={SITE_CONFIG.business.phone}
           type="tel"
           required
           value={formState.mobile}
@@ -396,8 +396,8 @@ function SuccessState() {
         Inquiry Received
       </h2>
       <p className="mx-auto mb-8 max-w-sm text-[0.95rem] leading-7 text-text-muted">
-        Alexander will review your creative brief within 48 hours. A
-        personalized quote will be sent to your email.
+        The studio will review your brief within 48 hours and send a clear,
+        personal quote to your email.
       </p>
       <Button asLink to="/">
         Return to Home

@@ -1,8 +1,8 @@
 export const SITE_CONFIG = {
   name: "Malume Photography",
-  tagline: "Capturing moments that last forever.",
+  tagline: "Clean, cinematic photography for modern stories.",
   email: "hello@malumephotography.com",
-  phone: "+254 700 000 000",
+  phone: "+254 726 304 245",
   brand: {
     accent: "#0077B5",
     accentHover: "#005f91",
@@ -13,11 +13,12 @@ export const SITE_CONFIG = {
     accentName: "Classic LinkedIn Blue",
   },
   social: {
-    tiktok: "https://tiktok.com/@malumephotography",
-    whatsapp: "https://wa.me/254700000000",
+    tiktok: "https://www.tiktok.com/@osmadeit?_r=1&_t=ZS-98XzjMbi0np",
+    whatsapp: "https://wa.me/254726304245",
     twitter: "https://x.com/malumephotography",
     facebook: "https://facebook.com/malumephotography",
-    linkedin: "https://linkedin.com/company/malumephotography",
+    linkedin:
+      "https://www.linkedin.com/in/oyaro?utm_source=share_via&utm_content=profile&utm_medium=member_android",
   },
   locale: {
     country: "KE",
@@ -31,8 +32,8 @@ export const SITE_CONFIG = {
   business: {
     name: "Malume Photography",
     email: "hello@malumephotography.com",
-    phone: "+254 700 000 000",
-    whatsapp: "+254700000000",
+    phone: "+254 726 304 245",
+    whatsapp: "+254726304245",
     address: "Westlands, Nairobi, Kenya",
     mpesa: {
       paybill: "",
