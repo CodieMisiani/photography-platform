@@ -36,6 +36,8 @@ export default function AppRoutes() {
           <Route path="/public-events" element={<PublicEventsPage />} />
           <Route path="/book" element={<BookPage />} />
           <Route path="/request-quote" element={<RequestQuotePage />} />
+          <Route path="/pay-invoice" element={<PayInvoicePage />} />
+          <Route path="/invoice/:invoiceNo" element={<PayInvoicePage />} />
           <Route path="/privacy" element={<PolicyPage type="privacy" />} />
           <Route path="/terms" element={<PolicyPage type="terms" />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />

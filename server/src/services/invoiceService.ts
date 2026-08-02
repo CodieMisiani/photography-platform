@@ -14,6 +14,7 @@ type DarajaCallbackBody = {
   Body?: {
     stkCallback?: {
       ResultCode: number;
+      ResultDesc?: string;
       CheckoutRequestID?: string;
       CallbackMetadata?: {
         Item?: DarajaCallbackItem[];
@@ -218,6 +219,9 @@ export async function startInvoicePayment(id: string, phone: string) {
     await db<InvoiceRow>("invoices")
       .where({ id })
       .update({ mpesa_ref: data.CheckoutRequestID });
+    console.info(
+      `[Daraja] STK Push initiated -> CheckoutRequestID: ${data.CheckoutRequestID}`,
+    );
   }
 
   return {
@@ -253,6 +257,11 @@ export async function applyDarajaCallback(
     (item) => item.Name === "MpesaReceiptNumber",
   )?.Value;
   const isPaid = callback.ResultCode === 0;
+  console.info(
+    `[Daraja] Webhook received -> ResultCode: ${callback.ResultCode}${
+      callback.ResultDesc ? ` (${callback.ResultDesc})` : ""
+    }`,
+  );
 
   const [updated] = await db<InvoiceRow>("invoices")
     .where({ mpesa_ref: callback.CheckoutRequestID })
@@ -269,6 +278,16 @@ export async function applyDarajaCallback(
       404,
       "Matching invoice payment was not found",
       "INVOICE_PAYMENT_NOT_FOUND",
+    );
+  }
+
+  if (isPaid) {
+    console.info(
+      `[Daraja] Invoice ${updated.invoice_no} marked PAID -> MpesaRef: ${updated.mpesa_ref}`,
+    );
+  } else {
+    console.warn(
+      `[Daraja] Invoice ${updated.invoice_no} marked FAILED -> CheckoutRequestID: ${callback.CheckoutRequestID}`,
     );
   }
 

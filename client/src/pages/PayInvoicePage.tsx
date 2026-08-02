@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useParams } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Button from "../components/ui/Button";
@@ -11,10 +12,14 @@ import { fetchPayableInvoice } from "../services/invoiceService";
 type PaymentStep = "lookup" | "payment" | "pending" | "success" | "failed";
 
 export default function PayInvoicePage() {
-  const [invoiceId, setInvoiceId] = useState("");
-  const [verifiedInvoiceId, setVerifiedInvoiceId] = useState("");
+  const { invoiceNo } = useParams();
+  const initialInvoiceNo = invoiceNo?.trim().toUpperCase() ?? "";
+  const [invoiceId, setInvoiceId] = useState(initialInvoiceNo);
+  const [verifiedInvoiceId, setVerifiedInvoiceId] = useState(initialInvoiceNo);
   const [phone, setPhone] = useState("");
-  const [step, setStep] = useState<PaymentStep>("lookup");
+  const [step, setStep] = useState<PaymentStep>(
+    initialInvoiceNo ? "payment" : "lookup",
+  );
   const [error, setError] = useState("");
   const { data, isFetching, isError } = useQuery({
     queryKey: ["payable-invoice", verifiedInvoiceId],
@@ -38,7 +43,7 @@ export default function PayInvoicePage() {
       ? "success"
       : statusQuery.data?.status === "failed"
         ? "failed"
-        : step;
+      : step;
 
   useEffect(() => {
     if (step !== "pending") {
