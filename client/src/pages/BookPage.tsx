@@ -74,7 +74,7 @@ export default function BookPage() {
   return (
     <div className="bg-paper text-text-primary">
       <Header />
-      <main className="mx-auto max-w-7xl px-6 py-16">
+      <main id="main" className="mx-auto max-w-7xl px-6 py-16">
         <section className="mb-12 max-w-3xl border-b border-paper-deep pb-10">
           <p className="mb-4 text-[0.75rem] uppercase tracking-[0.3em] text-brass">
             Book Me

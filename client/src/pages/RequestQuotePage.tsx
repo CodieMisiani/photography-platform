@@ -76,7 +76,7 @@ export default function RequestQuotePage() {
     <div className="bg-paper text-text-primary">
       <Header />
 
-      <main className="min-h-screen">
+      <main id="main" className="min-h-screen">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 py-16 lg:grid-cols-12 lg:py-24">
           <aside className="order-1 lg:order-2 lg:col-span-4">
             <div className="lg:sticky lg:top-24">

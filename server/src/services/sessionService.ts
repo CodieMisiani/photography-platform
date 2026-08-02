@@ -12,11 +12,8 @@ export async function createSession(email: string): Promise<string> {
     createdAt: new Date().toISOString(),
   };
 
-  console.log("[sessionService] createSession", { sessionId, email });
   const payloadString = JSON.stringify(payload);
-  console.log("[sessionService] payloadString", { payloadString });
   await redis.set(keyFor(sessionId), payloadString, "EX", SESSION_TTL_SECONDS);
-  console.log("[sessionService] redis.set succeeded", { sessionId });
   return sessionId;
 }
 

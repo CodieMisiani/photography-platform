@@ -49,7 +49,7 @@ export default function PortfolioPage() {
     <div className="bg-paper text-text-primary">
       <Header />
 
-      <main className="mx-auto max-w-7xl px-6 py-14">
+      <main id="main" className="mx-auto max-w-7xl px-6 py-14">
         <section className="mb-16 border-b border-paper-deep pb-12">
           <div className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
@@ -101,12 +101,6 @@ export default function PortfolioPage() {
               ))
             : null}
         </section>
-
-        <div className="mt-10 flex justify-center">
-          <Button variant="secondary">
-            Load More Projects
-          </Button>
-        </div>
       </main>
 
       {lightboxIndex !== null ? (

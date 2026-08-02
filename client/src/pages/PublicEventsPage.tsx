@@ -44,6 +44,7 @@ export default function PublicEventsPage() {
             Number(event.price) === 0 ? "Free" : formatKES(Number(event.price)),
           image: event.image_url ?? "",
           imageAlt: event.title,
+          ticketUrl: event.ticket_url,
         };
       }),
     [data?.events],
@@ -61,7 +62,7 @@ export default function PublicEventsPage() {
     <div className="bg-paper text-text-primary">
       <Header />
 
-      <main className="min-h-screen">
+      <main id="main" className="min-h-screen">
         <section className="mx-auto max-w-7xl px-6 py-16 md:py-24">
           <div className="max-w-4xl border-b border-paper-deep pb-12">
             <p className="mb-6 text-[0.75rem] uppercase tracking-[0.3em] text-brass">
@@ -169,7 +170,16 @@ function EventRow({ event }: { event: PublicEvent }) {
           <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-muted">
             {event.location}
           </span>
-          <Button>Get Tickets</Button>
+          {event.ticketUrl ? (
+            <a
+              href={event.ticketUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="motion-button inline-flex items-center justify-center gap-2 border border-accent bg-accent px-6 py-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-200 ease-out hover:border-accent-hover hover:bg-accent-hover hover:text-white hover:shadow-md hover:shadow-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97]"
+            >
+              Get Tickets
+            </a>
+          ) : null}
         </div>
       </div>
     </article>

@@ -11,4 +11,5 @@ export type PublicEvent = {
   price: string;
   image: string;
   imageAlt: string;
+  ticketUrl: string | null;
 };

@@ -79,7 +79,7 @@ export default function PayInvoicePage() {
   return (
     <div className="bg-paper text-text-primary">
       <Header />
-      <main className="mx-auto flex min-h-[70vh] max-w-4xl flex-col items-center px-6 py-16">
+      <main id="main" className="mx-auto flex min-h-[70vh] max-w-4xl flex-col items-center px-6 py-16">
         <div className="mb-10 flex w-full max-w-md justify-between px-4">
           {["lookup", "payment", "success"].map((item, index) => {
             const activeIndex = displayedStep === "lookup" ? 0 : displayedStep === "payment" ? 1 : 2;

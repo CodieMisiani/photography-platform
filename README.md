@@ -1,65 +1,140 @@
 # Malume Photography Platform
 
-A production-ready photography business platform with portfolio management, bookings, quote requests, invoices, M-Pesa Daraja payments, Cloudinary uploads, and a secure admin dashboard.
+A production-ready photography business platform for Malume Photography. The app combines a premium editorial public website with a secure admin dashboard for portfolio management, bookings, quotes, invoices, newsletter subscribers, public events, Cloudinary uploads, and M-Pesa Daraja payments.
 
-## Features
+## Current Features
 
-- Editorial portfolio and public events pages
-- Book Me calendar flow and separate Request a Quote flow
-- Admin dashboard for bookings, quotes, invoices, portfolio, stats, public events, settings, and newsletter subscribers
-- Redis-backed admin sessions
-- PostgreSQL migrations through Knex
-- Cloudinary media upload path with public ID cleanup on replace/delete
-- Optimized local homepage photography assets
-- Newsletter signup notifications through SMTP
-- Daraja STK Push invoice payment flow
-- Kenya localization for KSh, +254 phone numbers, and DD/MM/YYYY dates
+- Editorial homepage with warm monochrome design, moving photography marquee, scroll progress, floating WhatsApp CTA, and refined micro-interactions.
+- Dedicated About page for the Malume Photography brand story, philosophy, creative process, and service positioning.
+- Journal landing page for future editorial stories, photography notes, client stories, featured galleries, and behind-the-scenes content.
+- Portfolio page powered by API data, category filtering, animated hover states, and keyboard-accessible lightbox.
+- Public events page powered by API data with loading, error, and empty states.
+- Book Me calendar flow with availability lookup, booking form, and animated booking confirmation.
+- Request a Quote flow with multi-step inquiry form and clear studio copy.
+- Public invoice lookup and payment routes, including `/pay-invoice` and `/invoice/:invoiceNo`.
+- Daraja STK Push payment initiation, webhook handling, status polling, and backend payment logs.
+- Newsletter subscription with duplicate-aware messaging, SMTP notification support, and admin subscriber management.
+- Secure admin login with Redis-backed sessions and protected admin routes.
+- Admin dashboard for bookings, calendar blocks, quotes, invoices, portfolio CMS, public events, stats, settings, and newsletter subscribers.
+- Cloudinary image uploads for portfolio and public event images, including stored public IDs for cleanup on replace/delete.
+- PostgreSQL migrations through Knex, including schema guard checks on server startup.
+- Kenya localization for KSh, +254 phone numbers, and DD/MM/YYYY-oriented UX.
+
+## Technologies
+
+- Frontend: React, Vite, TypeScript, TailwindCSS, React Router, TanStack Query.
+- Motion and visuals: CSS transitions/animations, GSAP infrastructure, Three.js dependency, reduced-motion safeguards.
+- Backend: Node.js, Express, TypeScript, Zod validation.
+- Database: PostgreSQL with Knex migrations.
+- Sessions: Redis-backed admin sessions.
+- Media: Cloudinary.
+- Payments: Safaricom M-Pesa Daraja STK Push.
+- Email: SMTP for newsletter notifications.
+- CI/CD: GitHub Actions workflow for lint/build/typecheck/migration checks.
 
 ## Project Structure
 
-- `client/` - React + Vite + TypeScript + Tailwind frontend
-- `server/` - Node.js + Express + TypeScript backend
-- `docs/` - setup guides and handoff reports
-- `.github/workflows/` - CI checks
+- `client/` - React/Vite frontend.
+- `client/src/pages/` - public and admin route pages.
+- `client/src/components/` - shared UI, layout, auth, motion, and experience components.
+- `client/src/lib/api.ts` - typed frontend API client.
+- `client/src/config/site.ts` - central brand, contact, social, locale, and business configuration.
+- `server/` - Express/TypeScript backend.
+- `server/src/controllers/` - request handlers.
+- `server/src/services/` - business logic.
+- `server/src/routes/` - API route definitions and validation wiring.
+- `server/src/db/migrations/` - versioned Knex migrations.
+- `server/src/config/` - environment, Redis, Cloudinary, Daraja, and related clients.
+- `docs/` - setup, payment, image, and admin guides.
+- `.github/workflows/` - CI checks.
+
+## Journal Feature
+
+The Journal is a public editorial landing page at `/journal`. Its purpose is to give Malume Photography a storytelling space beyond the portfolio: weddings, events, corporate stories, behind-the-scenes notes, photography tips, client stories, featured galleries, travel stories, and studio process posts.
+
+Current implementation:
+
+- Implemented as `client/src/pages/JournalPage.tsx`.
+- Registered as a lazy-loaded route in `client/src/routes/Routes.tsx`.
+- Linked from the main navigation and footer.
+- Uses local placeholder article data inside the page so the experience is production-presentable today.
+- Designed with the existing warm editorial palette, typography, borders, hover states, and CTA language.
+- Article cards currently work as editorial previews on the landing page; full article pages are intentionally left for the future CMS/detail-route phase.
+- Public URL: `/journal`.
+
+Future CMS extension path:
+
+- Add a `journal_posts` table or CMS-backed endpoint with title, slug, category, excerpt, cover image, body, publish status, and timestamps.
+- Move the current placeholder article array into an API response.
+- Add `/journal/:slug` for full articles.
+- Add admin CRUD for creating, editing, publishing, and archiving journal posts.
+- Reuse the existing API client, loading/error/empty state patterns, and admin protected-route structure.
 
 ## Local Development
 
-1. Install dependencies:
+1. Install frontend dependencies:
 
    ```bash
    cd client
    npm install
-   cd ../server
+   ```
+
+2. Install backend dependencies:
+
+   ```bash
+   cd server
    npm install
    ```
 
-2. Start local PostgreSQL and Redis.
+3. Start local PostgreSQL and Redis.
 
-3. Create `server/.env` from `server/.env.example` and fill real local values.
+4. Create `server/.env` from `server/.env.example` and fill real local values.
 
-   Admin credentials are set securely via the seed script against your live database. See `server/.env.example` for the variable names. Never commit real values.
+   Never commit real credentials. Keep production secrets in the deployment dashboard.
 
-4. Run migrations and seed the admin:
+5. Run migrations:
 
    ```bash
    cd server
    npm run migrate
+   ```
+
+6. Seed the admin user:
+
+   ```bash
+   cd server
    npm run seed:admin
    ```
 
-5. Start both apps:
+7. Start the backend:
 
    ```bash
    cd server
    npm run dev
    ```
 
+8. Start the frontend:
+
    ```bash
    cd client
    npm run dev
    ```
 
+9. Useful local URLs:
+
+- Public site: `http://localhost:5173`
+- About: `http://localhost:5173/about`
+- Journal: `http://localhost:5173/journal`
+- Portfolio: `http://localhost:5173/portfolio`
+- Booking: `http://localhost:5173/book`
+- Quote request: `http://localhost:5173/request-quote`
+- Invoice payment: `http://localhost:5173/pay-invoice`
+- Admin login: `http://localhost:5173/admin/login`
+- Backend health: `http://localhost:4000/health`
+
 ## Verification Commands
+
+Frontend:
 
 ```bash
 cd client
@@ -67,21 +142,41 @@ npm run lint
 npm run build
 ```
 
+Backend:
+
 ```bash
 cd server
 npm run typecheck
 npm run build
 ```
 
+Database:
+
+```bash
+cd server
+npm run migrate
+```
+
 ## Deployment Notes
 
-- Frontend: Vercel with `VITE_API_BASE_URL` pointing to the backend URL.
-- Backend: Railway with PostgreSQL and Redis/Upstash environment variables.
-- Media: Cloudinary credentials in Railway/Render environment variables. Portfolio uploads go to `malume-photography/portfolio`; public event uploads go to `malume-photography/events`. Homepage editorial images are optimized local frontend assets.
-- Newsletter: SMTP credentials and `NEWSLETTER_NOTIFY_EMAIL` in Railway/Render environment variables.
-- Payments: Safaricom Daraja credentials in Railway environment variables.
+- Frontend: deploy `client/` to Vercel with `VITE_API_BASE_URL` pointing to the backend API.
+- Backend: deploy `server/` to Railway or Render with PostgreSQL, Redis/Upstash, Cloudinary, SMTP, and Daraja environment variables configured.
+- Database: run `npm run migrate` against the production `DATABASE_URL` before server startup. The server schema guard fails fast if required tables are missing.
+- Media: set Cloudinary credentials. Portfolio uploads use `malume-photography/portfolio`; public event uploads use `malume-photography/events`.
+- Newsletter: set SMTP credentials and `NEWSLETTER_NOTIFY_EMAIL`.
+- Payments: set Daraja credentials and a public `DARAJA_CALLBACK_URL` ending in `/webhooks/daraja`.
+- Security: use HTTPS, secure cookies in production, strong admin credentials, and deployment-managed secrets only.
 
-Never place real credentials in README files, source files, or tracked `.env` files. Use the deployment dashboard secret manager or a local untracked `server/.env`.
+## Recent Production Improvements
+
+- Added dedicated About and Journal pages.
+- Corrected About and Journal navigation so they no longer point to unrelated routes.
+- Updated WhatsApp, TikTok, LinkedIn, and business phone details centrally.
+- Improved footer quick-link interactions and contact-link affordances.
+- Refined quote-flow copy and pricing ranges.
+- Added public invoice routes and Daraja troubleshooting logs.
+- Added platform guides for Daraja testing and admin invoice workflows.
+- Removed sensitive backend auth/session debug logs.
 
 ## Setup Guides
 
