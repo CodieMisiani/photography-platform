@@ -70,17 +70,17 @@ export default function BookPage() {
   }
 
   return (
-    <div className="bg-paper text-ink">
+    <div className="bg-paper text-text-primary">
       <Header />
       <main className="mx-auto max-w-7xl px-6 py-16">
-        <section className="mb-12 max-w-3xl border-b border-grey-light pb-10">
-          <p className="mb-4 text-[0.75rem] uppercase tracking-[0.3em] text-grey">
+        <section className="mb-12 max-w-3xl border-b border-paper-deep pb-10">
+          <p className="mb-4 text-[0.75rem] uppercase tracking-[0.3em] text-brass">
             Book Me
           </p>
           <h1 className="text-5xl font-display uppercase tracking-[-0.04em] sm:text-6xl">
             Pick an open date.
           </h1>
-          <p className="mt-6 max-w-xl text-[0.95rem] leading-7 text-grey">
+          <p className="mt-6 max-w-xl text-[0.95rem] leading-7 text-text-secondary">
             Booking is for clients who already know the date. Quote requests are
             for broader project planning and pricing.
           </p>
@@ -93,22 +93,22 @@ export default function BookPage() {
                 {today.toLocaleString("en", { month: "long", year: "numeric" })}
               </h2>
               {availability.isLoading ? (
-                <span className="text-[0.75rem] uppercase tracking-[0.25em] text-grey">
+                <span className="text-[0.75rem] uppercase tracking-[0.25em] text-text-muted">
                   Loading dates
                 </span>
               ) : null}
             </div>
             {availability.isError ? (
-              <div className="border border-grey-light bg-grey-faint p-8">
-                <p className="mb-4 text-sm text-grey">
+              <div className="border border-paper-deep bg-paper-warm p-8">
+                <p className="mb-4 text-sm text-text-muted">
                   Availability could not load.
                 </p>
                 <Button onClick={() => availability.refetch()}>Retry</Button>
               </div>
             ) : (
-              <div className="grid grid-cols-7 border-l border-t border-grey-light">
+              <div className="grid grid-cols-7 border-l border-t border-paper-deep">
                 {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                  <div key={day} className="border-b border-r border-grey-light p-3 text-[0.7rem] uppercase tracking-[0.2em] text-grey">
+                  <div key={day} className="border-b border-r border-paper-deep p-3 text-[0.7rem] uppercase tracking-[0.2em] text-text-muted">
                     {day}
                   </div>
                 ))}
@@ -122,9 +122,9 @@ export default function BookPage() {
                       type="button"
                       disabled={blocked}
                       onClick={() => setSelectedDate(dateId)}
-                      className={`min-h-20 border-b border-r border-grey-light p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                        selected ? "bg-accent text-white" : "bg-paper text-ink"
-                      } ${blocked ? "cursor-not-allowed text-grey opacity-40" : "hover:bg-grey-faint"}`}
+                      className={`min-h-20 border-b border-r border-paper-deep p-3 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                        selected ? "bg-accent text-white" : "bg-paper text-text-primary"
+                      } ${blocked ? "cursor-not-allowed text-text-muted opacity-40" : "hover:bg-paper-warm"}`}
                     >
                       {day ? day.getDate() : ""}
                     </button>
@@ -134,13 +134,13 @@ export default function BookPage() {
             )}
           </div>
 
-          <aside className="border border-grey-light bg-grey-faint p-8">
+          <aside className="border border-paper-deep bg-paper-warm p-8">
             <h2 className="mb-6 text-2xl font-display font-semibold uppercase">
               Booking Details
             </h2>
             {selectedDate ? (
               <form className="space-y-6" onSubmit={handleSubmit}>
-                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey">
+                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-brass">
                   Selected date: {selectedDate}
                 </p>
                 <FormField id="client_name" label="Name" required value={form.client_name} onChange={(event) => setFormValue("client_name", event.target.value, setForm)} />
@@ -152,13 +152,13 @@ export default function BookPage() {
                   ))}
                 </FormField>
                 <FormField as="textarea" id="notes" label="Notes" rows={4} value={form.notes} onChange={(event) => setFormValue("notes", event.target.value, setForm)} />
-                {message ? <p className="text-sm leading-6 text-grey">{message}</p> : null}
+                {message ? <p className="text-sm leading-6 text-text-muted">{message}</p> : null}
                 <Button type="submit" disabled={bookingMutation.isPending} className="w-full">
                   {bookingMutation.isPending ? "Sending" : "Send Booking"}
                 </Button>
               </form>
             ) : (
-              <p className="text-sm leading-7 text-grey">
+              <p className="text-sm leading-7 text-text-muted">
                 Choose an available date from the calendar to open the booking form.
               </p>
             )}

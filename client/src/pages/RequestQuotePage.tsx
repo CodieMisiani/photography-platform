@@ -73,17 +73,17 @@ export default function RequestQuotePage() {
   }
 
   return (
-    <div className="bg-paper text-ink">
+    <div className="bg-paper text-text-primary">
       <Header />
 
       <main className="min-h-screen">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 py-16 lg:grid-cols-12 lg:py-24">
           <aside className="order-1 lg:order-2 lg:col-span-4">
             <div className="lg:sticky lg:top-24">
-              <h1 className="mb-4 text-3xl font-display font-semibold uppercase text-ink">
+              <h1 className="mb-4 text-3xl font-display font-semibold uppercase text-text-primary">
                 The Creative Journey
               </h1>
-              <p className="mb-10 text-[1rem] leading-8 text-grey">
+              <p className="mb-10 text-[1rem] leading-8 text-text-secondary">
                 Every commission begins with a conversation. We ensure every
                 detail is intentional.
               </p>
@@ -94,27 +94,27 @@ export default function RequestQuotePage() {
                       className={`flex h-8 w-8 shrink-0 items-center justify-center border text-[0.7rem] font-semibold uppercase tracking-[0.2em] ${
                         index === 0
                           ? "border-accent bg-accent text-white"
-                          : "border-grey-light text-grey"
+                          : "border-paper-deep text-text-muted"
                       }`}
                     >
                       {item.number}
                     </div>
                     <div>
-                      <h2 className="mb-1 text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-ink">
+                      <h2 className="mb-1 text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-primary">
                         {item.title}
                       </h2>
-                      <p className="text-sm leading-6 text-grey">
+                      <p className="text-sm leading-6 text-text-secondary">
                         {item.description}
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="mt-16 border border-grey-light bg-grey-faint p-8">
-                <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey">
+              <div className="mt-16 border border-paper-deep bg-paper-warm p-8">
+                <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-brass">
                   Last minute? Call the studio
                 </p>
-                <p className="text-3xl font-display font-semibold text-ink">
+                <p className="text-3xl font-display font-semibold text-text-primary">
                   +254 700 555 019
                 </p>
               </div>
@@ -124,18 +124,18 @@ export default function RequestQuotePage() {
           <section className="order-2 lg:order-1 lg:col-span-8">
             <div className="max-w-2xl">
               <header className="mb-12">
-                <p className="mb-4 text-[0.75rem] font-semibold uppercase tracking-[0.3em] text-grey">
+                <p className="mb-4 text-[0.75rem] font-semibold uppercase tracking-[0.3em] text-brass">
                   Booking Inquiry
                 </p>
-                <h2 className="mb-5 text-5xl font-display uppercase leading-tight tracking-[-0.04em] text-ink sm:text-6xl md:text-[4.5rem]">
+                <h2 className="mb-5 text-5xl font-display uppercase leading-tight tracking-[-0.04em] text-text-primary sm:text-6xl md:text-[4.5rem]">
                   Request a bespoke quote
                 </h2>
-                <div className="h-px w-24 bg-ink" />
+                <div className="h-px w-24 bg-accent" />
               </header>
 
               <form onSubmit={handleSubmit}>
                 {formError ? (
-                  <p className="mb-8 border border-grey-light bg-grey-faint p-4 text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-ink">
+                  <p className="mb-8 border border-paper-deep bg-paper-warm p-4 text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-text-primary">
                     {formError}
                   </p>
                 ) : null}
@@ -177,7 +177,7 @@ export default function RequestQuotePage() {
             {quoteImages.map((image, index) => (
               <div
                 key={image.src}
-                className={`h-64 overflow-hidden bg-grey-faint md:h-96 ${
+                className={`h-64 overflow-hidden bg-paper-warm md:h-96 ${
                   index % 2 === 1 ? "mt-12" : ""
                 }`}
               >
@@ -289,15 +289,15 @@ function EventDetailsStep({
           onChange={(event) => onFieldChange("dateRange", event.target.value)}
         />
         <fieldset className="md:col-span-2">
-          <legend className="mb-4 text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey">
+          <legend className="mb-4 text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-brass">
             Estimated Budget ({SITE_CONFIG.locale.currencySymbol})
           </legend>
-          <div className="grid gap-px border border-grey-light bg-grey-light sm:grid-cols-3">
+          <div className="grid gap-px border border-paper-deep bg-paper-deep sm:grid-cols-3">
             {budgetOptions.map((option) => {
               const isSelected = selectedBudget === option;
 
               return (
-                <label key={option} className="cursor-pointer bg-paper">
+                <label key={option} className="cursor-pointer bg-paper-white">
                   <input
                     className="sr-only"
                     type="radio"
@@ -308,7 +308,7 @@ function EventDetailsStep({
                   />
                   <span
                     className={`block px-4 py-4 text-center text-[0.75rem] font-semibold uppercase tracking-[0.2em] ${
-                      isSelected ? "bg-accent text-white" : "text-ink"
+                      isSelected ? "bg-accent text-white" : "text-text-primary"
                     }`}
                   >
                     {option}
@@ -323,7 +323,7 @@ function EventDetailsStep({
         <button
           type="button"
           onClick={onBack}
-          className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey underline decoration-ink decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+          className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-muted underline decoration-ink-rich decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
         >
           Back
         </button>
@@ -360,13 +360,13 @@ function CreativeBriefStep({
       />
       <div className="flex items-start gap-4">
         <input
-          className="mt-1 h-4 w-4 border border-grey"
+          className="mt-1 h-4 w-4 border border-text-muted"
           id="terms"
           required
           type="checkbox"
         />
         <label
-          className="text-[0.7rem] font-semibold uppercase leading-6 tracking-[0.2em] text-grey"
+          className="text-[0.7rem] font-semibold uppercase leading-6 tracking-[0.2em] text-text-muted"
           htmlFor="terms"
         >
           I understand that a booking is only confirmed upon receipt of a
@@ -377,7 +377,7 @@ function CreativeBriefStep({
         <button
           type="button"
           onClick={onBack}
-          className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey underline decoration-ink decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+          className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-muted underline decoration-ink-rich decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
         >
           Back
         </button>
@@ -391,11 +391,11 @@ function CreativeBriefStep({
 
 function SuccessState() {
   return (
-    <section className="border border-grey-light bg-grey-faint px-8 py-20 text-center">
-      <h2 className="mb-4 text-5xl font-display uppercase tracking-[-0.04em] text-ink">
+    <section className="border border-paper-deep bg-paper-warm px-8 py-20 text-center">
+      <h2 className="mb-4 text-5xl font-display uppercase tracking-[-0.04em] text-text-primary">
         Inquiry Received
       </h2>
-      <p className="mx-auto mb-8 max-w-sm text-[0.95rem] leading-7 text-grey">
+      <p className="mx-auto mb-8 max-w-sm text-[0.95rem] leading-7 text-text-muted">
         Alexander will review your creative brief within 48 hours. A
         personalized quote will be sent to your email.
       </p>
@@ -408,7 +408,7 @@ function SuccessState() {
 
 function StepTitle({ children }: { children: ReactNode }) {
   return (
-    <h3 className="border-b border-grey-light pb-2 text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey">
+    <h3 className="border-b border-paper-deep pb-2 text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-brass">
       {children}
     </h3>
   );

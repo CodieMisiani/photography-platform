@@ -72,7 +72,7 @@ export default function PayInvoicePage() {
   }
 
   return (
-    <div className="bg-paper text-ink">
+    <div className="bg-paper text-text-primary">
       <Header />
       <main className="mx-auto flex min-h-[70vh] max-w-4xl flex-col items-center px-6 py-16">
         <div className="mb-10 flex w-full max-w-md justify-between px-4">
@@ -81,7 +81,7 @@ export default function PayInvoicePage() {
             return (
               <span
                 key={item}
-                className={`h-2 w-2 ${index <= activeIndex ? "bg-ink" : "bg-grey-light"}`}
+                className={`h-2 w-2 ${index <= activeIndex ? "bg-accent" : "bg-paper-deep"}`}
               />
             );
           })}
@@ -90,7 +90,7 @@ export default function PayInvoicePage() {
         {displayedStep === "lookup" ? (
           <section className="w-full max-w-md">
             <div className="mb-12 text-center">
-              <p className="mb-4 text-[0.75rem] font-semibold uppercase tracking-[0.3em] text-grey">
+              <p className="mb-4 text-[0.75rem] font-semibold uppercase tracking-[0.3em] text-brass">
                 Secure Payment Portal
               </p>
               <h1 className="text-4xl font-display font-semibold uppercase">
@@ -117,7 +117,7 @@ export default function PayInvoicePage() {
             <button
               type="button"
               onClick={() => setStep("lookup")}
-              className="mb-6 text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey underline decoration-ink decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+              className="mb-6 text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-muted underline decoration-ink-rich decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
             >
               Change Invoice
             </button>
@@ -125,14 +125,14 @@ export default function PayInvoicePage() {
             {isError ? <StatusPanel title="Invoice Not Found" message="Check the invoice number and try again." /> : null}
             {data ? (
               <>
-                <div className="border border-grey-light">
-                  <div className="border-b border-grey-light bg-grey-faint p-6">
+                <div className="border border-paper-deep bg-paper-white">
+                  <div className="border-b border-paper-deep bg-paper-warm p-6">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <h1 className="mb-1 text-2xl font-display font-semibold uppercase">
                           {data.id}
                         </h1>
-                        <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey">
+                        <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-text-muted">
                           {data.dueDate}
                         </p>
                       </div>
@@ -142,11 +142,11 @@ export default function PayInvoicePage() {
                   <div className="space-y-4 p-6">
                     {data.lineItems.map((item) => (
                       <div key={item.description} className="flex justify-between gap-4 text-sm">
-                        <span className="text-grey">{item.description}</span>
+                        <span className="text-text-muted">{item.description}</span>
                         <span className="font-semibold">{item.amount}</span>
                       </div>
                     ))}
-                    <div className="flex justify-between border-t border-grey-light pt-6">
+                    <div className="flex justify-between border-t border-paper-deep pt-6">
                       <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em]">
                         Total Amount
                       </span>
@@ -163,7 +163,7 @@ export default function PayInvoicePage() {
                     placeholder="+254 712345678"
                     type="tel"
                   />
-                  {error ? <p className="text-sm leading-6 text-grey">{error}</p> : null}
+                  {error ? <p className="text-sm leading-6 text-text-muted">{error}</p> : null}
                   <Button className="w-full" onClick={sendPrompt} disabled={paymentMutation.isPending}>
                     {paymentMutation.isPending ? "Sending" : "Send STK Push"}
                   </Button>
@@ -210,16 +210,16 @@ function StatusPanel({
   busy?: boolean;
 }) {
   return (
-    <section className="w-full max-w-md border border-grey-light bg-grey-faint px-8 py-16 text-center">
+    <section className="w-full max-w-md border border-paper-deep bg-paper-warm px-8 py-16 text-center">
       <div
-        className={`mx-auto mb-8 h-20 w-20 border border-ink ${
-          busy ? "animate-[spin_1.2s_linear_infinite]" : "bg-ink"
+        className={`mx-auto mb-8 h-20 w-20 border border-ink-rich ${
+          busy ? "animate-[spin_1.2s_linear_infinite]" : "bg-ink-rich"
         }`}
       />
       <h1 className="mb-4 text-3xl font-display font-semibold uppercase">
         {title}
       </h1>
-      <p className="text-sm leading-7 text-grey">{message}</p>
+      <p className="text-sm leading-7 text-text-muted">{message}</p>
     </section>
   );
 }

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @config "../../tailwind.config.ts";
 
@@ -8,10 +8,31 @@
   font-size: 16px;
   line-height: 1.5;
   color: #1a1a1a;
-  background: #ffffff;
+  background: #faf8f5;
   --color-accent: #0077b5;
   --color-accent-hover: #005f91;
   --color-accent-muted: rgba(0, 119, 181, 0.15);
+  --color-paper: #faf8f5;
+  --color-paper-warm: #f4f0ea;
+  --color-paper-deep: #e7e0d7;
+  --color-ink-rich: #171514;
+  --color-ink-studio: #24201e;
+  --color-ink-warm: #3a3430;
+  --color-brass: #b9824a;
+  --color-brass-hover: #9c6a3b;
+  --color-brass-muted: #f4e7d8;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #4d4742;
+  --color-text-muted: #7a716a;
+  --color-text-inverse: #faf8f5;
+  --gradient-blue-line: linear-gradient(
+    90deg,
+    #1a1a1a 0%,
+    #0077b5 50%,
+    #1a1a1a 100%
+  );
+  --gradient-coastal: linear-gradient(135deg, #0077b5 0%, #64a9c8 100%);
+  --gradient-brass-to-blue: linear-gradient(135deg, #b9824a 0%, #0077b5 100%);
   letter-spacing: 0;
   font-feature-settings: "ss01" 0;
 }
@@ -27,8 +48,8 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #ffffff;
-  color: #1a1a1a;
+  background-color: var(--color-paper);
+  color: var(--color-text-primary);
 }
 
 h1,
@@ -37,7 +58,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Archivo", sans-serif;
+  font-family: "Cormorant Garamond", Georgia, serif;
 }
 
 button,
@@ -59,7 +80,6 @@ img {
 
 * {
   border-radius: 0 !important;
-  box-shadow: none !important;
 }
 
 button,
@@ -162,7 +182,7 @@ textarea {
   inset-inline: 0;
   bottom: -0.35rem;
   height: 1px;
-  background: currentColor;
+  background: var(--gradient-blue-line);
   transform: scaleX(0);
   transform-origin: center;
   transition: transform 180ms ease-out;
@@ -185,6 +205,20 @@ a {
   text-underline-offset: 0.24em;
 }
 
+.section-divider {
+  height: 1px;
+  border: 0;
+  background: var(--gradient-blue-line);
+  opacity: 0.4;
+}
+
+.stat-number {
+  background: var(--gradient-coastal);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .studio-drift {
   animation: studio-drift 8s ease-in-out infinite alternate;
 }
@@ -193,6 +227,24 @@ a {
   inline-size: 100%;
   overflow: hidden;
   contain: layout paint;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 119, 181, 0.08) 3%,
+    rgba(255, 255, 255, 1) 8%,
+    rgba(255, 255, 255, 1) 92%,
+    rgba(0, 119, 181, 0.08) 97%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 119, 181, 0.08) 3%,
+    rgba(255, 255, 255, 1) 8%,
+    rgba(255, 255, 255, 1) 92%,
+    rgba(0, 119, 181, 0.08) 97%,
+    transparent 100%
+  );
 }
 
 .homepage-marquee__track {
@@ -203,6 +255,7 @@ a {
 }
 
 .homepage-marquee__item {
+  position: relative;
   flex: 0 0 auto;
   inline-size: clamp(220px, 28vw, 460px);
   aspect-ratio: 4 / 3;
@@ -215,6 +268,19 @@ a {
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
+}
+
+.homepage-marquee__item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 20, 16, 0.1);
+  pointer-events: none;
+  transition: background-color 300ms ease;
+}
+
+.homepage-marquee__item:hover::after {
+  background: rgba(26, 20, 16, 0.22);
 }
 
 @keyframes homepage-marquee {

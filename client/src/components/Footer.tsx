@@ -39,23 +39,23 @@ export default function Footer() {
   }
 
   return (
-    <footer className="border-t border-grey-light bg-paper py-14">
+    <footer className="border-t border-ink-warm bg-ink-warm py-14 text-text-inverse">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid gap-10 md:grid-cols-12">
           <div className="md:col-span-4">
             <p className="font-display text-[1rem] uppercase tracking-[0.35em]">
               {SITE_CONFIG.name}
             </p>
-            <p className="mt-4 max-w-xl text-[0.95rem] text-grey">
+            <p className="mt-4 max-w-xl text-[0.95rem] text-text-inverse/70">
               Elevating visual storytelling through a lens of sophistication and
               modern luxury.
             </p>
           </div>
           <div className="md:col-span-2 md:col-start-7">
-            <p className="font-semibold uppercase tracking-[0.25em] text-[0.75rem]">
+            <p className="font-semibold uppercase tracking-[0.25em] text-[0.75rem] text-brass">
               Quick Links
             </p>
-            <nav className="mt-5 flex flex-col gap-3 text-grey text-[0.9rem]">
+            <nav className="mt-5 flex flex-col gap-3 text-text-inverse/70 text-[0.9rem]">
               <Link to="/portfolio">Portfolio</Link>
               <Link to="/request-quote">About</Link>
               <Link to="/public-events">Journal</Link>
@@ -63,12 +63,12 @@ export default function Footer() {
             </nav>
           </div>
           <div className="md:col-span-4">
-            <p className="font-semibold uppercase tracking-[0.25em] text-[0.75rem] text-grey">
+            <p className="font-semibold uppercase tracking-[0.25em] text-[0.75rem] text-brass">
               Newsletter
             </p>
             <form
               onSubmit={handleSubscribe}
-              className="mt-5 flex flex-col gap-3 border-b border-grey-light pb-3 sm:flex-row sm:items-center"
+              className="mt-5 flex flex-col gap-3 border-b border-ink-studio pb-3 sm:flex-row sm:items-center"
             >
               <label htmlFor="newsletter-email" className="sr-only">
                 Email address
@@ -85,14 +85,14 @@ export default function Footer() {
                   }
                 }}
                 placeholder="Your email address"
-                className="w-full bg-transparent text-[0.9rem] text-ink placeholder:text-grey focus:outline-none focus:ring-2 focus:ring-accent/20"
+                className="w-full bg-transparent text-[0.9rem] text-text-inverse placeholder:text-text-inverse/50 focus:outline-none focus:ring-2 focus:ring-accent/20"
                 autoComplete="email"
                 required
               />
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="min-h-11 text-left text-accent uppercase tracking-[0.25em] text-[0.75rem] transition-colors duration-150 hover:text-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:text-grey sm:text-right"
+                className="min-h-11 text-left text-accent uppercase tracking-[0.25em] text-[0.75rem] transition-colors duration-150 hover:text-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:text-text-inverse/40 sm:text-right"
               >
                 {status === "loading" ? "Subscribing" : "Subscribe"}
               </button>
@@ -100,19 +100,19 @@ export default function Footer() {
             {message ? (
               <p
                 className={`mt-3 text-[0.75rem] ${
-                  status === "error" ? "text-ink" : "text-grey"
+                  status === "error" ? "text-text-inverse" : "text-text-inverse/70"
                 }`}
                 role={status === "error" ? "alert" : "status"}
               >
                 {message}
               </p>
             ) : null}
-            <p className="mt-4 text-[0.7rem] uppercase tracking-[0.35em] text-grey">
+            <p className="mt-4 text-[0.7rem] uppercase tracking-[0.35em] text-text-inverse/60">
               Join for studio updates and recent works.
             </p>
           </div>
         </div>
-        <div className="mt-14 flex flex-col gap-4 border-t border-grey-light pt-6 text-[0.75rem] text-grey md:flex-row md:items-center md:justify-between">
+        <div className="mt-14 flex flex-col gap-4 border-t border-ink-studio pt-6 text-[0.75rem] text-text-inverse/60 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-6">
             <span>
               © {new Date().getFullYear()} {SITE_CONFIG.name}. All rights
@@ -120,13 +120,13 @@ export default function Footer() {
             </span>
             <a
               href={`mailto:${SITE_CONFIG.email}`}
-              className="text-grey transition-colors duration-150 hover:text-accent"
+              className="text-text-inverse/60 transition-colors duration-150 hover:text-accent"
             >
               {SITE_CONFIG.email}
             </a>
             <a
               href={`tel:${SITE_CONFIG.phone}`}
-              className="text-grey transition-colors duration-150 hover:text-accent"
+              className="text-text-inverse/60 transition-colors duration-150 hover:text-accent"
             >
               {SITE_CONFIG.phone}
             </a>
@@ -238,7 +238,7 @@ function SocialLink({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="inline-flex h-11 w-11 items-center justify-center text-grey transition-colors duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      className="inline-flex h-11 w-11 items-center justify-center text-text-inverse/60 transition-colors duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       style={{ minWidth: 44, minHeight: 44 }}
     >
       {children}

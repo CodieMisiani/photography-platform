@@ -34,13 +34,13 @@ export default function StatCard({
   });
 
   return (
-    <div className="stat-card p-6 text-center" ref={ref} style={style}>
-      <p className="text-xs font-semibold uppercase tracking-widest text-grey">
+    <div className="stat-card border border-ink-warm bg-ink-rich p-6 text-center" ref={ref} style={style}>
+      <p className="text-xs font-semibold uppercase tracking-widest text-brass">
         {label}
       </p>
-      <p className="mt-2 text-3xl font-display font-bold text-accent">
+      <p className="stat-number mt-2 text-3xl font-display font-bold">
         {current}
-        {suffix ? <span className="ml-1 text-base text-accent">{suffix}</span> : null}
+        {suffix ? <span className="ml-1 text-base">{suffix}</span> : null}
       </p>
     </div>
   );

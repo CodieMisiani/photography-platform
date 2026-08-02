@@ -13,14 +13,14 @@ export default function Header() {
   const { isOpen, menuRef, setIsOpen, toggleRef } = useMobileMenu();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-grey-light bg-paper">
+    <header className="sticky top-0 z-50 border-b border-paper-deep bg-paper/95 backdrop-blur">
       <a href="#main" className="skip-link">
         Skip to content
       </a>
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <NavLink
           to="/"
-          className="font-display text-[1rem] uppercase tracking-[0.35em]"
+          className="font-display text-[1rem] uppercase tracking-[0.35em] text-text-primary"
         >
           Malume
         </NavLink>
@@ -64,7 +64,7 @@ export default function Header() {
       <div
         id="mobile-menu"
         ref={menuRef}
-        className={`border-t border-grey-light bg-paper px-6 transition-[max-height,opacity] duration-300 md:hidden ${
+        className={`border-t border-paper-deep bg-paper px-6 transition-[max-height,opacity] duration-300 md:hidden ${
           isOpen
             ? "max-h-screen opacity-100"
             : "max-h-0 overflow-hidden opacity-0"

@@ -10,11 +10,11 @@ export default function StatusText({ status }: StatusTextProps) {
     ? "border border-accent/30 bg-accent-muted px-3 py-1 font-semibold text-accent"
     : destructiveStatuses.has(normalized)
       ? "border border-red-700/30 px-3 py-1 font-semibold text-red-700"
-      : "font-semibold text-grey";
+      : "font-semibold text-text-muted";
 
   return (
     <span
-      className={`uppercase tracking-[0.25em] text-[0.75rem] ${tone}`}
+      className={`cursor-default select-none uppercase tracking-[0.25em] text-[0.75rem] ${tone}`}
     >
       {status}
     </span>

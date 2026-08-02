@@ -24,7 +24,7 @@ type SelectProps = SharedProps &
 type FormFieldProps = InputProps | TextareaProps | SelectProps;
 
 const fieldClasses =
-  "w-full border-0 border-b border-grey bg-transparent px-0 py-3 text-[1rem] text-ink placeholder:text-grey focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
+  "w-full border-0 border-b border-text-muted bg-transparent px-0 py-3 text-[1rem] text-text-primary placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
 
 export default function FormField(props: FormFieldProps) {
   const { label, id, helper } = props;
@@ -33,7 +33,7 @@ export default function FormField(props: FormFieldProps) {
     <div className="flex flex-col gap-2">
       <label
         htmlFor={id}
-        className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey"
+        className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-brass"
       >
         {label}
       </label>
@@ -44,7 +44,7 @@ export default function FormField(props: FormFieldProps) {
       ) : (
         <InputField {...props} />
       )}
-      {helper ? <p className="text-[0.75rem] leading-5 text-grey">{helper}</p> : null}
+      {helper ? <p className="text-[0.75rem] leading-5 text-text-muted">{helper}</p> : null}
     </div>
   );
 }

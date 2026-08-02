@@ -58,19 +58,19 @@ export default function PublicEventsPage() {
   );
 
   return (
-    <div className="bg-paper text-ink">
+    <div className="bg-paper text-text-primary">
       <Header />
 
       <main className="min-h-screen">
         <section className="mx-auto max-w-7xl px-6 py-16 md:py-24">
-          <div className="max-w-4xl border-b border-grey-light pb-12">
-            <p className="mb-6 text-[0.75rem] uppercase tracking-[0.3em] text-grey">
+          <div className="max-w-4xl border-b border-paper-deep pb-12">
+            <p className="mb-6 text-[0.75rem] uppercase tracking-[0.3em] text-brass">
               Public Programming
             </p>
-            <h1 className="mb-8 text-5xl font-display uppercase leading-tight tracking-[-0.04em] text-ink sm:text-6xl md:text-[4.5rem]">
+            <h1 className="mb-8 text-5xl font-display uppercase leading-tight tracking-[-0.04em] text-text-primary sm:text-6xl md:text-[4.5rem]">
               Studio Sessions & Exhibitions
             </h1>
-            <p className="max-w-xl text-[1rem] leading-8 text-grey">
+            <p className="max-w-xl text-[1rem] leading-8 text-text-secondary">
               Explore our curated events, from intimate film photography
               workshops to international gallery openings and creative
               networking nights.
@@ -95,7 +95,7 @@ export default function PublicEventsPage() {
                   className={`whitespace-nowrap border px-6 py-2 text-[0.75rem] font-semibold uppercase tracking-[0.2em] transition-colors duration-200 ${
                     isSelected
                       ? "border-accent bg-accent text-white"
-                      : "border-grey-light bg-transparent text-ink hover:border-accent hover:text-accent"
+                      : "border-paper-deep bg-transparent text-text-primary hover:border-accent hover:text-accent"
                   }`}
                 >
                   {option}
@@ -114,7 +114,7 @@ export default function PublicEventsPage() {
               action={() => refetch()}
             />
           ) : filteredEvents.length > 0 ? (
-            <div className="flex flex-col border-t border-grey-light">
+            <div className="flex flex-col border-t border-paper-deep">
               {filteredEvents.map((event) => (
                 <EventRow key={event.id} event={event} />
               ))}
@@ -132,17 +132,17 @@ export default function PublicEventsPage() {
 
 function EventRow({ event }: { event: PublicEvent }) {
   return (
-    <article className="studio-plane grid gap-8 border-b border-grey-light py-12 md:grid-cols-[80px_minmax(220px,1fr)_minmax(0,1.7fr)] md:items-start">
+    <article className="studio-plane grid gap-8 border-b border-paper-deep py-12 transition-colors duration-150 hover:bg-paper-warm md:grid-cols-[80px_minmax(220px,1fr)_minmax(0,1.7fr)] md:items-start">
       <time className="flex flex-row items-baseline gap-3 md:flex-col md:items-center md:gap-1">
-        <span className="font-display text-5xl font-semibold leading-none text-ink">
+        <span className="font-display text-5xl font-semibold leading-none text-text-primary">
           {event.day}
         </span>
-        <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey">
+        <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-brass">
           {event.month}
         </span>
       </time>
 
-      <div className="aspect-[4/3] overflow-hidden bg-grey-faint">
+      <div className="aspect-[4/3] overflow-hidden bg-paper-warm">
         {event.image ? (
           <img
             src={event.image}
@@ -155,18 +155,18 @@ function EventRow({ event }: { event: PublicEvent }) {
       <div className="flex flex-col gap-4">
         <div className="flex items-start justify-between gap-6">
           <StatusLabel category={event.category} />
-          <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-ink">
+        <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-primary">
             {event.price}
           </span>
         </div>
-        <h2 className="text-3xl font-display font-semibold uppercase leading-tight text-ink">
+        <h2 className="text-3xl font-display font-semibold uppercase leading-tight text-text-primary">
           {event.title}
         </h2>
-        <p className="max-w-xl text-[0.95rem] leading-7 text-grey">
+        <p className="max-w-xl text-[0.95rem] leading-7 text-text-secondary">
           {event.description}
         </p>
         <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey">
+          <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-muted">
             {event.location}
           </span>
           <Button>Get Tickets</Button>
@@ -178,7 +178,7 @@ function EventRow({ event }: { event: PublicEvent }) {
 
 function StatusLabel({ category }: { category: EventCategory }) {
   return (
-    <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey underline decoration-accent decoration-1 underline-offset-4">
+    <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-brass underline decoration-accent decoration-1 underline-offset-4">
       {category}
     </span>
   );
@@ -192,8 +192,8 @@ function EventState({
   action?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-6 border-y border-grey-light py-24 text-center">
-      <p className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey">
+    <div className="flex flex-col items-center justify-center gap-6 border-y border-paper-deep py-24 text-center">
+      <p className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-muted">
         {message}
       </p>
       {action ? <Button onClick={action}>Retry</Button> : null}
@@ -203,12 +203,12 @@ function EventState({
 
 function EmptyState({ onReset }: { onReset: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-6 border-y border-grey-light py-24 text-center">
+    <div className="flex flex-col items-center justify-center gap-6 border-y border-paper-deep py-24 text-center">
       <div className="max-w-md">
-        <h2 className="mb-4 text-3xl font-display font-semibold uppercase text-ink">
+        <h2 className="mb-4 text-3xl font-display font-semibold uppercase text-text-primary">
           No Sessions Found
         </h2>
-        <p className="text-[0.95rem] leading-7 text-grey">
+        <p className="text-[0.95rem] leading-7 text-text-muted">
           We do not have any events scheduled for this category at the moment.
           Join our mailing list for updates.
         </p>

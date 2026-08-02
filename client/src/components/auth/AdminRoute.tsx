@@ -12,7 +12,7 @@ export default function AdminRoute() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-paper text-ink">
+      <div className="flex min-h-screen items-center justify-center bg-paper text-text-primary">
         <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em]">
           Checking access
         </span>

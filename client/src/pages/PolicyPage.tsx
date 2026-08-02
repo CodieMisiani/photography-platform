@@ -5,16 +5,16 @@ export default function PolicyPage({ type }: { type: "privacy" | "terms" }) {
   const isPrivacy = type === "privacy";
 
   return (
-    <div className="bg-paper text-ink">
+    <div className="bg-paper text-text-primary">
       <Header />
       <main className="mx-auto min-h-[60vh] max-w-4xl px-6 py-20">
-        <p className="mb-4 text-[0.75rem] uppercase tracking-[0.3em] text-grey">
+        <p className="mb-4 text-[0.75rem] uppercase tracking-[0.3em] text-brass">
           Studio Policy
         </p>
         <h1 className="mb-8 text-5xl font-display uppercase tracking-[-0.04em]">
           {isPrivacy ? "Privacy" : "Terms"}
         </h1>
-        <div className="space-y-6 text-[0.95rem] leading-8 text-grey">
+        <div className="space-y-6 text-[0.95rem] leading-8 text-text-secondary">
           <p>
             {isPrivacy
               ? "We collect only the client details needed to respond to enquiries, manage bookings, issue invoices, and complete payments."

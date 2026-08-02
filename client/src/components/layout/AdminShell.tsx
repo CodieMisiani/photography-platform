@@ -39,7 +39,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
   });
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
+    <div className="min-h-screen bg-paper-warm text-text-primary">
       {/* DIAGNOSIS
        * Public menu component: client/src/components/Header.tsx
        * Admin layout component: client/src/components/layout/AdminShell.tsx
@@ -47,19 +47,19 @@ export default function AdminShell({ children }: { children: ReactNode }) {
        * Reason admin menu is missing/broken: admin navigation had its own duplicated mobile menu logic, making behavior easy to drift from the public hamburger.
        * Approach to fix: share the public menu state, focus trap, Escape, outside-click, route-close, and body-scroll behavior through useMobileMenu while keeping admin desktop sidebar markup unchanged.
        */}
-      <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-grey-light bg-paper p-6 md:flex">
+      <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-ink-studio bg-ink-warm p-6 text-text-inverse md:flex">
         <div className="mb-10">
           <p className="font-display text-3xl font-semibold uppercase tracking-[-0.04em]">
             Malume
           </p>
-          <div className="mt-8 border-t border-grey-light pt-6">
-            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey">
+          <div className="mt-8 border-t border-ink-studio pt-6">
+            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-brass">
               Admin
             </p>
             <p className="mt-1 text-sm font-semibold uppercase">Malume</p>
           </div>
         </div>
-        <nav className="flex flex-col border-t border-grey-light pt-4">
+        <nav className="flex flex-col border-t border-ink-studio pt-4">
           {adminLinks.map((link) => (
             <NavLink
               key={link.to}
@@ -68,7 +68,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
                 `border-l py-3 pl-3 text-[0.75rem] font-semibold uppercase tracking-[0.25em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   isActive
                     ? "border-accent bg-accent-muted text-accent underline decoration-accent decoration-1 underline-offset-4"
-                    : "border-transparent text-grey hover:text-accent"
+                    : "border-transparent text-text-inverse/70 hover:text-accent"
                 }`
               }
             >
@@ -86,7 +86,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
         </button>
       </aside>
 
-      <header className="sticky top-0 z-40 border-b border-grey-light bg-paper md:hidden">
+      <header className="sticky top-0 z-40 border-b border-paper-deep bg-paper md:hidden">
         <div className="flex items-center justify-between px-6 py-4">
           <span className="font-display text-2xl font-semibold uppercase">
             Malume
@@ -119,7 +119,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
         <div
           id="admin-mobile-menu"
           ref={menuRef}
-          className={`border-t border-grey-light bg-paper px-6 transition-[max-height,opacity] duration-300 ${
+          className={`border-t border-paper-deep bg-paper px-6 transition-[max-height,opacity] duration-300 ${
             isOpen
               ? "max-h-screen opacity-100"
               : "max-h-0 overflow-hidden opacity-0"
@@ -139,7 +139,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
                   `nav-link uppercase tracking-[0.25em] text-[0.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                     isActive
                       ? "nav-link--active bg-accent-muted px-2"
-                      : "text-grey"
+                      : "text-text-muted"
                   }`
                 }
               >
