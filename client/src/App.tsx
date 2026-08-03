@@ -1,5 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { ScrollToTop } from "./components/ScrollToTop";
 import AppRoutes from "./routes/Routes";
 import { queryClient } from "./lib/queryClient";
 import "./styles/globals.css";
@@ -8,6 +9,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <ScrollToTop />
         <AppRoutes />
       </BrowserRouter>
     </QueryClientProvider>

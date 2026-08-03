@@ -24,7 +24,7 @@ Think of the system like a real studio:
 
 The browser runs the React/Vite frontend in `client`. React components call one typed API layer at `client/src/lib/api.ts`. That API layer calls the Express backend in `server`. Express validates requests with Zod, checks admin sessions with Redis, reads and writes Postgres through Knex, uploads portfolio and public event images to Cloudinary, sends newsletter signup notifications through SMTP, and triggers M-Pesa STK Push through Safaricom Daraja.
 
-The homepage image marquee reads from `homeMarqueeImages` in `client/src/data/homeFixtures.ts`. Swap real portfolio photo URLs there when production assets are ready; the homepage consumes the list automatically and duplicates it for the seamless loop.
+The homepage image marquee reads from real local photography assets listed in `homeMarqueeImages` in `client/src/data/homeFixtures.ts`. The homepage duplicates that list automatically for the seamless loop.
 
 Flow in words:
 
@@ -192,7 +192,9 @@ Rollback:
 ### What's Finished
 
 - React/Vite/Tailwind frontend with the existing monochrome editorial design preserved.
-- Homepage refinement with clean hero and moving image marquee.
+- Homepage refinement with clean hero, CSS-only text reveal, left-to-right moving image marquee, and extra spacing between hero copy and the image reel.
+- Homepage-aware transparent header at the top of the dark hero with the existing scrolled header state preserved.
+- Scroll-to-top navigation for in-app route changes, with reduced-motion support and native browser back/forward scroll restoration preserved.
 - Mobile hamburger menu with keyboard/focus handling.
 - Admin panel mobile hamburger navigation, sharing the public menu's focus trap, route-close, Escape close, outside-click close, active state, and breakpoint behavior.
 - Hero section staggered fade-up entrance animation, viewport-triggered and `prefers-reduced-motion` safe.
