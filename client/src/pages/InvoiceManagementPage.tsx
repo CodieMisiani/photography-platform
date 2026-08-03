@@ -85,7 +85,7 @@ export default function InvoiceManagementPage() {
                 key={filter}
                 type="button"
                 onClick={() => setSelectedFilter(filter)}
-                className={`text-[0.75rem] font-semibold uppercase tracking-[0.25em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`text-[0.75rem] font-semibold uppercase tracking-[0.25em] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97] ${
                   selectedFilter === filter
                     ? "text-accent underline decoration-accent decoration-1 underline-offset-4"
                     : "text-grey hover:text-accent"

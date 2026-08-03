@@ -45,7 +45,7 @@ export default function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <NavLink
           to="/"
-          className="font-display text-[1rem] uppercase tracking-[0.35em] transition-opacity duration-150 hover:opacity-80"
+          className="font-display text-[1rem] uppercase tracking-[0.35em] transition-opacity duration-150 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:opacity-70"
         >
           Malume
         </NavLink>
@@ -69,7 +69,7 @@ export default function Header() {
           aria-expanded={isOpen}
           aria-controls="mobile-menu"
           onClick={() => setIsOpen((value) => !value)}
-          className="inline-flex h-10 w-10 items-center justify-center border border-accent text-accent transition-colors hover:bg-accent hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center border border-accent text-accent transition-colors hover:bg-accent hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97] md:hidden"
         >
           <span className="sr-only">{isOpen ? "Close menu" : "Open menu"}</span>
           <span className="flex flex-col gap-1" aria-hidden="true">

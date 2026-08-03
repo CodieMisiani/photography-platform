@@ -26,7 +26,7 @@ export default function AdminDashboardPage() {
             <Link
               key={link.to}
               to={link.to}
-              className="border-b border-grey-light py-6 text-[0.8rem] font-semibold uppercase tracking-[0.25em] text-grey transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:odd:border-r md:odd:pr-6 md:even:pl-6"
+              className="border-b border-grey-light py-6 text-[0.8rem] font-semibold uppercase tracking-[0.25em] text-grey transition-all duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:translate-x-1 md:odd:border-r md:odd:pr-6 md:even:pl-6"
             >
               {link.label}
             </Link>

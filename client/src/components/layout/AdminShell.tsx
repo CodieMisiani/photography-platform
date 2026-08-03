@@ -98,7 +98,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
             aria-expanded={isOpen}
             aria-controls="admin-mobile-menu"
             onClick={() => setIsOpen((value) => !value)}
-            className="inline-flex h-10 w-10 items-center justify-center border border-accent text-accent transition-colors hover:bg-accent hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="inline-flex h-10 w-10 items-center justify-center border border-accent text-accent transition-colors hover:bg-accent hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97]"
           >
             <span className="sr-only">
               {isOpen ? "Close admin menu" : "Open admin menu"}
