@@ -93,7 +93,7 @@ export default function PublicEventsPage() {
                   type="button"
                   aria-pressed={isSelected}
                   onClick={() => setSelectedFilter(option)}
-                  className={`whitespace-nowrap border px-6 py-2 text-[0.75rem] font-semibold uppercase tracking-[0.2em] transition-colors duration-200 ${
+                  className={`whitespace-nowrap border px-6 py-2 text-[0.75rem] font-semibold uppercase tracking-[0.2em] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97] ${
                     isSelected
                       ? "border-accent bg-accent text-white"
                       : "border-paper-deep bg-transparent text-text-primary hover:border-accent hover:text-accent"

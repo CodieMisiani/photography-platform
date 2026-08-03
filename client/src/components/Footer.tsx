@@ -94,7 +94,7 @@ export default function Footer() {
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="min-h-11 border border-accent px-4 py-2 text-left text-accent uppercase tracking-[0.25em] text-[0.75rem] transition-all duration-200 hover:bg-accent-hover hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:text-text-inverse/40 sm:text-right"
+                className="min-h-11 border border-accent px-4 py-2 text-left text-[0.75rem] uppercase tracking-[0.25em] text-accent transition-all duration-200 hover:bg-accent-hover hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink-warm active:scale-[0.97] disabled:cursor-not-allowed disabled:text-text-inverse/40 disabled:opacity-50 sm:text-right"
               >
                 {status === "loading" ? "Subscribing" : "Subscribe"}
               </button>
@@ -124,13 +124,13 @@ export default function Footer() {
             </span>
             <a
               href={`mailto:${SITE_CONFIG.email}`}
-              className="text-text-inverse/60 underline-offset-4 transition-colors duration-150 hover:text-accent hover:underline"
+              className="text-text-inverse/60 underline-offset-4 transition-colors duration-150 hover:text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink-warm"
             >
               {SITE_CONFIG.email}
             </a>
             <a
               href={`tel:${SITE_CONFIG.phone}`}
-              className="text-text-inverse/60 underline-offset-4 transition-colors duration-150 hover:text-accent hover:underline"
+              className="text-text-inverse/60 underline-offset-4 transition-colors duration-150 hover:text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink-warm"
             >
               {SITE_CONFIG.phone}
             </a>
@@ -242,7 +242,7 @@ function SocialLink({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="inline-flex h-11 w-11 items-center justify-center text-text-inverse/60 transition-all duration-200 hover:-translate-y-0.5 hover:scale-110 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      className="inline-flex h-11 w-11 items-center justify-center text-text-inverse/60 transition-all duration-200 hover:-translate-y-0.5 hover:scale-110 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink-warm active:scale-[0.97]"
       style={{ minWidth: 44, minHeight: 44 }}
     >
       {children}
@@ -254,7 +254,7 @@ function FooterLink({ to, children }: { to: string; children: ReactNode }) {
   return (
     <Link
       to={to}
-      className="group inline-flex w-fit items-center gap-2 underline-offset-4 transition-all duration-150 hover:translate-x-1 hover:text-accent hover:underline"
+      className="group inline-flex w-fit items-center gap-2 underline-offset-4 transition-all duration-150 hover:translate-x-1 hover:text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink-warm active:translate-x-0.5"
     >
       {children}
       <span

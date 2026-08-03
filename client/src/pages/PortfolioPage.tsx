@@ -70,7 +70,7 @@ export default function PortfolioPage() {
                   key={option}
                   type="button"
                   onClick={() => setSelectedFilter(option)}
-                  className={`uppercase tracking-[0.3em] text-[0.75rem] pb-1 transition-colors ${
+                  className={`pb-1 text-[0.75rem] uppercase tracking-[0.3em] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97] ${
                     selectedFilter === option
                       ? "bg-accent px-3 py-2 text-white"
                       : "text-text-muted hover:text-accent"
@@ -148,7 +148,7 @@ function PortfolioCard({
 }) {
   return (
     <article
-      className="portfolio-card studio-plane group relative cursor-pointer overflow-hidden border border-paper-deep bg-paper-white text-text-primary"
+      className="portfolio-card studio-plane group relative cursor-pointer overflow-hidden border border-paper-deep bg-paper-white text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.99]"
       onClick={onOpen}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -241,7 +241,7 @@ function PortfolioLightbox({
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-6 top-6 text-4xl leading-none transition-colors duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="absolute right-6 top-6 text-4xl leading-none transition-all duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97]"
         aria-label="Close image lightbox"
       >
         ×
@@ -252,7 +252,7 @@ function PortfolioLightbox({
           event.stopPropagation();
           onNavigate((index - 1 + items.length) % items.length);
         }}
-        className="absolute left-4 top-1/2 -translate-y-1/2 px-4 py-3 text-4xl transition-colors duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="absolute left-4 top-1/2 -translate-y-1/2 px-4 py-3 text-4xl transition-all duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97]"
         aria-label="Previous portfolio image"
       >
         ‹
@@ -269,7 +269,7 @@ function PortfolioLightbox({
           event.stopPropagation();
           onNavigate((index + 1) % items.length);
         }}
-        className="absolute right-4 top-1/2 -translate-y-1/2 px-4 py-3 text-4xl transition-colors duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="absolute right-4 top-1/2 -translate-y-1/2 px-4 py-3 text-4xl transition-all duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97]"
         aria-label="Next portfolio image"
       >
         ›

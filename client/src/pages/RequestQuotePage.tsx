@@ -323,7 +323,7 @@ function EventDetailsStep({
         <button
           type="button"
           onClick={onBack}
-          className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-muted underline decoration-ink-rich decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+          className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-muted underline decoration-ink-rich decoration-1 underline-offset-4 transition-all duration-150 hover:text-accent hover:decoration-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97]"
         >
           Back
         </button>
@@ -377,7 +377,7 @@ function CreativeBriefStep({
         <button
           type="button"
           onClick={onBack}
-          className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-muted underline decoration-ink-rich decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+          className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-muted underline decoration-ink-rich decoration-1 underline-offset-4 transition-all duration-150 hover:text-accent hover:decoration-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97]"
         >
           Back
         </button>

@@ -129,7 +129,7 @@ export default function HomePage() {
                 </h2>
               </div>
               <a
-                className="group inline-flex items-center gap-2 uppercase tracking-[0.3em] text-sm text-text-primary underline decoration-ink decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+                className="group inline-flex items-center gap-2 text-sm uppercase tracking-[0.3em] text-text-primary underline decoration-ink decoration-1 underline-offset-4 transition-all duration-150 hover:text-accent hover:decoration-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97]"
                 href="/portfolio"
               >
                 Explore all projects

@@ -21,7 +21,7 @@
 //
 // ELEMENTS THAT FEEL FLAT OR DATED:
 // - Admin empty/loading states are plain text.
-// - Admin sidebar inactive links have no brass left-edge hover affordance.
+// - Admin sidebar inactive links need a neutral left-edge hover affordance.
 // - Public event rows and admin resource rows do not feel tactile.
 // - Homepage arrow links do not nudge.
 //
