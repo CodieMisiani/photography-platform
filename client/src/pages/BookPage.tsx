@@ -76,7 +76,7 @@ export default function BookPage() {
       <Header />
       <main id="main" className="mx-auto max-w-7xl px-6 py-16">
         <section className="mb-12 max-w-3xl border-b border-paper-deep pb-10">
-          <p className="mb-4 text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+          <p className="mb-4 text-xs uppercase tracking-widest text-text-muted">
             Book Me
           </p>
           <h1 className="text-5xl font-display uppercase tracking-[-0.04em] sm:text-6xl">
@@ -144,7 +144,7 @@ export default function BookPage() {
               <BookingConfirmation />
             ) : selectedDate ? (
               <form className="space-y-6" onSubmit={handleSubmit}>
-                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-brass">
+                <p className="text-[0.75rem] font-semibold uppercase tracking-widest text-text-secondary">
                   Selected date: {selectedDate}
                 </p>
                 <FormField id="client_name" label="Name" required value={form.client_name} onChange={(event) => setFormValue("client_name", event.target.value, setForm)} />

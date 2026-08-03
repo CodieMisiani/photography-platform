@@ -8,7 +8,7 @@ export default function PolicyPage({ type }: { type: "privacy" | "terms" }) {
     <div className="bg-paper text-text-primary">
       <Header />
       <main id="main" className="mx-auto min-h-[60vh] max-w-4xl px-6 py-20">
-        <p className="mb-4 text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+        <p className="mb-4 text-xs uppercase tracking-widest text-text-muted">
           Studio Policy
         </p>
         <h1 className="mb-8 text-5xl font-display uppercase tracking-[-0.04em]">

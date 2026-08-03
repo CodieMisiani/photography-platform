@@ -43,7 +43,7 @@ export default function AboutPage() {
         <section className="bg-ink-rich text-text-inverse">
           <div className="mx-auto grid min-h-[64vh] max-w-7xl items-end gap-12 px-6 pb-16 pt-24 md:grid-cols-[1.15fr_0.85fr] md:pb-20 md:pt-32">
             <div>
-              <p className="mb-6 text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+              <p className="mb-6 text-xs uppercase tracking-widest text-text-muted">
                 About Malume Photography
               </p>
               <h1 className="max-w-4xl text-5xl font-display font-normal leading-[0.98] tracking-[-0.055em] text-text-inverse sm:text-7xl md:text-[7rem]">
@@ -63,7 +63,7 @@ export default function AboutPage() {
         <section className="bg-paper py-20">
           <div className="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-[0.9fr_1.1fr]">
             <div>
-              <p className="text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+              <p className="text-xs uppercase tracking-widest text-text-muted">
                 Our Story
               </p>
               <h2 className="mt-4 text-4xl font-display uppercase tracking-[-0.04em] sm:text-5xl">
@@ -107,7 +107,7 @@ export default function AboutPage() {
         <section className="bg-ink-studio py-20 text-text-inverse">
           <div className="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-[5fr_7fr]">
             <div>
-              <p className="text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+              <p className="text-xs uppercase tracking-widest text-text-inverse/60">
                 Philosophy
               </p>
               <h2 className="mt-6 text-5xl font-display uppercase tracking-[-0.04em] sm:text-6xl">
@@ -124,7 +124,7 @@ export default function AboutPage() {
                 {captureTypes.map((item) => (
                   <div
                     key={item}
-                    className="bg-ink-studio p-5 text-[0.75rem] font-semibold uppercase tracking-[0.22em] text-text-inverse/82 transition-colors duration-150 hover:bg-ink-rich hover:text-brass"
+                    className="bg-ink-studio p-5 text-[0.75rem] font-semibold uppercase tracking-[0.22em] text-text-inverse/82 transition-colors duration-150 hover:bg-ink-rich hover:text-text-inverse"
                   >
                     {item}
                   </div>
@@ -137,7 +137,7 @@ export default function AboutPage() {
         <section className="bg-paper py-20">
           <div className="mx-auto max-w-7xl px-6">
             <div className="mb-12 max-w-2xl">
-              <p className="text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+              <p className="text-xs uppercase tracking-widest text-text-muted">
                 Creative Process
               </p>
               <h2 className="mt-4 text-4xl font-display uppercase tracking-[-0.04em] sm:text-5xl">
@@ -147,7 +147,7 @@ export default function AboutPage() {
             <ol className="grid gap-px border border-paper-deep bg-paper-deep md:grid-cols-4">
               {process.map((step, index) => (
                 <li key={step} className="bg-paper-white p-8">
-                  <span className="text-[0.75rem] font-semibold uppercase tracking-[0.3em] text-brass">
+                  <span className="text-xs font-semibold uppercase tracking-widest text-text-muted">
                     0{index + 1}
                   </span>
                   <p className="mt-6 text-sm leading-7 text-text-secondary">
@@ -161,7 +161,7 @@ export default function AboutPage() {
 
         <section className="bg-ink-rich py-20 text-center text-text-inverse">
           <div className="mx-auto max-w-3xl px-6">
-            <p className="text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+            <p className="text-xs uppercase tracking-widest text-text-inverse/60">
               Work with {SITE_CONFIG.business.name}
             </p>
             <h2 className="mt-5 text-4xl font-display uppercase tracking-[-0.04em] sm:text-5xl">

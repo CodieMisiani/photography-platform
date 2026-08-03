@@ -111,7 +111,7 @@ export default function RequestQuotePage() {
                 ))}
               </div>
               <div className="mt-16 border border-paper-deep bg-paper-warm p-8">
-                <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-brass">
+                <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-widest text-text-secondary">
                   Last minute? Call the studio
                 </p>
                 <p className="text-3xl font-display font-semibold text-text-primary">
@@ -124,7 +124,7 @@ export default function RequestQuotePage() {
           <section className="order-2 lg:order-1 lg:col-span-8">
             <div className="max-w-2xl">
               <header className="mb-12">
-                <p className="mb-4 text-[0.75rem] font-semibold uppercase tracking-[0.3em] text-brass">
+                <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-text-muted">
                   Booking Inquiry
                 </p>
                 <h2 className="mb-5 text-5xl font-display uppercase leading-tight tracking-[-0.04em] text-text-primary sm:text-6xl md:text-[4.5rem]">
@@ -289,7 +289,7 @@ function EventDetailsStep({
           onChange={(event) => onFieldChange("dateRange", event.target.value)}
         />
         <fieldset className="md:col-span-2">
-          <legend className="mb-4 text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-brass">
+          <legend className="mb-4 text-[0.7rem] font-semibold uppercase tracking-widest text-text-secondary">
             Estimated Budget ({SITE_CONFIG.locale.currencySymbol})
           </legend>
           <div className="grid gap-px border border-paper-deep bg-paper-deep sm:grid-cols-3">
@@ -408,7 +408,7 @@ function SuccessState() {
 
 function StepTitle({ children }: { children: ReactNode }) {
   return (
-    <h3 className="border-b border-paper-deep pb-2 text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-brass">
+    <h3 className="border-b border-paper-deep pb-2 text-[0.75rem] font-semibold uppercase tracking-widest text-text-secondary">
       {children}
     </h3>
   );

@@ -18,7 +18,7 @@ export default function AdminEmptyState({
 }: AdminEmptyStateProps) {
   return (
     <section className="flex flex-col items-center justify-center gap-5 border-b border-paper-deep bg-paper-warm px-8 py-16 text-center">
-      <div className="flex h-14 w-14 items-center justify-center border border-brass text-brass">
+      <div className="flex h-14 w-14 items-center justify-center border border-paper-deep text-text-secondary">
         <EmptyIcon icon={icon} />
       </div>
       <div>

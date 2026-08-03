@@ -1,13 +1,5 @@
 import type { Config } from "tailwindcss";
 
-// COLOR AUDIT
-// Current active/hover color token: ink (#1A1A1A) over grey (#6B6B6B)
-// CTA button component: client/src/components/ui/Button.tsx - motion-button border/text ink with ink hover fill
-// Navbar active link: client/src/components/Header.tsx + client/src/styles/globals.css - nav-link active uses ink/currentColor underline
-// Admin active link: client/src/components/layout/AdminShell.tsx - border-l/text ink with underline
-// Badge/tag components: client/src/components/ui/StatusText.tsx, portfolio/event/invoice filter buttons
-// Footer links: client/src/components/Footer.tsx - text-grey hover:text-ink
-// Tailwind config custom colors: ink, paper, grey, grey-light, grey-faint
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
@@ -18,11 +10,6 @@ export default {
           hover: "#005f91",
           subtle: "#e8f4fb",
           muted: "rgba(0, 119, 181, 0.15)",
-        },
-        brass: {
-          DEFAULT: "#B9824A",
-          hover: "#9C6A3B",
-          muted: "#F4E7D8",
         },
         ink: {
           DEFAULT: "#1A1A1A",

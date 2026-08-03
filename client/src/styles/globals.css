@@ -18,9 +18,6 @@
   --color-ink-rich: #171514;
   --color-ink-studio: #24201e;
   --color-ink-warm: #3a3430;
-  --color-brass: #b9824a;
-  --color-brass-hover: #9c6a3b;
-  --color-brass-muted: #f4e7d8;
   --color-text-primary: #1a1a1a;
   --color-text-secondary: #4d4742;
   --color-text-muted: #7a716a;
@@ -32,7 +29,6 @@
     #1a1a1a 100%
   );
   --gradient-coastal: linear-gradient(135deg, #0077b5 0%, #64a9c8 100%);
-  --gradient-brass-to-blue: linear-gradient(135deg, #b9824a 0%, #0077b5 100%);
   letter-spacing: 0;
   font-feature-settings: "ss01" 0;
 }

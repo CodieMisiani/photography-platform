@@ -53,7 +53,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
             Malume
           </p>
           <div className="mt-8 border-t border-ink-studio pt-6">
-            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-brass">
+            <p className="text-[0.7rem] font-semibold uppercase tracking-widest text-text-inverse/60">
               Admin
             </p>
             <p className="mt-1 text-sm font-semibold uppercase">Malume</p>
@@ -68,7 +68,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
                 `border-l py-3 pl-3 text-[0.75rem] font-semibold uppercase tracking-[0.25em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   isActive
                     ? "border-accent bg-accent-muted text-accent underline decoration-accent decoration-1 underline-offset-4"
-                    : "border-transparent text-text-inverse/70 transition-all duration-150 hover:border-brass hover:bg-ink-rich hover:text-text-inverse"
+                    : "border-transparent text-text-inverse/70 transition-all duration-150 hover:border-ink-studio hover:bg-ink-rich hover:text-text-inverse"
                 }`
               }
             >

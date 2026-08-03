@@ -6,8 +6,6 @@ export const SITE_CONFIG = {
   brand: {
     accent: "#0077B5",
     accentHover: "#005f91",
-    brass: "#B9824A",
-    brassHover: "#9C6A3B",
     paper: "#FAF8F5",
     inkRich: "#171514",
     accentName: "Classic LinkedIn Blue",

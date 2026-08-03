@@ -53,7 +53,7 @@ export default function PortfolioPage() {
         <section className="mb-16 border-b border-paper-deep pb-12">
           <div className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
-              <p className="text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+              <p className="text-xs uppercase tracking-widest text-text-muted">
                 The Portfolio
               </p>
               <h1 className="mt-4 text-5xl font-display uppercase tracking-[-0.04em] text-text-primary sm:text-6xl">
@@ -166,7 +166,7 @@ function PortfolioCard({
       />
       <div className="absolute inset-0 bg-ink-rich/0 transition-colors duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:bg-ink-rich/20" />
       <div className="absolute bottom-0 left-0 right-0 border-t border-paper-deep bg-paper/95 p-8">
-        <p className="text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+        <p className="text-xs uppercase tracking-widest text-text-secondary">
           {item.category} - {item.year}
         </p>
         <h2 className="mt-4 text-2xl font-semibold uppercase tracking-[-0.03em] text-text-primary transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1 group-hover:brightness-110">
