@@ -25,6 +25,13 @@ export default function Header() {
     : isScrolled
       ? "border-ink-warm bg-ink-rich/90 text-text-inverse backdrop-blur-md"
       : "border-paper-deep bg-paper/95 text-text-primary backdrop-blur";
+  const homepageTopTextClass = isHomepageAtTop ? "text-text-inverse" : "";
+  const homepageTopButtonClass = isHomepageAtTop
+    ? "border-text-inverse text-text-inverse hover:border-accent hover:bg-accent"
+    : "";
+  const homepageTopMenuClass = isHomepageAtTop
+    ? "border-text-inverse text-text-inverse"
+    : "border-accent text-accent";
 
   useEffect(() => {
     const update = () => setIsScrolled(window.scrollY > 80);
@@ -45,7 +52,7 @@ export default function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <NavLink
           to="/"
-          className="font-display text-[1rem] uppercase tracking-[0.35em] transition-opacity duration-150 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:opacity-70"
+          className={`font-display text-[1rem] uppercase tracking-[0.35em] transition-opacity duration-150 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:opacity-70 ${homepageTopTextClass}`}
         >
           Malume
         </NavLink>
@@ -57,7 +64,7 @@ export default function Header() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button asLink to="/book">
+          <Button asLink to="/book" className={homepageTopButtonClass}>
             Book Me
           </Button>
         </div>
@@ -69,7 +76,7 @@ export default function Header() {
           aria-expanded={isOpen}
           aria-controls="mobile-menu"
           onClick={() => setIsOpen((value) => !value)}
-          className="inline-flex h-10 w-10 items-center justify-center border border-accent text-accent transition-colors hover:bg-accent hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97] md:hidden"
+          className={`inline-flex h-10 w-10 items-center justify-center border transition-colors hover:bg-accent hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97] md:hidden ${homepageTopMenuClass}`}
         >
           <span className="sr-only">{isOpen ? "Close menu" : "Open menu"}</span>
           <span className="flex flex-col gap-1" aria-hidden="true">
