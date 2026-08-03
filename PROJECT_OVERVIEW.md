@@ -37,6 +37,8 @@ Flow in words:
 - Applied to: CTAs, nav active/hover states, admin sidebar active states, status badges for paid/confirmed/new states, stats count-up numbers, footer link/icon hovers, and input focus rings.
 - Not applied to: page backgrounds, body typography, cards, destructive UI, the marquee, photography image treatments, or section layouts.
 - WCAG AA compliant: confirmed for accent text on white, white text on accent, accent on dark ink, and accent text on muted accent badge backgrounds.
+- Full design system guide: `docs/DESIGN_SYSTEM.md`.
+- Brass/gold is intentionally not part of the live color system. Warmth comes from photography, paper surfaces, and ink surfaces.
 
 ### Environment Variables
 
@@ -221,7 +223,8 @@ Rollback:
 - Newsletter subscription is backed by `newsletter_subscribers`, a public subscribe endpoint, admin subscriber list with soft deactivate, duplicate-aware visitor messaging, and SMTP notification emails to the configured admin inbox.
 - Footer privacy/terms links resolve to real routes.
 - Navbar hover uses a center-morph underline and subtle letter-spacing transition with reduced-motion support.
-- Warm editorial visual system with brass accents, warmer paper/ink tokens, Cormorant Garamond display typography, richer public/admin surface states, and improved focus treatment.
+- Warm editorial visual system with two-color discipline, warmer paper/ink tokens, Cormorant Garamond display typography, richer public/admin surface states, and improved focus treatment.
+- Brass accent removed from live UI tokens and replaced with neutral semantic text hierarchy.
 - 2026 interaction polish: scroll progress bar, portfolio lightbox, booking confirmation animation, floating WhatsApp CTA, warm editorial empty states, scroll-aware navbar, footer micro-interactions, portfolio card zoom, CTA pulse, service-card lift, and arrow-link nudges.
 - Daraja STK Push trigger, webhook update, and frontend polling/failure timeout.
 - Health endpoint checks Postgres and Redis.
