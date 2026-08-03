@@ -389,6 +389,10 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .studio-plane,
   .studio-plane:hover,
   .studio-drift,
