@@ -95,7 +95,7 @@ export default function PayInvoicePage() {
         {displayedStep === "lookup" ? (
           <section className="w-full max-w-md">
             <div className="mb-12 text-center">
-              <p className="mb-4 text-[0.75rem] font-semibold uppercase tracking-[0.3em] text-brass">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-text-muted">
                 Secure Payment Portal
               </p>
               <h1 className="text-4xl font-display font-semibold uppercase">

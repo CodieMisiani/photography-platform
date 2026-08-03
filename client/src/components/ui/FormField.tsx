@@ -33,7 +33,7 @@ export default function FormField(props: FormFieldProps) {
     <div className="flex flex-col gap-2">
       <label
         htmlFor={id}
-        className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-brass"
+        className="text-[0.7rem] font-semibold uppercase tracking-widest text-text-secondary"
       >
         {label}
       </label>

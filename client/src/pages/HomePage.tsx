@@ -73,7 +73,7 @@ export default function HomePage() {
                 <span className="text-[2rem] font-semibold tracking-[-0.05em] text-text-primary">
                   {metric.value}
                 </span>
-                <span className="text-sm uppercase tracking-[0.25em] text-brass">
+                <span className="text-sm uppercase tracking-widest text-text-muted">
                   {metric.label}
                 </span>
               </FadeUp>
@@ -87,7 +87,7 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl px-6">
             <FadeUp className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+                <p className="text-xs uppercase tracking-widest text-text-inverse/60">
                   Business performance
                 </p>
                 <h2 className="mt-4 text-4xl font-display uppercase tracking-[-0.04em] text-text-inverse sm:text-5xl">
@@ -121,7 +121,7 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl px-6">
             <div className="mb-16 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div className="max-w-2xl">
-                <p className="text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+                <p className="text-xs uppercase tracking-widest text-text-muted">
                   Curated works
                 </p>
                 <h2 className="mt-4 text-4xl font-display uppercase tracking-[-0.04em] text-text-primary sm:text-5xl">
@@ -161,7 +161,7 @@ export default function HomePage() {
                     <h3 className="text-sm uppercase tracking-[0.3em] text-text-primary">
                       {project.title}
                     </h3>
-                    <span className="text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+                    <span className="text-xs uppercase tracking-widest text-text-muted">
                       {project.location}
                     </span>
                   </div>
@@ -176,7 +176,7 @@ export default function HomePage() {
         <section className="bg-ink-studio py-20 text-text-inverse">
           <div className="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-[5fr_7fr]">
             <div>
-              <p className="text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+              <p className="text-xs uppercase tracking-widest text-text-inverse/60">
                 Our expertise
               </p>
               <h2 className="mt-6 text-5xl font-display uppercase tracking-[-0.04em] sm:text-6xl">
@@ -187,13 +187,13 @@ export default function HomePage() {
               {homeServices.map((service, index) => (
                 <div
                   key={service.title}
-                  className="border-t border-ink-warm pt-8 transition-all duration-200 hover:-translate-y-1 hover:border-brass"
+                  className="border-t border-ink-warm pt-8 transition-all duration-200 hover:-translate-y-1 hover:border-ink-studio"
                 >
                   <div className="mb-6 flex items-baseline justify-between gap-4">
                     <h3 className="text-4xl uppercase tracking-[-0.04em]">
                       {service.title}
                     </h3>
-                    <span className="text-sm uppercase tracking-[0.3em] text-brass">
+                    <span className="text-sm uppercase tracking-widest text-text-inverse/60">
                       0{index + 1}
                     </span>
                   </div>

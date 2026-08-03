@@ -52,7 +52,7 @@ export default function Footer() {
             </p>
           </div>
           <div className="md:col-span-2 md:col-start-7">
-            <p className="font-semibold uppercase tracking-[0.25em] text-[0.75rem] text-brass">
+            <p className="text-[0.75rem] font-semibold uppercase tracking-widest text-text-inverse/60">
               Quick Links
             </p>
             <nav className="mt-5 flex flex-col gap-3 text-text-inverse/70 text-[0.9rem]">
@@ -63,7 +63,7 @@ export default function Footer() {
             </nav>
           </div>
           <div className="md:col-span-4">
-            <p className="font-semibold uppercase tracking-[0.25em] text-[0.75rem] text-brass">
+            <p className="text-[0.75rem] font-semibold uppercase tracking-widest text-text-inverse/60">
               Newsletter
             </p>
             <form

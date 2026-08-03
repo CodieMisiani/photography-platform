@@ -65,7 +65,7 @@ export default function PublicEventsPage() {
       <main id="main" className="min-h-screen">
         <section className="mx-auto max-w-7xl px-6 py-16 md:py-24">
           <div className="max-w-4xl border-b border-paper-deep pb-12">
-            <p className="mb-6 text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+            <p className="mb-6 text-xs uppercase tracking-widest text-text-muted">
               Public Programming
             </p>
             <h1 className="mb-8 text-5xl font-display uppercase leading-tight tracking-[-0.04em] text-text-primary sm:text-6xl md:text-[4.5rem]">
@@ -138,7 +138,7 @@ function EventRow({ event }: { event: PublicEvent }) {
         <span className="font-display text-5xl font-semibold leading-none text-text-primary">
           {event.day}
         </span>
-        <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-brass">
+        <span className="text-[0.75rem] font-semibold uppercase tracking-widest text-text-muted">
           {event.month}
         </span>
       </time>
@@ -188,7 +188,7 @@ function EventRow({ event }: { event: PublicEvent }) {
 
 function StatusLabel({ category }: { category: EventCategory }) {
   return (
-    <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-brass underline decoration-accent decoration-1 underline-offset-4">
+    <span className="text-[0.75rem] font-semibold uppercase tracking-widest text-text-secondary underline decoration-accent decoration-1 underline-offset-4">
       {category}
     </span>
   );

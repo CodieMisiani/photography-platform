@@ -51,7 +51,7 @@ export default function JournalPage() {
         <section className="bg-ink-rich text-text-inverse">
           <div className="mx-auto grid min-h-[56vh] max-w-7xl items-end gap-12 px-6 pb-16 pt-24 md:grid-cols-[1.1fr_0.9fr] md:pb-20 md:pt-32">
             <div>
-              <p className="mb-6 text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+              <p className="mb-6 text-xs uppercase tracking-widest text-text-muted">
                 Journal
               </p>
               <h1 className="max-w-4xl text-5xl font-display font-normal leading-[0.98] tracking-[-0.055em] text-text-inverse sm:text-7xl md:text-[7rem]">
@@ -90,7 +90,7 @@ export default function JournalPage() {
                 }`}
               >
                 <div>
-                  <p className="text-[0.75rem] font-semibold uppercase tracking-[0.3em] text-brass">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-text-secondary">
                     {article.category}
                   </p>
                   <h2 className="mt-4 text-3xl font-display font-semibold uppercase leading-tight tracking-[-0.04em] text-text-primary sm:text-4xl">
@@ -128,7 +128,7 @@ export default function JournalPage() {
         <section className="bg-ink-studio py-20 text-text-inverse">
           <div className="mx-auto grid max-w-7xl gap-10 px-6 md:grid-cols-[1fr_auto] md:items-end">
             <div>
-              <p className="text-[0.75rem] uppercase tracking-[0.3em] text-brass">
+              <p className="text-xs uppercase tracking-widest text-text-inverse/60">
                 Have a story coming up?
               </p>
               <h2 className="mt-5 max-w-3xl text-4xl font-display uppercase tracking-[-0.04em] sm:text-5xl">
