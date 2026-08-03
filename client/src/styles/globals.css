@@ -201,6 +201,10 @@ textarea {
   transform: scaleX(1);
 }
 
+.nav-link--inverted {
+  color: var(--color-text-inverse);
+}
+
 a {
   text-underline-offset: 0.24em;
 }
@@ -225,6 +229,14 @@ a {
 
 .studio-drift {
   animation: studio-drift 8s ease-in-out infinite alternate;
+}
+
+.hero-reveal {
+  animation: hero-fade-up 700ms ease-out both;
+}
+
+.hero-reveal-delay {
+  animation: hero-fade-up 700ms ease-out 150ms both;
 }
 
 .homepage-marquee {
@@ -289,10 +301,21 @@ a {
 
 @keyframes homepage-marquee {
   from {
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(-50%, 0, 0);
   }
   to {
-    transform: translate3d(-50%, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -376,6 +399,8 @@ a {
 
   .nav-link,
   .nav-link::after,
+  .hero-reveal,
+  .hero-reveal-delay,
   .cta-primary,
   .booking-confirmation__circle,
   .booking-confirmation__check,
@@ -383,6 +408,12 @@ a {
   .booking-confirmation__copy {
     transition: none;
     animation: none;
+  }
+
+  .hero-reveal,
+  .hero-reveal-delay {
+    opacity: 1;
+    transform: none;
   }
 
   .booking-confirmation__check {
