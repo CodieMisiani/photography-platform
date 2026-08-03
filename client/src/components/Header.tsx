@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import useMobileMenu from "../hooks/useMobileMenu";
 import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
@@ -16,7 +16,15 @@ const navItems = [
 export default function Header() {
   const { isOpen, menuRef, setIsOpen, toggleRef } = useMobileMenu();
   const prefersReducedMotion = usePrefersReducedMotion();
+  const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
+  const isHomepage = location.pathname === "/";
+  const isHomepageAtTop = isHomepage && !isScrolled;
+  const headerSurfaceClass = isHomepageAtTop
+    ? "border-transparent bg-transparent text-text-inverse"
+    : isScrolled
+      ? "border-ink-warm bg-ink-rich/90 text-text-inverse backdrop-blur-md"
+      : "border-paper-deep bg-paper/95 text-text-primary backdrop-blur";
 
   useEffect(() => {
     const update = () => setIsScrolled(window.scrollY > 80);
@@ -29,11 +37,7 @@ export default function Header() {
     <header
       className={`sticky top-0 z-50 border-b transition-all ${
         prefersReducedMotion ? "duration-0" : "duration-300"
-      } ${
-        isScrolled
-          ? "border-ink-warm bg-ink-rich/90 text-text-inverse backdrop-blur-md"
-          : "border-paper-deep bg-paper/95 text-text-primary backdrop-blur"
-      }`}
+      } ${headerSurfaceClass}`}
     >
       <a href="#main" className="skip-link">
         Skip to content
@@ -48,7 +52,7 @@ export default function Header() {
 
         <nav className="hidden gap-8 md:flex" aria-label="Primary navigation">
           {navItems.map((item) => (
-            <HeaderLink key={item.to} item={item} />
+            <HeaderLink key={item.to} item={item} inverted={isHomepageAtTop} />
           ))}
         </nav>
 
@@ -122,9 +126,11 @@ export default function Header() {
 function HeaderLink({
   item,
   tabIndex,
+  inverted = false,
 }: {
   item: { label: string; to: string };
   tabIndex?: number;
+  inverted?: boolean;
 }) {
   return (
     <NavLink
@@ -133,7 +139,7 @@ function HeaderLink({
       className={({ isActive }) =>
         `nav-link uppercase tracking-[0.25em] text-[0.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
           isActive ? "nav-link--active" : ""
-        }`
+        } ${inverted ? "nav-link--inverted" : ""}`
       }
     >
       {item.label}

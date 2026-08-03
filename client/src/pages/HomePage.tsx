@@ -24,13 +24,13 @@ export default function HomePage() {
 
       <main id="main">
         <section className="overflow-hidden bg-ink-rich text-text-inverse">
-          <div className="mx-auto grid min-h-[56vh] max-w-7xl grid-cols-1 items-end gap-12 px-6 pb-16 pt-24 md:grid-cols-[1.25fr_0.75fr] md:pb-20 md:pt-32">
-            <h1 className="max-w-4xl text-5xl font-display font-normal leading-[0.98] tracking-[-0.055em] text-text-inverse sm:text-7xl md:text-[7.2rem]">
+          <div className="mx-auto grid min-h-[56vh] max-w-7xl grid-cols-1 items-end gap-12 px-6 pb-20 pt-24 md:grid-cols-[1.25fr_0.75fr] md:pb-24 md:pt-32">
+            <h1 className="hero-reveal max-w-4xl text-5xl font-display font-normal leading-[0.98] tracking-[-0.055em] text-text-inverse sm:text-7xl md:text-[7.2rem]">
               Photography for
               <br />
               Modern Stories
             </h1>
-            <p className="max-w-xl pb-3 text-xl leading-7 tracking-[-0.02em] text-text-inverse/80 md:justify-self-end">
+            <p className="hero-reveal-delay max-w-xl pb-3 text-xl leading-7 tracking-[-0.02em] text-text-inverse/80 md:justify-self-end">
               We deliver clean, high-quality studio photography with
               professional lighting, sharp detail, and a refined look for
               brands, portraits, and commercial projects.
@@ -42,7 +42,6 @@ export default function HomePage() {
             aria-label="Featured photography reel"
           >
             <div className="homepage-marquee__track">
-              {/* Swap real portfolio photos in client/src/data/homeFixtures.ts via homeMarqueeImages. */}
               {[...homeMarqueeImages, ...homeMarqueeImages].map(
                 (image, index) => (
                   <figure
