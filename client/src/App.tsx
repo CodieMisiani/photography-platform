@@ -1,5 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
+import ArrivalExperience from "./components/entry/ArrivalExperience";
 import { ScrollToTop } from "./components/ScrollToTop";
 import AppRoutes from "./routes/Routes";
 import { queryClient } from "./lib/queryClient";
@@ -10,7 +11,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ScrollToTop />
-        <AppRoutes />
+        <ArrivalExperience>
+          <AppRoutes />
+        </ArrivalExperience>
       </BrowserRouter>
     </QueryClientProvider>
   );
