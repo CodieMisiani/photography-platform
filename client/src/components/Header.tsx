@@ -21,7 +21,7 @@ export default function Header() {
   const isHomepage = location.pathname === "/";
   const isHomepageAtTop = isHomepage && !isScrolled;
   const headerSurfaceClass = isHomepageAtTop
-    ? "border-transparent bg-transparent text-text-inverse"
+    ? "border-white/10 bg-ink-rich/25 text-text-inverse backdrop-blur-md"
     : isScrolled
       ? "border-ink-warm bg-ink-rich/90 text-text-inverse backdrop-blur-md"
       : "border-paper-deep bg-paper/95 text-text-primary backdrop-blur";
@@ -111,7 +111,12 @@ export default function Header() {
             <HeaderLink key={item.to} item={item} tabIndex={isOpen ? 0 : -1} />
           ))}
           <div className="grid gap-3 pt-4">
-            <Button asLink to="/book" className="w-full" tabIndex={isOpen ? 0 : -1}>
+            <Button
+              asLink
+              to="/book"
+              className="w-full"
+              tabIndex={isOpen ? 0 : -1}
+            >
               Book Me
             </Button>
             <Button
