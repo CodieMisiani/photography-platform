@@ -21,13 +21,16 @@ export default function PageTransition({ children }: { children: ReactNode }) {
       if (disposed) {
         return;
       }
+      const transitionTarget = scope.querySelector<HTMLElement>("main");
 
       const context = gsap.context(() => {
-        gsap.fromTo(
-          scope,
-          { autoAlpha: 0, y: 18 },
-          { autoAlpha: 1, y: 0, duration: 0.75, ease: "power3.out" },
-        );
+        if (transitionTarget) {
+          gsap.fromTo(
+            transitionTarget,
+            { autoAlpha: 0, y: 18 },
+            { autoAlpha: 1, y: 0, duration: 0.75, ease: "power3.out" },
+          );
+        }
 
         const revealTargets = Array.from(
           new Set(

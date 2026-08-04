@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import AdminRoute from "../components/auth/AdminRoute";
+import Header from "../components/Header";
 import PageTransition from "../components/motion/PageTransition";
 import PublicExperienceLayer from "../components/PublicExperienceLayer";
 
@@ -68,11 +69,17 @@ export default function AppRoutes() {
 }
 
 function RouteFallback() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-paper text-ink">
-      <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em]">
-        Loading
-      </span>
-    </div>
+    <>
+      {!isAdminRoute ? <Header /> : null}
+      <div className="flex min-h-screen items-center justify-center bg-paper text-ink">
+        <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em]">
+          Loading
+        </span>
+      </div>
+    </>
   );
 }
