@@ -8,6 +8,7 @@ import FormField from "../components/ui/FormField";
 import MetricTile from "../components/ui/MetricTile";
 import StatusText from "../components/ui/StatusText";
 import { api } from "../lib/api";
+import type { ApiProjectPhoto } from "../lib/api";
 import { fetchPortfolioCmsProjects } from "../services/portfolioService";
 import type { PortfolioCmsProject } from "../types/portfolio";
 
@@ -272,7 +273,124 @@ function ProjectForm({
           {createMutation.isPending || isSaving ? "Saving" : project ? "Save Project" : "Publish Project"}
         </Button>
       </div>
+      {project ? <ProjectPhotoManager projectId={project.id} /> : null}
     </form>
+  );
+}
+
+function ProjectPhotoManager({ projectId }: { projectId: string }) {
+  const queryClient = useQueryClient();
+  const [uploading, setUploading] = useState(false);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const { data, isLoading } = useQuery({
+    queryKey: ["portfolio-project-photos", projectId],
+    queryFn: () => api.portfolio.listPhotos(projectId),
+  });
+  const photos = data?.photos ?? [];
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: ["portfolio-project-photos", projectId] });
+  const updateMutation = useMutation({
+    mutationFn: ({ photoId, payload }: { photoId: string; payload: Partial<Pick<ApiProjectPhoto, "caption" | "sort_order">> }) =>
+      api.portfolio.updatePhoto(projectId, photoId, payload),
+    onSuccess: refresh,
+  });
+  const deleteMutation = useMutation({
+    mutationFn: (photoId: string) => api.portfolio.deletePhoto(projectId, photoId),
+    onSuccess: refresh,
+  });
+
+  async function upload(file: File | null) {
+    if (!file) return;
+    setUploading(true);
+    try {
+      await api.portfolio.addPhoto(projectId, file, { sort_order: photos.length });
+      await refresh();
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function movePhoto(targetId: string) {
+    if (!draggedId || draggedId === targetId) return;
+    const from = photos.findIndex((photo) => photo.id === draggedId);
+    const to = photos.findIndex((photo) => photo.id === targetId);
+    if (from < 0 || to < 0) return;
+    const reordered = [...photos];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
+    setDraggedId(null);
+    await api.portfolio.reorderPhotos(
+      projectId,
+      reordered.map((photo, index) => ({ id: photo.id, sort_order: index })),
+    );
+    await refresh();
+  }
+
+  return (
+    <section className="mt-10 border-t border-grey-light pt-8">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h3 className="text-xl font-display font-semibold uppercase">Project Photos</h3>
+          <p className="mt-1 text-sm text-grey">Drag the grip to arrange gallery images. Captions save when you leave the field.</p>
+        </div>
+        <label className="cursor-pointer bg-accent px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-white hover:bg-accent/90">
+          {uploading ? "Uploading…" : "Add Photo"}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="sr-only"
+            disabled={uploading}
+            onChange={(event) => {
+              void upload(event.target.files?.[0] ?? null);
+              event.currentTarget.value = "";
+            }}
+          />
+        </label>
+      </div>
+      {isLoading ? <div className="h-32 animate-pulse bg-paper-deep" /> : null}
+      {!isLoading && photos.length === 0 ? (
+        <p className="border border-dashed border-grey-light p-6 text-sm text-grey">No additional photos yet.</p>
+      ) : null}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+        {photos.map((photo, index) => (
+          <article
+            key={photo.id}
+            draggable
+            onDragStart={() => setDraggedId(photo.id)}
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={() => void movePhoto(photo.id)}
+            className="border border-grey-light bg-paper-white p-2"
+          >
+            <div className="relative aspect-square overflow-hidden bg-grey-faint">
+              <img src={photo.cloudinary_url} alt={photo.caption ?? "Project photo"} className="h-full w-full object-cover" />
+              <span className="absolute left-2 top-2 bg-paper/90 px-2 py-1 text-xs text-text-muted" title="Drag to reorder">⋮⋮ {index + 1}</span>
+            </div>
+            <input
+              defaultValue={photo.caption ?? ""}
+              aria-label={`Caption for photo ${index + 1}`}
+              placeholder="Caption"
+              maxLength={255}
+              onBlur={(event) => {
+                if (event.target.value !== (photo.caption ?? "")) {
+                  updateMutation.mutate({ photoId: photo.id, payload: { caption: event.target.value } });
+                }
+              }}
+              className="mt-2 w-full border border-grey-light bg-paper px-2 py-2 text-sm"
+            />
+            <button
+              type="button"
+              className="mt-2 text-xs font-semibold uppercase tracking-widest text-red-700"
+              disabled={deleteMutation.isPending}
+              onClick={() => {
+                if (window.confirm("Delete this photo permanently?")) deleteMutation.mutate(photo.id);
+              }}
+            >
+              Delete
+            </button>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 

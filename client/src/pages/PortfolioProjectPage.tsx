@@ -23,10 +23,10 @@ export default function PortfolioProjectPage() {
   });
 
   const event = data?.[0]?.event;
-  const photos = data?.[1]?.photos ?? [];
+  const photos = data?.[1]?.photos;
   const galleryItems = useMemo(
     () =>
-      [event?.cover_url, ...photos.map((photo) => photo.cloudinary_url)].filter(
+      [event?.cover_url, ...(photos ?? []).map((photo) => photo.cloudinary_url)].filter(
         Boolean,
       ) as string[],
     [event?.cover_url, photos],
@@ -96,9 +96,9 @@ export default function PortfolioProjectPage() {
               alt={event.title}
               className="mb-8 aspect-[16/9] w-full object-cover"
             />
-            {photos.length > 0 ? (
+            {(photos?.length ?? 0) > 0 ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {photos.map((photo, index) => (
+                {(photos ?? []).map((photo, index) => (
                   <button
                     key={photo.id}
                     type="button"

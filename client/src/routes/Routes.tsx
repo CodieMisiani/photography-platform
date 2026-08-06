@@ -11,6 +11,7 @@ const PortfolioProjectPage = lazy(
 );
 const AboutPage = lazy(() => import("../pages/AboutPage"));
 const JournalPage = lazy(() => import("../pages/JournalPage"));
+const JournalPostPage = lazy(() => import("../pages/JournalPostPage"));
 const PublicEventsPage = lazy(() => import("../pages/PublicEventsPage"));
 const RequestQuotePage = lazy(() => import("../pages/RequestQuotePage"));
 const BookPage = lazy(() => import("../pages/BookPage"));
@@ -26,6 +27,7 @@ const AdminPublicEventsPage = lazy(
   () => import("../pages/AdminPublicEventsPage"),
 );
 const AdminSettingsPage = lazy(() => import("../pages/AdminSettingsPage"));
+const AdminJournalPage = lazy(() => import("../pages/AdminJournalPage"));
 const PolicyPage = lazy(() => import("../pages/PolicyPage"));
 const AdminStatsPage = lazy(() => import("../pages/AdminStatsPage"));
 const AdminDashboardPage = lazy(() => import("../pages/AdminDashboardPage"));
@@ -41,6 +43,7 @@ export default function AppRoutes() {
           <Route path="/portfolio/:id" element={<PortfolioProjectPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/journal" element={<JournalPage />} />
+          <Route path="/journal/:slug" element={<JournalPostPage />} />
           <Route path="/public-events" element={<PublicEventsPage />} />
           <Route path="/book" element={<BookPage />} />
           <Route path="/request-quote" element={<RequestQuotePage />} />
@@ -61,6 +64,7 @@ export default function AppRoutes() {
               path="/admin/public-events"
               element={<AdminPublicEventsPage />}
             />
+            <Route path="/admin/journal" element={<AdminJournalPage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/admin/stats" element={<AdminStatsPage />} />
           </Route>
