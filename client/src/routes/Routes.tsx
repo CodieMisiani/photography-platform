@@ -57,6 +57,7 @@ export default function AppRoutes() {
             <Route path="/admin/invoices" element={<InvoiceManagementPage />} />
             <Route path="/admin/pay-invoice" element={<PayInvoicePage />} />
             <Route path="/admin/portfolio-cms" element={<PortfolioCmsPage />} />
+            <Route path="/admin/projects/:projectId/edit" element={<PortfolioCmsPage />} />
             <Route path="/admin/bookings" element={<AdminBookingsPage />} />
             <Route path="/admin/calendar" element={<AdminBookingsPage />} />
             <Route path="/admin/quotes" element={<AdminQuotesPage />} />

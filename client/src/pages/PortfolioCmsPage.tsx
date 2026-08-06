@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminShell from "../components/layout/AdminShell";
@@ -13,9 +14,11 @@ import { fetchPortfolioCmsProjects } from "../services/portfolioService";
 import type { PortfolioCmsProject } from "../types/portfolio";
 
 export default function PortfolioCmsPage() {
+  const navigate = useNavigate();
+  const { projectId } = useParams();
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const editingId = projectId ?? null;
   const { data, isLoading, isError } = useQuery({
     queryKey: ["portfolio-cms-projects"],
     queryFn: fetchPortfolioCmsProjects,
@@ -28,7 +31,7 @@ export default function PortfolioCmsPage() {
     mutationFn: ({ id, payload }: { id: string; payload: Parameters<typeof api.portfolio.update>[1] }) =>
       api.portfolio.update(id, payload),
     onSuccess: async () => {
-      setEditingId(null);
+      navigate("/admin/portfolio-cms");
       await queryClient.invalidateQueries({ queryKey: ["portfolio-cms-projects"] });
     },
   });
@@ -78,7 +81,7 @@ export default function PortfolioCmsPage() {
                 <ProjectForm
                   project={project}
                   isSaving={updateMutation.isPending}
-                  onCancel={() => setEditingId(null)}
+                  onCancel={() => navigate("/admin/portfolio-cms")}
                   onSave={(payload) => updateMutation.mutate({ id: project.id, payload })}
                 />
               ) : (
@@ -107,7 +110,7 @@ export default function PortfolioCmsPage() {
                     {project.date}
                   </div>
                   <div className="flex flex-wrap gap-4 md:col-span-3 md:justify-end">
-                    <Button onClick={() => setEditingId(project.id)}>Edit</Button>
+                    <Button onClick={() => navigate(`/admin/projects/${project.id}/edit`)}>Edit</Button>
                     <Button
                       onClick={() =>
                         updateMutation.mutate({
