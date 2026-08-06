@@ -54,6 +54,7 @@ export async function listAllJournalPosts() {
       "slug",
       "title",
       "excerpt",
+      "body",
       "cover_url",
       "category",
       "read_time_minutes",

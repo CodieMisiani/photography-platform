@@ -219,6 +219,9 @@ Rollback:
 - Public invoice lookup shows itemized line items.
 - Public events admin create/edit/delete/publish toggle with image URL/upload support.
 - Public events render real uploaded event images when present.
+- Public and admin journal pages now render live journal posts, including detail routes and Markdown-based editing with publish/draft controls.
+- Portfolio project galleries use `project_photos`, with ordered Cloudinary-backed images and admin upload, caption, delete, and reorder controls.
+- Journal posts use `journal_posts`, with published-only public APIs and session-protected admin CRUD.
 - Footer social links use the configured TikTok, WhatsApp, X, Facebook, and LinkedIn URLs.
 - Newsletter subscription is backed by `newsletter_subscribers`, a public subscribe endpoint, admin subscriber list with soft deactivate, duplicate-aware visitor messaging, and SMTP notification emails to the configured admin inbox.
 - Footer privacy/terms links resolve to real routes.
@@ -231,6 +234,7 @@ Rollback:
 - CI workflow for lint/build/typecheck/migration check.
 - `docs/TESTING_DARAJA.md` for sandbox/production M-Pesa STK Push verification.
 - `docs/ADMIN_INVOICE_GUIDE.md` for invoice creation, sharing, and payment tracking.
+- `docs/JOURNAL_GUIDE.md` for journal publishing and implementation details.
 
 ### What's Not Yet Built
 
@@ -247,4 +251,9 @@ Rollback:
 - Invoice PDF export with tax and discount controls.
 - Admin activity log so changes can be audited.
 - Calendar month navigation and multi-month availability view.
+- Automated WhatsApp confirmations (Baileys).
+- Automated email confirmations (Nodemailer + Gmail SMTP).
+- PDF invoice generation and email delivery.
+- Google Calendar sync.
+- Newsletter broadcast to active subscribers.
 - Client self-service rescheduling flow.

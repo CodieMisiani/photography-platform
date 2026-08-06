@@ -184,6 +184,41 @@ export const api = {
       request<{ event: ApiPortfolioEvent }>(`/portfolio/${id}`),
     listPhotos: (id: string) =>
       request<{ photos: ApiProjectPhoto[] }>(`/portfolio/${id}/photos`),
+    addPhoto: (
+      id: string,
+      file: File,
+      options?: { caption?: string; sort_order?: number },
+    ) => {
+      const body = new FormData();
+      body.append("image", file);
+      if (options?.caption) body.append("caption", options.caption);
+      if (options?.sort_order !== undefined) {
+        body.append("sort_order", String(options.sort_order));
+      }
+      return request<{ photo: ApiProjectPhoto }>(`/portfolio/${id}/photos`, {
+        method: "POST",
+        body,
+      });
+    },
+    updatePhoto: (
+      id: string,
+      photoId: string,
+      payload: Partial<Pick<ApiProjectPhoto, "caption" | "sort_order">>,
+    ) =>
+      request<{ photo: ApiProjectPhoto }>(`/portfolio/${id}/photos/${photoId}`, {
+        method: "PATCH",
+        body: payload,
+      }),
+    deletePhoto: (id: string, photoId: string) =>
+      request<void>(`/portfolio/${id}/photos/${photoId}`, { method: "DELETE" }),
+    reorderPhotos: (
+      id: string,
+      photos: Array<Pick<ApiProjectPhoto, "id" | "sort_order">>,
+    ) =>
+      request<{ photos: ApiProjectPhoto[] }>(`/portfolio/${id}/photos/reorder`, {
+        method: "PATCH",
+        body: { photos },
+      }),
     create: (payload: Omit<ApiPortfolioEvent, "id" | "created_at">) =>
       request<{ event: ApiPortfolioEvent }>("/portfolio", {
         method: "POST",

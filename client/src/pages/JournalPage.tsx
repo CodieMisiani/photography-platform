@@ -1,37 +1,10 @@
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Button from "../components/ui/Button";
-
-const articles = [
-  {
-    category: "Weddings",
-    title: "How a wedding gallery finds its rhythm",
-    excerpt:
-      "A look at the quiet sequence behind a wedding story: arrivals, vows, family, movement, and the small unscripted frames that hold it together.",
-    readTime: "4 min read",
-  },
-  {
-    category: "Behind the Scenes",
-    title: "What we watch before pressing the shutter",
-    excerpt:
-      "Light direction, body language, room energy, and timing often decide whether an image feels natural or merely correct.",
-    readTime: "3 min read",
-  },
-  {
-    category: "Corporate",
-    title: "Portraits that make teams feel human",
-    excerpt:
-      "Corporate photography does not have to feel cold. A clear setup and warmer direction can make a team look capable and approachable.",
-    readTime: "5 min read",
-  },
-  {
-    category: "Field Notes",
-    title: "Why fewer final images can feel stronger",
-    excerpt:
-      "A tighter gallery respects the client, the story, and the images that deserve more room to breathe.",
-    readTime: "3 min read",
-  },
-];
+import { api } from "../lib/api";
 
 const topics = [
   "Client stories",
@@ -42,7 +15,43 @@ const topics = [
   "Studio process",
 ];
 
+function formatDate(value: string | null) {
+  if (!value) return "Draft";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Draft";
+  return date.toLocaleDateString("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export default function JournalPage() {
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+    queryKey: ["journal-list", activeCategory],
+    queryFn: ({ pageParam }) => api.journal.list(pageParam, 9, activeCategory ?? undefined),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.pages ? lastPage.page + 1 : undefined,
+  });
+  const posts = useMemo(
+    () => data?.pages.flatMap((result) => result.posts) ?? [],
+    [data?.pages],
+  );
+
+  function selectCategory(category: string | null) {
+    setActiveCategory(category);
+  }
+
+  const categories = useMemo(() => {
+    const values = new Set<string>();
+    posts.forEach((post) => {
+      if (post.category) values.add(post.category);
+    });
+    return Array.from(values);
+  }, [posts]);
+
   return (
     <div className="bg-paper text-text-primary">
       <Header />
@@ -81,17 +90,62 @@ export default function JournalPage() {
         </section>
 
         <section className="bg-paper-warm pb-20">
+          <div className="mx-auto mb-8 flex max-w-7xl flex-wrap gap-3 px-6">
+            <button
+              type="button"
+              onClick={() => selectCategory(null)}
+              className={`border px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] transition-colors ${
+                activeCategory === null
+                  ? "border-accent bg-accent text-white"
+                  : "border-paper-deep bg-paper-white text-text-muted"
+              }`}
+            >
+              All stories
+            </button>
+            {categories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => selectCategory(category)}
+                className={`border px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] transition-colors ${
+                  activeCategory === category
+                    ? "border-accent bg-accent text-white"
+                    : "border-paper-deep bg-paper-white text-text-muted"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          {isLoading ? (
+            <p className="mx-auto max-w-7xl px-6 text-sm text-text-muted">
+              Loading journal stories…
+            </p>
+          ) : null}
+          {isError ? (
+            <p className="mx-auto max-w-7xl px-6 text-sm text-text-muted">
+              Journal stories could not be loaded right now.
+            </p>
+          ) : null}
+          {!isLoading && !isError && posts.length === 0 ? (
+            <p className="mx-auto max-w-7xl px-6 text-sm text-text-muted">
+              No stories are published yet. Check back soon.
+            </p>
+          ) : null}
           <div className="mx-auto grid max-w-7xl gap-px border border-paper-deep bg-paper-deep md:grid-cols-2">
-            {articles.map((article, index) => (
+            {posts.map((article, index) => (
               <article
-                key={article.title}
+                key={article.slug}
                 className={`group bg-paper-white p-8 transition-colors duration-150 hover:bg-paper ${
-                  index === 0 ? "md:col-span-2 md:grid md:grid-cols-[0.85fr_1.15fr] md:gap-10" : ""
+                  index === 0
+                    ? "md:col-span-2 md:grid md:grid-cols-[0.85fr_1.15fr] md:gap-10"
+                    : ""
                 }`}
               >
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-widest text-text-secondary">
-                    {article.category}
+                    {article.category ?? "Field notes"}
                   </p>
                   <h2 className="mt-4 text-3xl font-display font-semibold uppercase leading-tight tracking-[-0.04em] text-text-primary sm:text-4xl">
                     {article.title}
@@ -103,10 +157,13 @@ export default function JournalPage() {
                   </p>
                   <div className="flex items-center justify-between border-t border-paper-deep pt-5">
                     <span className="text-[0.75rem] uppercase tracking-[0.25em] text-text-muted">
-                      {article.readTime}
+                      {formatDate(article.published_at)}
                     </span>
-                    <span className="inline-flex items-center gap-2 text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-primary transition-colors duration-150 group-hover:text-accent">
-                      Read soon
+                    <Link
+                      to={`/journal/${article.slug}`}
+                      className="inline-flex items-center gap-2 text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-primary transition-colors duration-150 group-hover:text-accent"
+                    >
+                      Read story
                       <svg
                         className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-1"
                         fill="none"
@@ -117,12 +174,19 @@ export default function JournalPage() {
                       >
                         <path d="M5 12h14M12 5l7 7-7 7" />
                       </svg>
-                    </span>
+                    </Link>
                   </div>
                 </div>
               </article>
             ))}
           </div>
+          {!isLoading && !isError && hasNextPage ? (
+            <div className="mx-auto mt-8 flex max-w-7xl justify-center px-6">
+              <Button type="button" onClick={() => void fetchNextPage()} disabled={isFetchingNextPage}>
+                {isFetchingNextPage ? "Loading…" : "Load more"}
+              </Button>
+            </div>
+          ) : null}
         </section>
 
         <section className="bg-ink-studio py-20 text-text-inverse">
@@ -132,7 +196,8 @@ export default function JournalPage() {
                 Have a story coming up?
               </p>
               <h2 className="mt-5 max-w-3xl text-4xl font-display uppercase tracking-[-0.04em] sm:text-5xl">
-                Tell us what you are planning and we will help shape the visual approach.
+                Tell us what you are planning and we will help shape the visual
+                approach.
               </h2>
             </div>
             <Button asLink to="/request-quote" variant="secondary">

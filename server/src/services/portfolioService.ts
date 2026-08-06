@@ -165,6 +165,20 @@ export async function reorderProjectPhotos(
   photos: Array<{ id: string; sort_order: number }>,
 ) {
   await db.transaction(async (trx) => {
+    const existing = await trx<ProjectPhotoRow>("project_photos")
+      .where({ event_id: eventId })
+      .whereIn(
+        "id",
+        photos.map((photo) => photo.id),
+      )
+      .select("id");
+    if (existing.length !== photos.length) {
+      throw new AppError(
+        400,
+        "Every reordered photo must belong to this project",
+        "PROJECT_PHOTO_REORDER_INVALID",
+      );
+    }
     for (const photo of photos) {
       await trx<ProjectPhotoRow>("project_photos")
         .where({ id: photo.id, event_id: eventId })

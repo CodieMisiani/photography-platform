@@ -6,7 +6,7 @@ A production-ready photography business platform for Malume Photography. The app
 
 - Editorial homepage with warm monochrome design, moving photography marquee, scroll progress, floating WhatsApp CTA, and refined micro-interactions.
 - Dedicated About page for the Malume Photography brand story, philosophy, creative process, and service positioning.
-- Journal landing page for future editorial stories, photography notes, client stories, featured galleries, and behind-the-scenes content.
+- Journal landing page for editorial stories, photography notes, client stories, featured galleries, and behind-the-scenes content.
 - Portfolio page powered by API data, category filtering, animated hover states, and keyboard-accessible lightbox.
 - Public events page powered by API data with loading, error, and empty states.
 - Book Me calendar flow with availability lookup, booking form, and animated booking confirmation.
@@ -54,21 +54,14 @@ The Journal is a public editorial landing page at `/journal`. Its purpose is to 
 
 Current implementation:
 
-- Implemented as `client/src/pages/JournalPage.tsx`.
-- Registered as a lazy-loaded route in `client/src/routes/Routes.tsx`.
+- Implemented as `client/src/pages/JournalPage.tsx` and `client/src/pages/JournalPostPage.tsx`.
+- Registered as lazy-loaded routes in `client/src/routes/Routes.tsx`.
 - Linked from the main navigation and footer.
-- Uses local placeholder article data inside the page so the experience is production-presentable today.
+- Fetches published journal posts from the backend API, supports category filtering, and renders a live article detail view.
 - Designed with the existing warm editorial palette, typography, borders, hover states, and CTA language.
-- Article cards currently work as editorial previews on the landing page; full article pages are intentionally left for the future CMS/detail-route phase.
+- Admin journal management lives in `client/src/pages/AdminJournalPage.tsx` with create/edit/publish/draft/delete flows and cover uploads.
 - Public URL: `/journal`.
-
-Future CMS extension path:
-
-- Add a `journal_posts` table or CMS-backed endpoint with title, slug, category, excerpt, cover image, body, publish status, and timestamps.
-- Move the current placeholder article array into an API response.
-- Add `/journal/:slug` for full articles.
-- Add admin CRUD for creating, editing, publishing, and archiving journal posts.
-- Reuse the existing API client, loading/error/empty state patterns, and admin protected-route structure.
+- Detail URL pattern: `/journal/:slug`.
 
 ## Local Development
 
@@ -186,4 +179,5 @@ npm run migrate
 - `docs/TESTING_DARAJA.md`
 - `docs/ADMIN_INVOICE_GUIDE.md`
 - `docs/ADDING_IMAGES.md`
+- `docs/JOURNAL_GUIDE.md`
 - `PROJECT_OVERVIEW.md`

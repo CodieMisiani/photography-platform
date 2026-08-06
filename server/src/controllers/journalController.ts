@@ -88,7 +88,10 @@ export async function updateAdminJournal(req: Request, res: Response) {
       ? req.body.category.trim()
       : undefined;
   const isPublishedValue = req.body?.is_published;
-  const isPublished = isPublishedValue === "true" || isPublishedValue === true;
+  const isPublished =
+    isPublishedValue === undefined
+      ? undefined
+      : isPublishedValue === "true" || isPublishedValue === true;
 
   let coverUrl: string | null | undefined;
   let coverPublicId: string | null | undefined;
@@ -103,7 +106,7 @@ export async function updateAdminJournal(req: Request, res: Response) {
     title,
     excerpt,
     body,
-    category: category || null,
+    ...(category !== undefined ? { category: category || null } : {}),
     is_published: isPublished,
     cover_url: coverUrl,
     cloudinary_public_id: coverPublicId,

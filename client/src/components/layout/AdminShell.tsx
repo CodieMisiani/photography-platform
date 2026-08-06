@@ -8,6 +8,7 @@ const adminLinks = [
   { label: "Invoices", to: "/admin/invoices" },
   { label: "Pay Invoice", to: "/admin/pay-invoice" },
   { label: "Portfolio CMS", to: "/admin/portfolio-cms" },
+  { label: "Journal", to: "/admin/journal" },
   { label: "Bookings", to: "/admin/bookings" },
   { label: "Quotes", to: "/admin/quotes" },
   { label: "Public Events", to: "/admin/public-events" },
@@ -22,6 +23,7 @@ const adminMobileLinks = [
   { label: "Quotes", to: "/admin/quotes" },
   { label: "Calendar", to: "/admin/calendar" },
   { label: "Portfolio", to: "/admin/portfolio-cms" },
+  { label: "Journal", to: "/admin/journal" },
   { label: "Stats", to: "/admin/stats" },
   { label: "Settings", to: "/admin/settings" },
 ];
