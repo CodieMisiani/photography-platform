@@ -144,6 +144,7 @@ textarea {
   opacity: 0.06;
   transform: translateX(-105%);
   transition: transform 420ms ease;
+  pointer-events: none;
 }
 
 .motion-button:hover::after,
