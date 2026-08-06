@@ -43,6 +43,11 @@ const envSchema = z.object({
     .string()
     .email()
     .default("nimrodmisiani42@gmail.com"),
+  EMAIL_PROVIDER: z.enum(["gmail", "resend"]).default("gmail"),
+  GMAIL_USER: z.string().optional().default(""),
+  GMAIL_APP_PASSWORD: z.string().optional().default(""),
+  WHATSAPP_PROVIDER: z.enum(["baileys", "meta"]).default("baileys"),
+  BAILEYS_SESSION_PATH: z.string().optional().default("./baileys-session"),
   DARAJA_ENV: z.enum(["sandbox", "production"]).default("sandbox"),
   DARAJA_CONSUMER_KEY: z.string().optional().default(""),
   DARAJA_CONSUMER_SECRET: z.string().optional().default(""),

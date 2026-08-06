@@ -1,0 +1,1 @@
+export const invoicePaidWhatsApp = (invoice: { client_name: string; invoice_no: string; amount: string; mpesa_ref: string | null }) => `Hi ${invoice.client_name}, your payment has been received! ✅\n\nInvoice: ${invoice.invoice_no}\nAmount: KSh ${invoice.amount}\nM-Pesa Ref: ${invoice.mpesa_ref ?? "N/A"}\n\nThank you for choosing Malume Photography.`;

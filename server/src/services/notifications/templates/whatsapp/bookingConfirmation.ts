@@ -1,0 +1,1 @@
+export const bookingConfirmationWhatsApp = (booking: { client_name: string; event_type: string; event_date: string }) => `Hi ${booking.client_name}, thank you for your booking request with Malume Photography! 📸\n\nEvent: ${booking.event_type}\nDate: ${booking.event_date}\n\nWe'll confirm your booking within 24 hours.\n\n— Malume Photography`;

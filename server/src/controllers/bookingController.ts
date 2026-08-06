@@ -9,9 +9,12 @@ import {
   updateBooking,
   updateBookingStatus,
 } from "../services/bookingService.js";
+import { notificationService } from "../services/notifications/NotificationService.js";
 
 export async function createPublicBooking(req: Request, res: Response) {
-  res.status(201).json({ booking: await createBooking(req.body) });
+  const booking = await createBooking(req.body);
+  notificationService.sendBookingConfirmation(booking).catch((error: unknown) => console.error("[notifications] Booking confirmation failed", error));
+  res.status(201).json({ booking });
 }
 
 export async function listAdminBookings(_req: Request, res: Response) {
