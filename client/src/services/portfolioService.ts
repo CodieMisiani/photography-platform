@@ -1,7 +1,7 @@
 import { api } from "../lib/api";
 
 export async function fetchPortfolioCmsProjects() {
-  const { events } = await api.portfolio.list();
+  const { events } = await api.portfolio.adminList();
 
   return {
     metrics: [
@@ -24,11 +24,12 @@ export async function fetchPortfolioCmsProjects() {
         year: "numeric",
       }).format(new Date(event.event_date)),
       eventDate: event.event_date.slice(0, 10),
-      status: event.is_featured ? ("Featured" as const) : ("Published" as const),
-      image: event.cover_url,
+      status: !event.is_published ? ("Draft" as const) : event.is_featured ? ("Featured" as const) : ("Published" as const),
+      image: event.cover_url ?? "",
       coverUrl: event.cover_url,
       coverPublicId: event.cover_public_id,
       isFeatured: event.is_featured,
+      isPublished: event.is_published,
     })),
   };
 }

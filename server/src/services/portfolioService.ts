@@ -7,7 +7,7 @@ export async function listPortfolioEvents(options?: {
   featured?: boolean;
   limit?: number;
 }): Promise<EventRow[]> {
-  let query = db<EventRow>("events").select("*");
+  let query = db<EventRow>("events").select("*").where({ is_published: true });
 
   if (options?.featured) {
     query = query.where({ is_featured: true });
@@ -18,6 +18,28 @@ export async function listPortfolioEvents(options?: {
   }
 
   return query.orderBy("event_date", "desc").orderBy("created_at", "desc");
+}
+
+export async function listAdminPortfolioEvents(): Promise<EventRow[]> {
+  return db<EventRow>("events").select("*").orderBy("event_date", "desc").orderBy("created_at", "desc");
+}
+
+type CategoryRow = { id: string; name: string; created_at: string };
+export async function listPortfolioCategories() { return db<CategoryRow>("portfolio_categories").select("*").orderBy("name", "asc"); }
+export async function createPortfolioCategory(name: string) { const [row] = await db<CategoryRow>("portfolio_categories").insert({ name: name.trim() }).returning("*"); return row; }
+export async function renamePortfolioCategory(id: string, name: string) {
+  const current = await db<CategoryRow>("portfolio_categories").where({ id }).first();
+  if (!current) throw new AppError(404, "Category not found", "CATEGORY_NOT_FOUND");
+  const [row] = await db<CategoryRow>("portfolio_categories").where({ id }).update({ name: name.trim() }).returning("*");
+  await db<EventRow>("events").where({ category: current.name }).update({ category: row.name });
+  return row;
+}
+export async function deletePortfolioCategory(id: string) {
+  const category = await db<CategoryRow>("portfolio_categories").where({ id }).first();
+  if (!category) throw new AppError(404, "Category not found", "CATEGORY_NOT_FOUND");
+  const [{ count }] = await db<EventRow>("events").where({ category: category.name }).count<{ count: string }[]>("id as count");
+  if (Number(count) > 0) throw new AppError(409, "This category is still assigned to projects", "CATEGORY_IN_USE");
+  await db<CategoryRow>("portfolio_categories").where({ id }).delete();
 }
 
 export async function getPortfolioEvent(id: string): Promise<EventRow> {
@@ -50,11 +72,7 @@ export async function updatePortfolioEvent(
   if (!updated) {
     throw new AppError(404, "Portfolio event not found", "PORTFOLIO_NOT_FOUND");
   }
-  if (
-    payload.cover_public_id &&
-    current.cover_public_id &&
-    payload.cover_public_id !== current.cover_public_id
-  ) {
+  if (payload.cover_public_id !== undefined && current.cover_public_id && payload.cover_public_id !== current.cover_public_id) {
     await deleteMedia(current.cover_public_id);
   }
   return updated;
@@ -87,6 +105,7 @@ export async function createProjectPhoto(
     cloudinary_url: string;
     cloudinary_public_id: string;
     caption?: string | null;
+    alt_text?: string | null;
     sort_order?: number;
   },
 ) {
@@ -96,6 +115,7 @@ export async function createProjectPhoto(
       cloudinary_url: payload.cloudinary_url,
       cloudinary_public_id: payload.cloudinary_public_id,
       caption: payload.caption?.trim() || null,
+      alt_text: payload.alt_text?.trim() || null,
       sort_order: payload.sort_order ?? 0,
     })
     .returning("*");
@@ -105,7 +125,7 @@ export async function createProjectPhoto(
 export async function updateProjectPhoto(
   eventId: string,
   photoId: string,
-  payload: { caption?: string | null; sort_order?: number },
+  payload: { caption?: string | null; alt_text?: string | null; sort_order?: number },
 ) {
   const existing = await db<ProjectPhotoRow>("project_photos")
     .where({ id: photoId, event_id: eventId })
@@ -122,6 +142,7 @@ export async function updateProjectPhoto(
   if (payload.caption !== undefined) {
     updates.caption = payload.caption?.trim() || null;
   }
+  if (payload.alt_text !== undefined) updates.alt_text = payload.alt_text?.trim() || null;
   if (payload.sort_order !== undefined) {
     updates.sort_order = payload.sort_order;
   }

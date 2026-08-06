@@ -32,7 +32,7 @@ export default function PortfolioPage() {
         title: event.title,
         category: normalizeCategory(event.category),
         year: new Date(event.event_date).getFullYear().toString(),
-        image: event.cover_url,
+        image: event.cover_url ?? "",
       })),
     [data?.events],
   );

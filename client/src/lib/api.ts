@@ -5,10 +5,11 @@ export type ApiPortfolioEvent = {
   id: string;
   title: string;
   category: string;
-  cover_url: string;
+  cover_url: string | null;
   cover_public_id: string | null;
   event_date: string;
   is_featured: boolean;
+  is_published: boolean;
   created_at: string;
 };
 
@@ -16,6 +17,7 @@ export type ApiProjectPhoto = {
   id: string;
   cloudinary_url: string;
   caption: string | null;
+  alt_text: string | null;
   sort_order: number;
 };
 
@@ -180,6 +182,13 @@ export const api = {
       const suffix = params.toString() ? `?${params.toString()}` : "";
       return request<{ events: ApiPortfolioEvent[] }>(`/portfolio${suffix}`);
     },
+    adminList: () => request<{ events: ApiPortfolioEvent[] }>("/portfolio/admin"),
+    categories: {
+      list: () => request<{ categories: Array<{ id: string; name: string }> }>("/portfolio/categories"),
+      create: (name: string) => request<{ category: { id: string; name: string } }>("/portfolio/categories", { method: "POST", body: { name } }),
+      update: (id: string, name: string) => request<{ category: { id: string; name: string } }>(`/portfolio/categories/${id}`, { method: "PATCH", body: { name } }),
+      delete: (id: string) => request<void>(`/portfolio/categories/${id}`, { method: "DELETE" }),
+    },
     get: (id: string) =>
       request<{ event: ApiPortfolioEvent }>(`/portfolio/${id}`),
     listPhotos: (id: string) =>
@@ -203,7 +212,7 @@ export const api = {
     updatePhoto: (
       id: string,
       photoId: string,
-      payload: Partial<Pick<ApiProjectPhoto, "caption" | "sort_order">>,
+      payload: Partial<Pick<ApiProjectPhoto, "caption" | "alt_text" | "sort_order">>,
     ) =>
       request<{ photo: ApiProjectPhoto }>(`/portfolio/${id}/photos/${photoId}`, {
         method: "PATCH",

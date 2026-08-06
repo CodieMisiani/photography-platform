@@ -179,7 +179,7 @@ export default function HomePage() {
                   >
                     <div className="relative mb-8 overflow-hidden border border-paper-deep bg-paper-warm">
                       <img
-                        src={project.cover_url}
+                        src={project.cover_url ?? ""}
                         alt={project.title}
                         className="h-[420px] w-full object-cover"
                       />

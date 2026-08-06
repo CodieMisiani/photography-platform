@@ -58,6 +58,7 @@ export default function PortfolioCmsPage() {
         </section>
 
         {isAdding ? <ProjectForm onDone={() => setIsAdding(false)} /> : null}
+        <CategoryManager />
 
         <section className="border-t border-grey-light">
           {isLoading ? <p className="border-b border-grey-light py-8 text-sm text-grey">Loading portfolio</p> : null}
@@ -85,7 +86,7 @@ export default function PortfolioCmsPage() {
                   <div className="md:col-span-6 flex items-center gap-6">
                     <div className="h-32 w-24 shrink-0 bg-grey-faint">
                       <img
-                        src={project.image}
+                        src={project.image ?? ""}
                         alt={project.title}
                         className="h-full w-full object-cover grayscale"
                       />
@@ -143,6 +144,16 @@ export default function PortfolioCmsPage() {
   );
 }
 
+function CategoryManager() {
+  const queryClient = useQueryClient();
+  const [name, setName] = useState("");
+  const [message, setMessage] = useState("");
+  const { data } = useQuery({ queryKey: ["portfolio-categories"], queryFn: api.portfolio.categories.list });
+  const create = useMutation({ mutationFn: api.portfolio.categories.create, onSuccess: async () => { setName(""); setMessage("Category added."); await queryClient.invalidateQueries({ queryKey: ["portfolio-categories"] }); } });
+  const remove = useMutation({ mutationFn: api.portfolio.categories.delete, onSuccess: async () => { setMessage("Category deleted."); await queryClient.invalidateQueries({ queryKey: ["portfolio-categories"] }); }, onError: (error: Error) => setMessage(error.message) });
+  return <section className="mb-12 border border-grey-light bg-paper-white p-6"><h2 className="text-2xl font-display font-semibold uppercase">Categories</h2><form className="mt-4 flex gap-3" onSubmit={(event) => { event.preventDefault(); if (name.trim()) create.mutate(name); }}><input value={name} onChange={(event) => setName(event.target.value)} placeholder="New category" className="flex-1 border border-grey-light bg-paper px-3 py-2" /><Button type="submit" disabled={create.isPending}>Add Category</Button></form>{message ? <p className="mt-3 text-sm text-text-muted">{message}</p> : null}<div className="mt-4 flex flex-wrap gap-2">{(data?.categories ?? []).map((category) => <span key={category.id} className="inline-flex items-center gap-2 border border-paper-deep px-3 py-2 text-sm"><span>{category.name}</span><button type="button" className="text-red-700" onClick={() => { if (window.confirm(`Delete ${category.name}?`)) remove.mutate(category.id); }}>×</button></span>)}</div></section>;
+}
+
 function ProjectForm({
   project,
   isSaving = false,
@@ -158,9 +169,10 @@ function ProjectForm({
 }) {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState(project?.title ?? "");
-  const [category, setCategory] = useState(project?.category ?? "Portraits");
+  const { data: categoryData } = useQuery({ queryKey: ["portfolio-categories"], queryFn: api.portfolio.categories.list });
+  const [category, setCategory] = useState(project?.category ?? "");
   const [eventDate, setEventDate] = useState(project?.eventDate ?? "");
-  const [coverUrl, setCoverUrl] = useState(project?.coverUrl ?? "");
+  const [coverUrl] = useState(project?.coverUrl ?? "");
   const [coverPublicId] = useState(project?.coverPublicId ?? null);
   const [file, setFile] = useState<File | null>(null);
   const localPreviewUrl = useFilePreview(file);
@@ -170,6 +182,7 @@ function ProjectForm({
   >("idle");
   const [uploadError, setUploadError] = useState("");
   const [isFeatured, setIsFeatured] = useState(project?.isFeatured ?? false);
+  const [isPublished, setIsPublished] = useState(project?.isPublished ?? true);
   const createMutation = useMutation({
     mutationFn: async () => {
       const uploaded = await uploadSelectedPortfolioFile(
@@ -184,6 +197,7 @@ function ProjectForm({
         cover_url: uploaded?.url ?? coverUrl,
         cover_public_id: uploaded?.public_id ?? coverPublicId,
         is_featured: isFeatured,
+        is_published: isPublished,
       });
     },
     onSuccess: async () => {
@@ -207,6 +221,7 @@ function ProjectForm({
         cover_url: uploaded?.url ?? coverUrl,
         cover_public_id: uploaded?.public_id ?? coverPublicId,
         is_featured: isFeatured,
+        is_published: isPublished,
       });
       return;
     }
@@ -221,17 +236,14 @@ function ProjectForm({
       </h2>
       <div className="grid gap-8 md:grid-cols-2">
         <FormField id={`projectTitle-${project?.id ?? "new"}`} label="Project Title" required value={title} onChange={(event) => setTitle(event.target.value)} />
-        <FormField as="select" id={`projectCategory-${project?.id ?? "new"}`} label="Category" value={category} onChange={(event) => setCategory(event.target.value)}>
-          <option>Portraits</option>
-          <option>Weddings</option>
-          <option>Corporate</option>
-          <option>Concerts</option>
+        <FormField as="select" id={`projectCategory-${project?.id ?? "new"}`} label="Category" required value={category} onChange={(event) => setCategory(event.target.value)}>
+          <option value="">Select a category</option>
+          {(categoryData?.categories ?? []).map((item) => <option key={item.id} value={item.name}>{item.name}</option>)}
         </FormField>
         <FormField id={`eventDate-${project?.id ?? "new"}`} label="Event Date" type="date" required value={eventDate} onChange={(event) => setEventDate(event.target.value)} />
-        <FormField id={`coverUrl-${project?.id ?? "new"}`} label="Cover URL" type="url" value={coverUrl} onChange={(event) => setCoverUrl(event.target.value)} />
         <div className="md:col-span-2">
           <label className="mb-3 block text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey" htmlFor={`projectImage-${project?.id ?? "new"}`}>
-            Replace Image
+            Cover Photo
           </label>
           <input
             id={`projectImage-${project?.id ?? "new"}`}
@@ -255,16 +267,27 @@ function ProjectForm({
             <UploadNote message={uploadError || "Image upload failed"} tone="error" />
           ) : null}
           {previewUrl ? (
-            <img
-              src={previewUrl}
-              alt={localPreviewUrl ? "Selected cover preview" : "Current cover preview"}
-              className="mt-4 h-32 w-24 object-cover grayscale"
-            />
+            <div className="mt-4 flex items-end gap-4">
+              <img
+                src={previewUrl}
+                alt={localPreviewUrl ? "Selected cover preview" : "Current cover preview"}
+                className="h-32 w-24 object-cover grayscale"
+              />
+              {project && !localPreviewUrl ? <Button type="button" variant="danger" onClick={() => {
+                if (window.confirm("Remove this cover photo? The project will remain available as a draft until a new cover is uploaded.")) {
+                  onSave?.({ title, category, event_date: eventDate, cover_url: null, cover_public_id: null, is_featured: isFeatured, is_published: false });
+                }
+              }}>Remove cover</Button> : null}
+            </div>
           ) : null}
         </div>
         <label className="flex items-center gap-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-grey">
           <input type="checkbox" checked={isFeatured} onChange={(event) => setIsFeatured(event.target.checked)} />
           Featured
+        </label>
+        <label className="flex items-center gap-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-grey">
+          <input type="checkbox" checked={isPublished} onChange={(event) => setIsPublished(event.target.checked)} />
+          Publish now
         </label>
       </div>
       <div className="mt-8 flex flex-col gap-4 sm:flex-row">
@@ -290,7 +313,7 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ["portfolio-project-photos", projectId] });
   const updateMutation = useMutation({
-    mutationFn: ({ photoId, payload }: { photoId: string; payload: Partial<Pick<ApiProjectPhoto, "caption" | "sort_order">> }) =>
+    mutationFn: ({ photoId, payload }: { photoId: string; payload: Partial<Pick<ApiProjectPhoto, "caption" | "alt_text" | "sort_order">> }) =>
       api.portfolio.updatePhoto(projectId, photoId, payload),
     onSuccess: refresh,
   });
@@ -374,6 +397,16 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
                 if (event.target.value !== (photo.caption ?? "")) {
                   updateMutation.mutate({ photoId: photo.id, payload: { caption: event.target.value } });
                 }
+              }}
+              className="mt-2 w-full border border-grey-light bg-paper px-2 py-2 text-sm"
+            />
+            <input
+              defaultValue={photo.alt_text ?? ""}
+              aria-label={`Alt text for photo ${index + 1}`}
+              placeholder="Alt text"
+              maxLength={255}
+              onBlur={(event) => {
+                if (event.target.value !== (photo.alt_text ?? "")) updateMutation.mutate({ photoId: photo.id, payload: { alt_text: event.target.value } });
               }}
               className="mt-2 w-full border border-grey-light bg-paper px-2 py-2 text-sm"
             />

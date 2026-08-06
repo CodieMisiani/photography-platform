@@ -6,10 +6,11 @@ export type EventRow = {
   id: string;
   title: string;
   category: string;
-  cover_url: string;
+  cover_url: string | null;
   cover_public_id: string | null;
   event_date: string;
   is_featured: boolean;
+  is_published: boolean;
   created_at: string;
 };
 
@@ -19,6 +20,7 @@ export type ProjectPhotoRow = {
   cloudinary_url: string;
   cloudinary_public_id: string;
   caption: string | null;
+  alt_text: string | null;
   sort_order: number;
   created_at: string;
 };
