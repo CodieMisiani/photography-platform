@@ -6,6 +6,9 @@ import PublicExperienceLayer from "../components/PublicExperienceLayer";
 
 const HomePage = lazy(() => import("../pages/HomePage"));
 const PortfolioPage = lazy(() => import("../pages/PortfolioPage"));
+const PortfolioProjectPage = lazy(
+  () => import("../pages/PortfolioProjectPage"),
+);
 const AboutPage = lazy(() => import("../pages/AboutPage"));
 const JournalPage = lazy(() => import("../pages/JournalPage"));
 const PublicEventsPage = lazy(() => import("../pages/PublicEventsPage"));
@@ -35,6 +38,7 @@ export default function AppRoutes() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
+          <Route path="/portfolio/:id" element={<PortfolioProjectPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/journal" element={<JournalPage />} />
           <Route path="/public-events" element={<PublicEventsPage />} />

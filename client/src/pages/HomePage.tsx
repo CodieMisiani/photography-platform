@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import StatCard from "../components/StatCard";
@@ -8,15 +9,20 @@ import { api } from "../lib/api";
 import {
   homeMarqueeImages,
   homeMetrics,
-  homeProjects,
   homeServices,
 } from "../data/homeFixtures";
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery({
     queryKey: ["stats"],
     queryFn: api.stats.get,
   });
+  const { data: featuredData, isLoading: isFeaturedLoading } = useQuery({
+    queryKey: ["featured-portfolio"],
+    queryFn: () => api.portfolio.list({ featured: true, limit: 2 }),
+  });
+  const featuredProjects = featuredData?.events ?? [];
 
   return (
     <div className="bg-paper text-text-primary">
@@ -147,26 +153,48 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-px border border-paper-deep bg-paper-deep md:grid-cols-2">
-              {homeProjects.map((project) => (
-                <div key={project.title} className="studio-plane bg-paper-white p-8">
-                  <div className="relative mb-8 overflow-hidden border border-paper-deep bg-paper-warm">
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="h-[420px] w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-ink-rich/10 transition-colors duration-300 hover:bg-ink-rich/20" />
-                  </div>
-                  <div className="flex items-baseline justify-between border-t border-paper-deep pt-4">
-                    <h3 className="text-sm uppercase tracking-[0.3em] text-text-primary">
-                      {project.title}
-                    </h3>
-                    <span className="text-xs uppercase tracking-widest text-text-muted">
-                      {project.location}
-                    </span>
-                  </div>
+              {isFeaturedLoading
+                ? Array.from({ length: 2 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="studio-plane bg-paper-white p-8"
+                    >
+                      <div className="mb-8 h-[420px] animate-pulse bg-paper-deep" />
+                      <div className="h-4 w-32 animate-pulse bg-paper-deep" />
+                    </div>
+                  ))
+                : null}
+              {!isFeaturedLoading && featuredProjects.length === 0 ? (
+                <div className="col-span-full bg-paper-white p-10 text-center text-text-muted">
+                  No featured projects yet.
                 </div>
-              ))}
+              ) : null}
+              {!isFeaturedLoading &&
+                featuredProjects.map((project) => (
+                  <button
+                    key={project.id}
+                    type="button"
+                    onClick={() => navigate(`/portfolio/${project.id}`)}
+                    className="studio-plane bg-paper-white p-8 text-left"
+                  >
+                    <div className="relative mb-8 overflow-hidden border border-paper-deep bg-paper-warm">
+                      <img
+                        src={project.cover_url}
+                        alt={project.title}
+                        className="h-[420px] w-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-ink-rich/10 transition-colors duration-300 hover:bg-ink-rich/20" />
+                    </div>
+                    <div className="flex items-baseline justify-between border-t border-paper-deep pt-4">
+                      <h3 className="text-sm uppercase tracking-[0.3em] text-text-primary">
+                        {project.title}
+                      </h3>
+                      <span className="text-xs uppercase tracking-widest text-text-muted">
+                        {project.category}
+                      </span>
+                    </div>
+                  </button>
+                ))}
             </div>
           </div>
         </section>

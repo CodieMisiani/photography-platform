@@ -14,6 +14,7 @@ import { quoteRoutes } from "./routes/quoteRoutes.js";
 import { adminAccountRoutes } from "./routes/adminAccountRoutes.js";
 import { statsRoutes } from "./routes/statsRoutes.js";
 import { newsletterRoutes } from "./routes/newsletterRoutes.js";
+import { journalRoutes, adminJournalRoutes } from "./routes/journalRoutes.js";
 import { checkHealth } from "./services/healthService.js";
 import { asyncHandler } from "./utils/asyncHandler.js";
 
@@ -48,6 +49,8 @@ export function createApp() {
   app.use(publicEventRoutes);
   app.use(statsRoutes);
   app.use(newsletterRoutes);
+  app.use("/journal", journalRoutes);
+  app.use("/admin/journal", adminJournalRoutes);
   app.use(adminAccountRoutes);
 
   app.use((_req, _res, next) => {

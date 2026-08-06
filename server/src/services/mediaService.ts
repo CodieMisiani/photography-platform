@@ -5,17 +5,19 @@ import { cloudinary } from "../config/cloudinary.js";
 import { env } from "../config/env.js";
 import { AppError } from "../utils/AppError.js";
 
-export type MediaFolder = "portfolio" | "events";
+export type MediaFolder = "portfolio" | "events" | "journal";
 
 const allowedMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
-const maxBytes = 8 * 1024 * 1024;
+const maxBytes = 15 * 1024 * 1024;
 
 export const mediaUpload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: maxBytes, files: 1 },
   fileFilter: (_req, file, callback) => {
     if (!allowedMimeTypes.has(file.mimetype)) {
-      callback(new AppError(400, "Unsupported image type", "IMAGE_TYPE_UNSUPPORTED"));
+      callback(
+        new AppError(400, "Unsupported image type", "IMAGE_TYPE_UNSUPPORTED"),
+      );
       return;
     }
     callback(null, true);
@@ -33,7 +35,11 @@ export async function uploadMedia(
     throw new AppError(400, "Unsupported image type", "IMAGE_TYPE_UNSUPPORTED");
   }
   if (file.size > maxBytes) {
-    throw new AppError(400, "Image must be smaller than 8MB", "IMAGE_TOO_LARGE");
+    throw new AppError(
+      400,
+      "Image must be smaller than 15MB",
+      "IMAGE_TOO_LARGE",
+    );
   }
 
   const result = await streamUpload(file.buffer, {
@@ -49,7 +55,9 @@ export async function uploadMedia(
 
 export async function deleteMedia(publicId: string | null | undefined) {
   if (!publicId) {
-    console.warn("[mediaService] Cloudinary public_id missing; skipping destroy.");
+    console.warn(
+      "[mediaService] Cloudinary public_id missing; skipping destroy.",
+    );
     return { skipped: true };
   }
 
@@ -58,17 +66,23 @@ export async function deleteMedia(publicId: string | null | undefined) {
       resource_type: "image",
     });
     if (result.result !== "ok" && result.result !== "not found") {
-      console.error("[mediaService] Cloudinary destroy returned unexpected result", {
-        publicId,
-        result,
-      });
+      console.error(
+        "[mediaService] Cloudinary destroy returned unexpected result",
+        {
+          publicId,
+          result,
+        },
+      );
     }
     return { skipped: false, result };
   } catch (error) {
-    console.error("[mediaService] Cloudinary destroy failed; DB delete will continue", {
-      publicId,
-      error,
-    });
+    console.error(
+      "[mediaService] Cloudinary destroy failed; DB delete will continue",
+      {
+        publicId,
+        error,
+      },
+    );
     return { skipped: false, error };
   }
 }
@@ -89,7 +103,13 @@ function streamUpload(
           return;
         }
         if (!result) {
-          reject(new AppError(502, "Cloudinary upload failed", "CLOUDINARY_UPLOAD_FAILED"));
+          reject(
+            new AppError(
+              502,
+              "Cloudinary upload failed",
+              "CLOUDINARY_UPLOAD_FAILED",
+            ),
+          );
           return;
         }
         resolve(result);

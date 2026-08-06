@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Button from "../components/ui/Button";
@@ -18,11 +18,11 @@ const filterOptions = [
 type FilterOption = (typeof filterOptions)[number];
 
 export default function PortfolioPage() {
+  const navigate = useNavigate();
   const [selectedFilter, setSelectedFilter] = useState<FilterOption>("All");
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["portfolio"],
-    queryFn: api.portfolio.list,
+    queryFn: () => api.portfolio.list(),
   });
 
   const portfolioItems = useMemo(
@@ -86,31 +86,25 @@ export default function PortfolioPage() {
         <section className="grid gap-px border border-paper-deep bg-paper-deep sm:grid-cols-2">
           {isLoading ? <PortfolioState message="Loading portfolio" /> : null}
           {isError ? (
-            <PortfolioState message="Portfolio could not load" action={() => refetch()} />
+            <PortfolioState
+              message="Portfolio could not load"
+              action={() => refetch()}
+            />
           ) : null}
           {!isLoading && !isError && filteredItems.length === 0 ? (
             <PortfolioState message="No projects found" />
           ) : null}
           {!isLoading && !isError
-            ? filteredItems.map((item, index) => (
+            ? filteredItems.map((item) => (
                 <PortfolioCard
                   key={item.id}
                   item={item}
-                  onOpen={() => setLightboxIndex(index)}
+                  onOpen={() => navigate(`/portfolio/${item.id}`)}
                 />
               ))
             : null}
         </section>
       </main>
-
-      {lightboxIndex !== null ? (
-        <PortfolioLightbox
-          items={filteredItems}
-          index={lightboxIndex}
-          onClose={() => setLightboxIndex(null)}
-          onNavigate={setLightboxIndex}
-        />
-      ) : null}
 
       <Footer />
     </div>
@@ -118,7 +112,9 @@ export default function PortfolioPage() {
 }
 
 function normalizeCategory(category: string): PortfolioItem["category"] {
-  const match = filterOptions.find((option) => option !== "All" && option === category);
+  const match = filterOptions.find(
+    (option) => option !== "All" && option === category,
+  );
   return match && match !== "All" ? match : "Portraits";
 }
 
@@ -162,7 +158,7 @@ function PortfolioCard({
       <img
         src={item.image}
         alt={item.title}
-        className="h-[560px] w-full object-cover transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
+        className="h-140 w-full object-cover transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
       />
       <div className="absolute inset-0 bg-ink-rich/0 transition-colors duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:bg-ink-rich/20" />
       <div className="absolute bottom-0 left-0 right-0 border-t border-paper-deep bg-paper/95 p-8">
@@ -188,93 +184,5 @@ function PortfolioCard({
         </div>
       </div>
     </article>
-  );
-}
-
-function PortfolioLightbox({
-  items,
-  index,
-  onClose,
-  onNavigate,
-}: {
-  items: PortfolioItem[];
-  index: number;
-  onClose: () => void;
-  onNavigate: (index: number) => void;
-}) {
-  const item = items[index];
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-      if (event.key === "ArrowLeft") {
-        onNavigate((index - 1 + items.length) % items.length);
-      }
-      if (event.key === "ArrowRight") {
-        onNavigate((index + 1) % items.length);
-      }
-    };
-
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKey);
-
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [index, items.length, onClose, onNavigate]);
-
-  if (!item) {
-    return null;
-  }
-
-  return createPortal(
-    <div
-      className="fixed inset-0 z-[120] flex items-center justify-center bg-ink-rich/95 p-6 text-text-inverse backdrop-blur-sm"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label={item.title}
-    >
-      <button
-        type="button"
-        onClick={onClose}
-        className="absolute right-6 top-6 text-4xl leading-none transition-all duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97]"
-        aria-label="Close image lightbox"
-      >
-        ×
-      </button>
-      <button
-        type="button"
-        onClick={(event) => {
-          event.stopPropagation();
-          onNavigate((index - 1 + items.length) % items.length);
-        }}
-        className="absolute left-4 top-1/2 -translate-y-1/2 px-4 py-3 text-4xl transition-all duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97]"
-        aria-label="Previous portfolio image"
-      >
-        ‹
-      </button>
-      <img
-        src={item.image}
-        alt={item.title}
-        className="max-h-[90vh] max-w-[90vw] object-contain opacity-100 transition-all duration-200 motion-safe:scale-100"
-        onClick={(event) => event.stopPropagation()}
-      />
-      <button
-        type="button"
-        onClick={(event) => {
-          event.stopPropagation();
-          onNavigate((index + 1) % items.length);
-        }}
-        className="absolute right-4 top-1/2 -translate-y-1/2 px-4 py-3 text-4xl transition-all duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97]"
-        aria-label="Next portfolio image"
-      >
-        ›
-      </button>
-    </div>,
-    document.body,
   );
 }

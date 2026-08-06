@@ -13,6 +13,16 @@ export type EventRow = {
   created_at: string;
 };
 
+export type ProjectPhotoRow = {
+  id: string;
+  event_id: string;
+  cloudinary_url: string;
+  cloudinary_public_id: string;
+  caption: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
 export type BookingRow = {
   id: string;
   client_name: string;
@@ -84,4 +94,20 @@ export type NewsletterSubscriberRow = {
   email: string;
   subscribed_at: string;
   is_active: boolean;
+};
+
+export type JournalPostRow = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  body: string;
+  cover_url: string | null;
+  cloudinary_public_id: string | null;
+  category: string | null;
+  read_time_minutes: number | null;
+  is_published: boolean;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
 };

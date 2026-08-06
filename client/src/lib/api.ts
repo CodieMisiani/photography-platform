@@ -12,6 +12,13 @@ export type ApiPortfolioEvent = {
   created_at: string;
 };
 
+export type ApiProjectPhoto = {
+  id: string;
+  cloudinary_url: string;
+  caption: string | null;
+  sort_order: number;
+};
+
 export type ApiInvoice = {
   id: string;
   invoice_no: string;
@@ -166,7 +173,17 @@ export const api = {
       }),
   },
   portfolio: {
-    list: () => request<{ events: ApiPortfolioEvent[] }>("/portfolio"),
+    list: (options?: { featured?: boolean; limit?: number }) => {
+      const params = new URLSearchParams();
+      if (options?.featured) params.set("featured", "true");
+      if (options?.limit) params.set("limit", String(options.limit));
+      const suffix = params.toString() ? `?${params.toString()}` : "";
+      return request<{ events: ApiPortfolioEvent[] }>(`/portfolio${suffix}`);
+    },
+    get: (id: string) =>
+      request<{ event: ApiPortfolioEvent }>(`/portfolio/${id}`),
+    listPhotos: (id: string) =>
+      request<{ photos: ApiProjectPhoto[] }>(`/portfolio/${id}/photos`),
     create: (payload: Omit<ApiPortfolioEvent, "id" | "created_at">) =>
       request<{ event: ApiPortfolioEvent }>("/portfolio", {
         method: "POST",
@@ -185,10 +202,13 @@ export const api = {
     upload: (file: File) => {
       const body = new FormData();
       body.append("image", file);
-      return request<{ secure_url: string; url: string; public_id: string }>("/portfolio/uploads", {
-        method: "POST",
-        body,
-      });
+      return request<{ secure_url: string; url: string; public_id: string }>(
+        "/portfolio/uploads",
+        {
+          method: "POST",
+          body,
+        },
+      );
     },
   },
   bookings: {
@@ -395,13 +415,122 @@ export const api = {
         };
       }>(`/admin/stats/${id}`, { method: "PATCH", body: payload }),
   },
+  journal: {
+    list: (page = 1, limit = 9, category?: string) => {
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+      });
+      if (category) params.set("category", category);
+      return request<{
+        posts: Array<{
+          id: string;
+          slug: string;
+          title: string;
+          excerpt: string;
+          cover_url: string | null;
+          category: string | null;
+          read_time_minutes: number | null;
+          published_at: string | null;
+        }>;
+        total: number;
+        page: number;
+        pages: number;
+      }>(`/journal?${params.toString()}`);
+    },
+    get: (slug: string) =>
+      request<{
+        post: {
+          id: string;
+          slug: string;
+          title: string;
+          excerpt: string;
+          body: string;
+          cover_url: string | null;
+          category: string | null;
+          read_time_minutes: number | null;
+          published_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+      }>(`/journal/${encodeURIComponent(slug)}`),
+    adminList: () =>
+      request<{
+        posts: Array<{
+          id: string;
+          slug: string;
+          title: string;
+          excerpt: string;
+          body: string;
+          cover_url: string | null;
+          cloudinary_public_id: string | null;
+          category: string | null;
+          read_time_minutes: number | null;
+          is_published: boolean;
+          published_at: string | null;
+          created_at: string;
+          updated_at: string;
+        }>;
+      }>("/admin/journal"),
+    create: (payload: {
+      title: string;
+      excerpt: string;
+      body: string;
+      category?: string;
+      is_published?: boolean;
+      cover?: File | null;
+    }) => {
+      const formData = new FormData();
+      formData.append("title", payload.title);
+      formData.append("excerpt", payload.excerpt);
+      formData.append("body", payload.body);
+      if (payload.category) formData.append("category", payload.category);
+      formData.append("is_published", payload.is_published ? "true" : "false");
+      if (payload.cover) formData.append("cover", payload.cover);
+      return request<{ post: unknown }>("/admin/journal", {
+        method: "POST",
+        body: formData,
+      });
+    },
+    update: (
+      id: string,
+      payload: {
+        title?: string;
+        excerpt?: string;
+        body?: string;
+        category?: string;
+        is_published?: boolean;
+        cover?: File | null;
+      },
+    ) => {
+      const formData = new FormData();
+      if (payload.title !== undefined) formData.append("title", payload.title);
+      if (payload.excerpt !== undefined)
+        formData.append("excerpt", payload.excerpt);
+      if (payload.body !== undefined) formData.append("body", payload.body);
+      if (payload.category !== undefined)
+        formData.append("category", payload.category);
+      if (payload.is_published !== undefined)
+        formData.append(
+          "is_published",
+          payload.is_published ? "true" : "false",
+        );
+      if (payload.cover) formData.append("cover", payload.cover);
+      return request<{ post: unknown }>(`/admin/journal/${id}`, {
+        method: "PATCH",
+        body: formData,
+      });
+    },
+    delete: (id: string) =>
+      request<void>(`/admin/journal/${id}`, { method: "DELETE" }),
+  },
   newsletter: {
     subscribe: (email: string) =>
       request<{ ok: true; alreadySubscribed: boolean; message: string }>(
         "/newsletter/subscribe",
         {
-        method: "POST",
-        body: { email },
+          method: "POST",
+          body: { email },
         },
       ),
     listSubscribers: () =>
