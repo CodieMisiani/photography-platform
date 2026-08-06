@@ -9,6 +9,7 @@ import {
   startInvoicePayment,
   updateInvoice,
 } from "../services/invoiceService.js";
+import { notificationService } from "../services/notifications/NotificationService.js";
 
 export async function listAdminInvoices(_req: Request, res: Response) {
   res.status(200).json({ invoices: await listInvoices() });
@@ -40,6 +41,7 @@ export async function invoiceStatus(req: Request, res: Response) {
 }
 
 export async function darajaWebhook(req: Request, res: Response) {
-  await applyDarajaCallback(req.body);
+  const invoice = await applyDarajaCallback(req.body);
+  if (invoice.status === "paid") notificationService.sendInvoicePaidConfirmation(invoice).catch((error: unknown) => console.error("[notifications] Payment confirmation failed", error));
   res.status(200).json({ ok: true });
 }

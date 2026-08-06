@@ -11,6 +11,7 @@ const REQUIRED_TABLES = [
   "invoice_line_items",
   "site_stats",
   "newsletter_subscribers",
+  "baileys_session",
 ];
 
 export async function assertRequiredTablesExist() {
