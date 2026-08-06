@@ -6,6 +6,8 @@ import {
   deleteProjectPhoto,
   getPortfolioEvent,
   listPortfolioEvents,
+  listAdminPortfolioEvents,
+  listPortfolioCategories, createPortfolioCategory, renamePortfolioCategory, deletePortfolioCategory,
   listProjectPhotos,
   reorderProjectPhotos,
   updatePortfolioEvent,
@@ -22,6 +24,11 @@ export async function listPortfolio(req: Request, res: Response) {
     events: await listPortfolioEvents({ featured, limit: limitValue }),
   });
 }
+export async function listAdminPortfolio(_req: Request, res: Response) { res.status(200).json({ events: await listAdminPortfolioEvents() }); }
+export async function listCategories(_req: Request, res: Response) { res.status(200).json({ categories: await listPortfolioCategories() }); }
+export async function createCategory(req: Request, res: Response) { res.status(201).json({ category: await createPortfolioCategory(String(req.body.name)) }); }
+export async function patchCategory(req: Request, res: Response) { res.status(200).json({ category: await renamePortfolioCategory(String(req.params.categoryId), String(req.body.name)) }); }
+export async function removeCategory(req: Request, res: Response) { await deletePortfolioCategory(String(req.params.categoryId)); res.status(204).send(); }
 
 export async function getPortfolioDetail(req: Request, res: Response) {
   res
@@ -61,6 +68,8 @@ export async function createPortfolioPhoto(req: Request, res: Response) {
     cloudinary_public_id: upload.public_id,
     caption:
       typeof req.body?.caption === "string" ? req.body.caption : undefined,
+    alt_text:
+      typeof req.body?.alt_text === "string" ? req.body.alt_text : undefined,
     sort_order:
       typeof req.body?.sort_order === "string"
         ? Number(req.body.sort_order)
@@ -76,6 +85,8 @@ export async function patchPortfolioPhoto(req: Request, res: Response) {
     {
       caption:
         typeof req.body?.caption === "string" ? req.body.caption : undefined,
+      alt_text:
+        typeof req.body?.alt_text === "string" ? req.body.alt_text : undefined,
       sort_order:
         typeof req.body?.sort_order === "number"
           ? req.body.sort_order

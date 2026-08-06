@@ -92,7 +92,7 @@ export default function PortfolioProjectPage() {
               </p>
             </div>
             <img
-              src={event.cover_url}
+              src={event.cover_url ?? ""}
               alt={event.title}
               className="mb-8 aspect-[16/9] w-full object-cover"
             />

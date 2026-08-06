@@ -17,7 +17,7 @@ export const loginSchema = z.object({
 export const portfolioCreateSchema = z.object({
   title: z.string().min(2).max(160),
   category: z.string().min(2).max(80),
-  cover_url: z.string().url(),
+  cover_url: z.string().url().nullable(),
   cover_public_id: z.string().min(1).max(255).optional().nullable(),
   event_date: z.string().date(),
   is_featured: z.boolean().default(false),

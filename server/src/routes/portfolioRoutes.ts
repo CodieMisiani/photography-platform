@@ -3,6 +3,7 @@ import {
   createPortfolio,
   createPortfolioPhoto,
   deletePortfolioPhoto,
+  listAdminPortfolio, listCategories, createCategory, patchCategory, removeCategory,
   getPortfolioDetail,
   listPortfolio,
   listPortfolioPhotos,
@@ -25,6 +26,11 @@ import {
 export const portfolioRoutes = Router();
 
 portfolioRoutes.get("/", asyncHandler(listPortfolio));
+portfolioRoutes.get("/admin", requireAdminSession, asyncHandler(listAdminPortfolio));
+portfolioRoutes.get("/categories", asyncHandler(listCategories));
+portfolioRoutes.post("/categories", requireAdminSession, asyncHandler(createCategory));
+portfolioRoutes.patch("/categories/:categoryId", requireAdminSession, asyncHandler(patchCategory));
+portfolioRoutes.delete("/categories/:categoryId", requireAdminSession, asyncHandler(removeCategory));
 portfolioRoutes.get("/:id", asyncHandler(getPortfolioDetail));
 portfolioRoutes.get("/:id/photos", asyncHandler(listPortfolioPhotos));
 portfolioRoutes.post(

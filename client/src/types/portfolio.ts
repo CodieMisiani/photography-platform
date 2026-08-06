@@ -15,7 +15,8 @@ export type PortfolioCmsProject = {
   eventDate: string;
   status: "Featured" | "Published" | "Draft";
   image: string;
-  coverUrl: string;
+  coverUrl: string | null;
   coverPublicId?: string | null;
   isFeatured: boolean;
+  isPublished?: boolean;
 };
