@@ -189,8 +189,10 @@ function ProjectForm({
   const { data: categoryData } = useQuery({ queryKey: ["portfolio-categories"], queryFn: api.portfolio.categories.list });
   const [category, setCategory] = useState(project?.category ?? "");
   const [eventDate, setEventDate] = useState(project?.eventDate ?? "");
-  const [coverUrl] = useState(project?.coverUrl ?? "");
+  const [coverUrl, setCoverUrl] = useState(project?.coverUrl ?? "");
   const [coverPublicId] = useState(project?.coverPublicId ?? null);
+  const [useCoverUrlFallback, setUseCoverUrlFallback] = useState(false);
+  const [coverUrlError, setCoverUrlError] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const localPreviewUrl = useFilePreview(file);
   const previewUrl = localPreviewUrl || coverUrl;
@@ -212,7 +214,7 @@ function ProjectForm({
         category,
         event_date: eventDate,
         cover_url: uploaded?.url ?? coverUrl,
-        cover_public_id: uploaded?.public_id ?? coverPublicId,
+        cover_public_id: useCoverUrlFallback ? null : uploaded?.public_id ?? coverPublicId,
         is_featured: isFeatured,
         is_published: isPublished,
       });
@@ -225,6 +227,10 @@ function ProjectForm({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (useCoverUrlFallback && !isValidImageUrl(coverUrl)) {
+      setCoverUrlError("Enter a valid http or https image URL.");
+      return;
+    }
     if (project && onSave) {
       const uploaded = await uploadSelectedPortfolioFile(
         file,
@@ -236,7 +242,7 @@ function ProjectForm({
         category,
         event_date: eventDate,
         cover_url: uploaded?.url ?? coverUrl,
-        cover_public_id: uploaded?.public_id ?? coverPublicId,
+        cover_public_id: useCoverUrlFallback ? null : uploaded?.public_id ?? coverPublicId,
         is_featured: isFeatured,
         is_published: isPublished,
       });
@@ -273,6 +279,35 @@ function ProjectForm({
             }}
             className="w-full border border-dashed border-ink bg-paper p-8 text-[0.75rem] font-semibold uppercase tracking-[0.2em]"
           />
+          <button
+            type="button"
+            onClick={() => {
+              setUseCoverUrlFallback((value) => !value);
+              setCoverUrlError("");
+            }}
+            className="mt-3 text-sm text-accent underline underline-offset-4"
+          >
+            {useCoverUrlFallback ? "Use upload instead" : "Use a URL instead"}
+          </button>
+          {useCoverUrlFallback ? (
+            <div className="mt-4">
+              <label className="mb-2 block text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey" htmlFor={`projectCoverUrl-${project?.id ?? "new"}`}>
+                Hosted image URL
+              </label>
+              <input
+                id={`projectCoverUrl-${project?.id ?? "new"}`}
+                type="url"
+                value={coverUrl}
+                onChange={(event) => {
+                  setCoverUrl(event.target.value);
+                  setCoverUrlError("");
+                }}
+                placeholder="https://example.com/photo.jpg"
+                className="w-full border border-grey-light bg-paper px-3 py-3"
+              />
+              {coverUrlError ? <p className="mt-2 text-sm text-red-700">{coverUrlError}</p> : null}
+            </div>
+          ) : null}
           {file ? (
             <p className="mt-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-grey">
               Ready to upload: {file.name}
@@ -496,4 +531,13 @@ function UploadNote({
       {message}
     </p>
   );
+}
+
+function isValidImageUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
 }
