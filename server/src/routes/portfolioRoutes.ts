@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createPortfolio,
   createPortfolioPhoto,
+  createPortfolioPhotoFromUrl,
   deletePortfolioPhoto,
   listAdminPortfolio, listCategories, createCategory, patchCategory, removeCategory,
   getPortfolioDetail,
@@ -51,6 +52,7 @@ portfolioRoutes.post(
   mediaUpload.single("image"),
   asyncHandler(createPortfolioPhoto),
 );
+portfolioRoutes.post("/:id/photos/url", requireAdminSession, asyncHandler(createPortfolioPhotoFromUrl));
 portfolioRoutes.patch(
   "/:id/photos/reorder",
   requireAdminSession,

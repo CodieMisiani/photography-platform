@@ -103,7 +103,7 @@ export async function createProjectPhoto(
   eventId: string,
   payload: {
     cloudinary_url: string;
-    cloudinary_public_id: string;
+    cloudinary_public_id: string | null;
     caption?: string | null;
     alt_text?: string | null;
     sort_order?: number;

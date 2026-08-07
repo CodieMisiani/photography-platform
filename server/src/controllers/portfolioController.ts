@@ -78,6 +78,22 @@ export async function createPortfolioPhoto(req: Request, res: Response) {
   res.status(201).json({ photo });
 }
 
+export async function createPortfolioPhotoFromUrl(req: Request, res: Response) {
+  const imageUrl = typeof req.body?.image_url === "string" ? req.body.image_url : "";
+  try {
+    const url = new URL(imageUrl);
+    if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error("protocol");
+  } catch {
+    throw new Error("A valid image URL is required");
+  }
+  const photo = await createProjectPhoto(String(req.params.id), {
+    cloudinary_url: imageUrl,
+    cloudinary_public_id: null,
+    sort_order: typeof req.body?.sort_order === "number" ? req.body.sort_order : undefined,
+  });
+  res.status(201).json({ photo });
+}
+
 export async function patchPortfolioPhoto(req: Request, res: Response) {
   const photo = await updateProjectPhoto(
     String(req.params.id),

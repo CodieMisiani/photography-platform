@@ -209,6 +209,11 @@ export const api = {
         body,
       });
     },
+    addPhotoFromUrl: (id: string, image_url: string, sort_order: number) =>
+      request<{ photo: ApiProjectPhoto }>(`/portfolio/${id}/photos/url`, {
+        method: "POST",
+        body: { image_url, sort_order },
+      }),
     updatePhoto: (
       id: string,
       photoId: string,

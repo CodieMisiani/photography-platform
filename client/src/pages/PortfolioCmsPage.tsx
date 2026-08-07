@@ -357,6 +357,8 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
   const queryClient = useQueryClient();
   const [uploads, setUploads] = useState<Array<{ id: string; file: File; progress: number; error?: string }>>([]);
   const [isDragActive, setIsDragActive] = useState(false);
+  const [galleryUrl, setGalleryUrl] = useState("");
+  const [galleryUrlError, setGalleryUrlError] = useState("");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ["portfolio-project-photos", projectId],
@@ -406,6 +408,14 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
     await refresh();
   }
 
+  async function addPhotoFromUrl() {
+    if (!isValidImageUrl(galleryUrl)) { setGalleryUrlError("Enter a valid http or https image URL."); return; }
+    await api.portfolio.addPhotoFromUrl(projectId, galleryUrl, photos.length);
+    setGalleryUrl("");
+    setGalleryUrlError("");
+    await refresh();
+  }
+
   return (
     <section className="mt-10 border-t border-grey-light pt-8">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
@@ -436,6 +446,11 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
         Drag photos here or click to browse<br /><span className="text-xs">JPEG · PNG · WebP · Max 15MB per photo</span>
         <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" onChange={(event) => { if (event.target.files) void uploadFiles(event.target.files); event.currentTarget.value = ""; }} />
       </label>
+      <div className="mb-5 flex flex-wrap gap-3">
+        <input value={galleryUrl} onChange={(event) => { setGalleryUrl(event.target.value); setGalleryUrlError(""); }} placeholder="Add a hosted or Cloudinary image URL" type="url" className="min-w-0 flex-1 border border-grey-light bg-paper px-3 py-3 text-sm" />
+        <Button type="button" variant="secondary" onClick={() => void addPhotoFromUrl()}>Add via URL</Button>
+      </div>
+      {galleryUrlError ? <p className="-mt-3 mb-4 text-sm text-red-700">{galleryUrlError}</p> : null}
       {uploads.map((upload) => <div key={upload.id} className="mb-3 border border-grey-light p-3 text-sm"><div className="flex justify-between gap-3"><span className="truncate">{upload.file.name}</span><span>{upload.error ? "Failed" : `${upload.progress}%`}</span></div>{!upload.error ? <div className="mt-2 h-1 bg-grey-light"><div className="h-full bg-accent" style={{ width: `${upload.progress}%` }} /></div> : <button type="button" className="mt-2 text-accent underline" onClick={() => void uploadFiles([upload.file])}>Retry</button>}</div>)}
       {isLoading ? <div className="h-32 animate-pulse bg-paper-deep" /> : null}
       {!isLoading && photos.length === 0 ? (
