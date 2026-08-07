@@ -13,6 +13,20 @@ import type { ApiProjectPhoto } from "../lib/api";
 import { fetchPortfolioCmsProjects } from "../services/portfolioService";
 import type { PortfolioCmsProject } from "../types/portfolio";
 
+// PORTFOLIO CMS AUDIT — 2026-08-07
+// Admin portfolio page: client/src/pages/PortfolioCmsPage.tsx
+// Portfolio API routes: GET /portfolio, GET /portfolio/admin, GET/POST/PATCH/DELETE /portfolio/categories,
+// GET /portfolio/:id, POST /portfolio, PATCH/DELETE /portfolio/:id, POST /portfolio/uploads,
+// GET/POST/PATCH/DELETE /portfolio/:id/photos, PATCH /portfolio/:id/photos/reorder.
+// events: id, title, category, cover_url, event_date, is_featured, created_at, cover_public_id, is_published.
+// project_photos: server/src/db/migrations/008_create_project_photos.ts; alt_text added in migration 011.
+// Current cover UX: upload component only. Categories: DB-driven by portfolio_categories.
+// Cloudinary: server/src/services/mediaService.ts uploadMedia(file, options), deleteMedia(publicId).
+// Multer: server/src/services/mediaService.ts mediaUpload (JPEG/PNG/WebP, 15MB, single file).
+// ACTION BUTTON DIAGNOSIS: the global PageTransition applied GSAP/ScrollTrigger transforms and clip paths to
+// admin article elements. A viewport change refreshed that layer and restored clicks. Admin routes are now excluded.
+// Gallery upload: click-to-browse works for one file; drag-and-drop and multi-file upload are not implemented.
+
 export default function PortfolioCmsPage() {
   const navigate = useNavigate();
   const { projectId } = useParams();
