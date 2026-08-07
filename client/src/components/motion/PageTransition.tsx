@@ -7,10 +7,14 @@ export default function PageTransition({ children }: { children: ReactNode }) {
   const location = useLocation();
   const scopeRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
   useLayoutEffect(() => {
     const scope = scopeRef.current;
-    if (!scope || prefersReducedMotion) {
+    // Public ScrollTrigger reveals mutate every section/article with transforms and
+    // clip paths. Admin pages contain dense native controls, so they must remain
+    // outside that viewport-dependent animation and hit-testing pipeline.
+    if (!scope || prefersReducedMotion || isAdminRoute) {
       return;
     }
 
@@ -69,7 +73,7 @@ export default function PageTransition({ children }: { children: ReactNode }) {
       disposed = true;
       cleanup();
     };
-  }, [location.pathname, prefersReducedMotion]);
+  }, [location.pathname, prefersReducedMotion, isAdminRoute]);
 
   return (
     <div key={location.pathname} ref={scopeRef}>
