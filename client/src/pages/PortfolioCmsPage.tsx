@@ -18,7 +18,6 @@ export default function PortfolioCmsPage() {
   const { projectId } = useParams();
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
-  const [actionMessage, setActionMessage] = useState("");
   const editingId = projectId ?? null;
   const { data, isLoading, isError } = useQuery({
     queryKey: ["portfolio-cms-projects"],
@@ -26,25 +25,15 @@ export default function PortfolioCmsPage() {
   });
   const deleteMutation = useMutation({
     mutationFn: api.portfolio.delete,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["portfolio-cms-projects"] });
-      setActionMessage("Project deleted.");
-    },
-    onError: (error: Error) => setActionMessage(error.message || "Unable to delete the project."),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["portfolio-cms-projects"] }),
   });
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: {
-      id: string;
-      payload: Parameters<typeof api.portfolio.update>[1];
-      successMessage?: string;
-    }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: Parameters<typeof api.portfolio.update>[1] }) =>
       api.portfolio.update(id, payload),
-    onSuccess: async (_data, variables) => {
+    onSuccess: async () => {
       navigate("/admin/portfolio-cms");
       await queryClient.invalidateQueries({ queryKey: ["portfolio-cms-projects"] });
-      setActionMessage(variables.successMessage ?? "Project updated.");
     },
-    onError: (error: Error) => setActionMessage(error.message || "Unable to update the project."),
   });
 
   return (
@@ -75,14 +64,6 @@ export default function PortfolioCmsPage() {
         <CategoryManager />
 
         <section className="border-t border-grey-light">
-          <p className="sr-only" aria-live="polite" role="status">
-            {actionMessage}
-          </p>
-          {actionMessage ? (
-            <p className="border-b border-grey-light bg-accent-muted px-4 py-3 text-sm text-text-primary" role="status">
-              {actionMessage}
-            </p>
-          ) : null}
           {isLoading ? <p className="border-b border-grey-light py-8 text-sm text-grey">Loading portfolio</p> : null}
           {isError ? <p className="border-b border-grey-light py-8 text-sm text-grey">Portfolio could not load</p> : null}
           {!isLoading && !isError && (data?.projects ?? []).length === 0 ? (
@@ -95,7 +76,7 @@ export default function PortfolioCmsPage() {
             />
           ) : null}
           {(data?.projects ?? []).map((project) => (
-            <article key={project.id} className="relative border-b border-grey-light py-8 transition-colors duration-150 hover:bg-paper-warm">
+            <article key={project.id} className="border-b border-grey-light py-8 transition-colors duration-150 hover:bg-paper-warm">
               {editingId === project.id ? (
                 <ProjectForm
                   project={project}
@@ -104,7 +85,7 @@ export default function PortfolioCmsPage() {
                   onSave={(payload) => updateMutation.mutate({ id: project.id, payload })}
                 />
               ) : (
-                <div className="grid gap-6 md:grid-cols-12 md:items-center">
+                <div className="studio-plane grid gap-6 md:grid-cols-12 md:items-center">
                   <div className="md:col-span-6 flex items-center gap-6">
                     <div className="h-32 w-24 shrink-0 bg-grey-faint">
                       <img
@@ -128,43 +109,20 @@ export default function PortfolioCmsPage() {
                   <div className="hidden text-center text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-grey md:col-span-3 md:block">
                     {project.date}
                   </div>
-                  <div className="relative z-10 flex flex-wrap gap-4 pointer-events-auto md:col-span-3 md:justify-end">
+                  <div className="flex flex-wrap gap-4 md:col-span-3 md:justify-end">
+                    <Button onClick={() => navigate(`/admin/projects/${project.id}/edit`)}>Edit</Button>
                     <Button
-                      className="relative z-10 pointer-events-auto"
-                      onClick={() => navigate(`/admin/projects/${project.id}/edit`)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      className="relative z-10 pointer-events-auto"
-                      disabled={updateMutation.isPending}
                       onClick={() =>
                         updateMutation.mutate({
                           id: project.id,
                           payload: { is_featured: !project.isFeatured },
-                          successMessage: project.isFeatured ? "Project unfeatured." : "Project featured.",
                         })
                       }
                     >
                       {project.isFeatured ? "Unfeature" : "Feature"}
                     </Button>
                     <Button
-                      variant="secondary"
-                      className="relative z-10 pointer-events-auto"
-                      disabled={updateMutation.isPending}
-                      onClick={() =>
-                        updateMutation.mutate({
-                          id: project.id,
-                          payload: { is_published: !project.isPublished },
-                          successMessage: project.isPublished ? "Project moved to draft." : "Project published.",
-                        })
-                      }
-                    >
-                      {project.isPublished ? "Draft" : "Publish"}
-                    </Button>
-                    <Button
                       variant="danger"
-                      className="relative z-10 pointer-events-auto"
                       onClick={() => {
                         if (
                           window.confirm(
