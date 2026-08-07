@@ -355,7 +355,8 @@ function ProjectForm({
 
 function ProjectPhotoManager({ projectId }: { projectId: string }) {
   const queryClient = useQueryClient();
-  const [uploading, setUploading] = useState(false);
+  const [uploads, setUploads] = useState<Array<{ id: string; file: File; progress: number; error?: string }>>([]);
+  const [isDragActive, setIsDragActive] = useState(false);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ["portfolio-project-photos", projectId],
@@ -374,15 +375,19 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
     onSuccess: refresh,
   });
 
-  async function upload(file: File | null) {
-    if (!file) return;
-    setUploading(true);
-    try {
-      await api.portfolio.addPhoto(projectId, file, { sort_order: photos.length });
-      await refresh();
-    } finally {
-      setUploading(false);
-    }
+  async function uploadFiles(files: FileList | File[]) {
+    const queued = Array.from(files).map((file) => ({ id: crypto.randomUUID(), file, progress: 0, error: isValidPortfolioFile(file) ? undefined : "Use JPEG, PNG, or WebP under 15MB." }));
+    setUploads((current) => [...current, ...queued]);
+    await Promise.all(queued.map(async (entry, index) => {
+      if (entry.error) return;
+      try {
+        await uploadPhotoWithProgress(projectId, entry.file, photos.length + index, (progress) => setUploads((current) => current.map((item) => item.id === entry.id ? { ...item, progress } : item)));
+        setUploads((current) => current.filter((item) => item.id !== entry.id));
+      } catch (error) {
+        setUploads((current) => current.map((item) => item.id === entry.id ? { ...item, error: error instanceof Error ? error.message : "Upload failed" } : item));
+      }
+    }));
+    await refresh();
   }
 
   async function movePhoto(targetId: string) {
@@ -409,19 +414,29 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
           <p className="mt-1 text-sm text-grey">Drag the grip to arrange gallery images. Captions save when you leave the field.</p>
         </div>
         <label className="cursor-pointer bg-accent px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-white hover:bg-accent/90">
-          {uploading ? "Uploading…" : "Add Photo"}
+          {uploads.length > 0 ? "Uploading…" : "Add Photo"}
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp"
+            multiple
             className="sr-only"
-            disabled={uploading}
             onChange={(event) => {
-              void upload(event.target.files?.[0] ?? null);
+              if (event.target.files) void uploadFiles(event.target.files);
               event.currentTarget.value = "";
             }}
           />
         </label>
       </div>
+      <label
+        onDragOver={(event) => { event.preventDefault(); setIsDragActive(true); }}
+        onDragLeave={() => setIsDragActive(false)}
+        onDrop={(event) => { event.preventDefault(); setIsDragActive(false); void uploadFiles(event.dataTransfer.files); }}
+        className={`mb-5 block cursor-pointer border-2 border-dashed p-8 text-center text-sm text-grey ${isDragActive ? "border-accent bg-accent/5" : "border-grey-light"}`}
+      >
+        Drag photos here or click to browse<br /><span className="text-xs">JPEG · PNG · WebP · Max 15MB per photo</span>
+        <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" onChange={(event) => { if (event.target.files) void uploadFiles(event.target.files); event.currentTarget.value = ""; }} />
+      </label>
+      {uploads.map((upload) => <div key={upload.id} className="mb-3 border border-grey-light p-3 text-sm"><div className="flex justify-between gap-3"><span className="truncate">{upload.file.name}</span><span>{upload.error ? "Failed" : `${upload.progress}%`}</span></div>{!upload.error ? <div className="mt-2 h-1 bg-grey-light"><div className="h-full bg-accent" style={{ width: `${upload.progress}%` }} /></div> : <button type="button" className="mt-2 text-accent underline" onClick={() => void uploadFiles([upload.file])}>Retry</button>}</div>)}
       {isLoading ? <div className="h-32 animate-pulse bg-paper-deep" /> : null}
       {!isLoading && photos.length === 0 ? (
         <p className="border border-dashed border-grey-light p-6 text-sm text-grey">No additional photos yet.</p>
@@ -513,6 +528,25 @@ async function uploadSelectedPortfolioFile(
     setError(error instanceof Error ? error.message : "Image upload failed");
     throw error;
   }
+}
+
+function isValidPortfolioFile(file: File) {
+  return ["image/jpeg", "image/png", "image/webp"].includes(file.type) && file.size <= 15 * 1024 * 1024;
+}
+
+function uploadPhotoWithProgress(projectId: string, file: File, sortOrder: number, onProgress: (progress: number) => void) {
+  return new Promise<void>((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("sort_order", String(sortOrder));
+    request.open("POST", `${import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000"}/portfolio/${projectId}/photos`);
+    request.withCredentials = true;
+    request.upload.onprogress = (event) => { if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100)); };
+    request.onload = () => request.status >= 200 && request.status < 300 ? resolve() : reject(new Error("Upload failed"));
+    request.onerror = () => reject(new Error("Upload failed"));
+    request.send(formData);
+  });
 }
 
 function UploadNote({
