@@ -151,6 +151,21 @@ function prepareBody(body: RequestOptions["body"], headers: Headers) {
   return JSON.stringify(body);
 }
 
+async function downloadInvoicePdf(id: string) {
+  const response = await fetch(`${API_BASE_URL}/admin/invoices/${encodeURIComponent(id)}/pdf`, {
+    credentials: "include",
+  });
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as {
+      error?: { message?: string; code?: string };
+    } | null;
+    throw new ApiError(payload?.error?.message ?? "PDF export failed", response.status, payload?.error?.code);
+  }
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const filename = disposition.match(/filename="?([^";]+)"?/i)?.[1] ?? "invoice.pdf";
+  return { blob: await response.blob(), filename };
+}
+
 export const api = {
   auth: {
     login: (payload: { email: string; password: string }) =>
@@ -368,6 +383,7 @@ export const api = {
       }),
     delete: (id: string) =>
       request<void>(`/admin/invoices/${id}`, { method: "DELETE" }),
+    downloadPdf: (id: string) => downloadInvoicePdf(id),
     lookup: (invoiceNo: string) =>
       request<{ invoice: ApiInvoice }>(
         `/invoices/${encodeURIComponent(invoiceNo)}`,

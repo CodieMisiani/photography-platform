@@ -5,11 +5,14 @@ import {
   deleteInvoice,
   findInvoiceByNumber,
   getInvoiceStatus,
+  findInvoiceById,
   listInvoices,
   startInvoicePayment,
   updateInvoice,
 } from "../services/invoiceService.js";
 import { notificationService } from "../services/notifications/NotificationService.js";
+import { generateInvoicePdf, invoicePdfFilename } from "../services/invoicePdfService.js";
+import { AppError } from "../utils/AppError.js";
 
 export async function listAdminInvoices(_req: Request, res: Response) {
   res.status(200).json({ invoices: await listInvoices() });
@@ -26,6 +29,25 @@ export async function patchAdminInvoice(req: Request, res: Response) {
 export async function removeAdminInvoice(req: Request, res: Response) {
   await deleteInvoice(String(req.params.id));
   res.status(204).send();
+}
+
+export async function exportAdminInvoicePdf(req: Request, res: Response) {
+  const invoice = await findInvoiceById(String(req.params.id));
+  try {
+    const pdf = await generateInvoicePdf(invoice);
+    res
+      .status(200)
+      .set({
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${invoicePdfFilename(invoice.invoice_no)}"`,
+        "Content-Length": String(pdf.length),
+        "Cache-Control": "private, no-store",
+      })
+      .send(pdf);
+  } catch (error) {
+    console.error("[invoices] PDF export failed", error);
+    throw new AppError(500, "Could not generate invoice PDF", "INVOICE_PDF_GENERATION_FAILED");
+  }
 }
 
 export async function lookupInvoice(req: Request, res: Response) {

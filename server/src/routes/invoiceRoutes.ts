@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createAdminInvoice,
   darajaWebhook,
+  exportAdminInvoicePdf,
   invoiceStatus,
   listAdminInvoices,
   lookupInvoice,
@@ -41,6 +42,12 @@ invoiceRoutes.delete(
   requireAdminSession,
   validate({ params: idParamsSchema }),
   asyncHandler(removeAdminInvoice),
+);
+invoiceRoutes.get(
+  "/admin/invoices/:id/pdf",
+  requireAdminSession,
+  validate({ params: idParamsSchema }),
+  asyncHandler(exportAdminInvoicePdf),
 );
 invoiceRoutes.get(
   "/invoices/:invoiceNo",

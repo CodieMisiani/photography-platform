@@ -20,6 +20,8 @@ export default function InvoiceManagementPage() {
   const [selectedFilter, setSelectedFilter] = useState<InvoiceFilter>("All");
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [exportingId, setExportingId] = useState<string | null>(null);
+  const [exportError, setExportError] = useState("");
   const { data, isLoading, isError } = useQuery({
     queryKey: ["invoices"],
     queryFn: fetchInvoices,
@@ -50,6 +52,26 @@ export default function InvoiceManagementPage() {
       ? rows
       : rows.filter((invoice) => invoice.status === selectedFilter);
   }, [data?.invoices, selectedFilter]);
+
+  async function handleExportPdf(id: string) {
+    setExportingId(id);
+    setExportError("");
+    try {
+      const { blob, filename } = await api.invoices.downloadPdf(id);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : "PDF export failed. Please try again.");
+    } finally {
+      setExportingId(null);
+    }
+  }
 
   return (
     <AdminShell>
@@ -105,6 +127,7 @@ export default function InvoiceManagementPage() {
             onSubmit={(payload) => createMutation.mutate(payload)}
           />
         ) : null}
+        {exportError ? <p role="alert" className="mb-6 border border-red-200 bg-red-50 p-4 text-sm text-red-700">{exportError}</p> : null}
 
         <section className="border-t border-grey-light">
           <div className="hidden grid-cols-12 gap-4 border-b border-grey-light py-4 text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey md:grid">
@@ -159,7 +182,14 @@ export default function InvoiceManagementPage() {
                   <LabeledCell label="Status">
                     <StatusText status={invoice.status} />
                   </LabeledCell>
-                  <div className="col-span-2 flex gap-3 text-left md:justify-end md:text-right">
+                  <div className="col-span-2 flex flex-wrap gap-3 text-left md:justify-end md:text-right">
+                    <Button
+                      variant="secondary"
+                      disabled={!invoice.databaseId || exportingId !== null}
+                      onClick={() => invoice.databaseId && void handleExportPdf(invoice.databaseId)}
+                    >
+                      {exportingId === invoice.databaseId ? "Exporting" : "Export PDF"}
+                    </Button>
                     <Button disabled={!invoice.databaseId} onClick={() => setEditingId(invoice.databaseId ?? null)}>
                       Edit
                     </Button>
