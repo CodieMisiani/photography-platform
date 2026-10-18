@@ -5,7 +5,7 @@ import { AppError } from "../utils/AppError.js";
 
 export const notFoundHandler: ErrorRequestHandler = (
   error,
-  _req,
+  req,
   res,
   _next,
 ) => {
@@ -31,11 +31,24 @@ export const notFoundHandler: ErrorRequestHandler = (
   }
 
   const isError = error instanceof Error;
+  const isProduction = env.NODE_ENV === "production";
+
+  if (isProduction) {
+    console.error("[api] Unhandled request error", {
+      errorType: isError ? error.name : "NonErrorThrown",
+      method: req.method,
+      route: req.route?.path ?? "unmatched",
+    });
+  } else {
+    console.error("[api] Unhandled request error", error);
+  }
+
   res.status(500).json({
     error: {
       code: "INTERNAL_SERVER_ERROR",
-      message: isError ? error.message : "Something went wrong",
-      stack: isError ? error.stack : undefined,
+      message:
+        isError && !isProduction ? error.message : "Something went wrong",
+      ...(isError && !isProduction ? { stack: error.stack } : {}),
     },
   });
 };
