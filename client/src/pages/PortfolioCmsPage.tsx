@@ -44,10 +44,7 @@ export default function PortfolioCmsPage() {
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: Parameters<typeof api.portfolio.update>[1] }) =>
       api.portfolio.update(id, payload),
-    onSuccess: async () => {
-      navigate("/admin/portfolio-cms");
-      await queryClient.invalidateQueries({ queryKey: ["portfolio-cms-projects"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["portfolio-cms-projects"] }),
   });
 
   return (
@@ -184,6 +181,7 @@ function ProjectForm({
   onSave?: (payload: Parameters<typeof api.portfolio.update>[1]) => void;
   onCancel?: () => void;
 }) {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState(project?.title ?? "");
   const { data: categoryData } = useQuery({ queryKey: ["portfolio-categories"], queryFn: api.portfolio.categories.list });
@@ -219,9 +217,10 @@ function ProjectForm({
         is_published: isPublished,
       });
     },
-    onSuccess: async () => {
+    onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ["portfolio-cms-projects"] });
       onDone?.();
+      navigate(`/admin/projects/${result.event.id}/edit`);
     },
   });
 

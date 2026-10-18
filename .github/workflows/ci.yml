@@ -110,3 +110,8 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Error-handler tests
+        run: npm run test:error-handler
+        env:
+          NODE_ENV: production
