@@ -10,6 +10,7 @@
     "start:server": "node dist/server.js",
     "start:render": "npm start",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --import tsx --test src/app.cors.test.ts",
     "migrate": "node --import tsx/esm ./node_modules/knex/bin/cli.js migrate:latest --knexfile knexfile.cjs",
     "migrate:rollback": "node --import tsx/esm ./node_modules/knex/bin/cli.js migrate:rollback --knexfile knexfile.cjs",
     "seed:admin": "node --import tsx/esm src/db/seedAdmin.ts"
