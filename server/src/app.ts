@@ -18,7 +18,7 @@ import { journalRoutes, adminJournalRoutes } from "./routes/journalRoutes.js";
 import { checkHealth } from "./services/healthService.js";
 import { asyncHandler } from "./utils/asyncHandler.js";
 
-export function createApp() {
+export function createApp(healthCheck = checkHealth) {
   const app = express();
 
   app.set("trust proxy", 1);
@@ -36,7 +36,7 @@ export function createApp() {
   app.get(
     "/health",
     asyncHandler(async (_req, res) => {
-      const health = await checkHealth();
+      const health = await healthCheck();
       res.status(health.ok ? 200 : 503).json(health);
     }),
   );

@@ -160,6 +160,50 @@ npm run migrate
 - Payments: set Daraja credentials and a public `DARAJA_CALLBACK_URL` ending in `/webhooks/daraja`.
 - Security: use HTTPS, secure cookies in production, strong admin credentials, and deployment-managed secrets only.
 
+## Production API CORS
+
+The production frontend origins are `https://photography-platform-eta.vercel.app` and `https://malumeph.com`. Both use the backend API at `https://malume-photography.onrender.com`.
+
+The backend reads the comma-separated `CLIENT_ORIGIN` environment variable. Entries are trimmed, empty entries are ignored, and each entry must be an exact HTTP(S) origin (scheme and hostname, plus port if applicable; no path or trailing slash). CORS compares the request origin against this explicit allowlist and keeps credential support enabled. Production defaults to the two listed production origins; non-production defaults only to `http://localhost:5173`.
+
+For local development, the default `CLIENT_ORIGIN=http://localhost:5173` permits the Vite development server. If Vite is configured to use another local port or origin, add that exact origin to `CLIENT_ORIGIN` in the developer's untracked `server/.env`, separated from any other permitted origins with commas. Do not copy local development origins into production configuration.
+
+### Render configuration and activation
+
+In the Render dashboard, open the `photography-platform-backend` web service, go to **Environment**, and set `CLIENT_ORIGIN` to:
+
+```text
+https://photography-platform-eta.vercel.app,https://malumeph.com
+```
+
+Save the environment change. A change to this backend code requires a backend deployment; an environment-variable change requires the service to restart or redeploy before it takes effect. Neither action changes the frontend API URL or DNS.
+
+### Verify CORS
+
+Run these from a terminal with `curl` installed. An allowed request should return the same origin in `Access-Control-Allow-Origin` and `Access-Control-Allow-Credentials: true`:
+
+```bash
+curl -i -H 'Origin: https://photography-platform-eta.vercel.app' https://malume-photography.onrender.com/portfolio
+curl -i -H 'Origin: https://malumeph.com' https://malume-photography.onrender.com/portfolio
+```
+
+An unapproved origin may still receive a normal HTTP response, but it must not receive `Access-Control-Allow-Origin`:
+
+```bash
+curl -i -H 'Origin: https://unapproved.example' https://malume-photography.onrender.com/portfolio
+```
+
+Inspect browser preflight behavior with an OPTIONS request. It should return the approved origin, credentials, and the requested permitted method/headers; repeat with the unapproved origin and confirm it receives no `Access-Control-Allow-Origin`:
+
+```bash
+curl -i -X OPTIONS https://malume-photography.onrender.com/portfolio \
+   -H 'Origin: https://malumeph.com' \
+   -H 'Access-Control-Request-Method: POST' \
+   -H 'Access-Control-Request-Headers: content-type,authorization'
+```
+
+`curl` displays server headers but does not enforce browser CORS rules. Confirm the actual frontend request in browser developer tools as well. If the allowed origin is missing or mismatched, verify the Render `CLIENT_ORIGIN` value and that the backend has restarted/deployed. A matching CORS header with an HTTP error points instead to an API/application failure; a successful API response with empty lists may indicate missing database content. Broken or missing image URLs are a separate Cloudinary/media issue. Production origins must be explicitly allowlisted: never use wildcard origins, particularly with credentialed requests.
+
 ## Recent Production Improvements
 
 - Added dedicated About and Journal pages.

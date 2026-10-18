@@ -6,7 +6,7 @@ const envSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
   PORT: z.coerce.number().int().positive().default(4000),
-  CLIENT_ORIGIN: z.string().url().default("http://localhost:5173"),
+  CLIENT_ORIGIN: z.string().optional(),
   DATABASE_URL: z
     .string()
     .min(1)
@@ -57,9 +57,39 @@ const envSchema = z.object({
 });
 
 const parsed = envSchema.parse(process.env);
+const clientOrigins = (
+  parsed.CLIENT_ORIGIN ??
+  (parsed.NODE_ENV === "production"
+    ? "https://photography-platform-eta.vercel.app,https://malumeph.com"
+    : "http://localhost:5173")
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const validatedClientOrigins = z
+  .array(z.string().url())
+  .min(1)
+  .superRefine((origins, context) => {
+    origins.forEach((origin, index) => {
+      const parsedOrigin = new URL(origin);
+      if (
+        !["http:", "https:"].includes(parsedOrigin.protocol) ||
+        parsedOrigin.origin !== origin
+      ) {
+        context.addIssue({
+          code: "custom",
+          message:
+            "Each CLIENT_ORIGIN entry must be an origin without a path or trailing slash",
+          path: [index],
+        });
+      }
+    });
+  })
+  .parse([...new Set(clientOrigins)]);
 
 export const env = {
   ...parsed,
+  CLIENT_ORIGIN: validatedClientOrigins,
   COOKIE_SECURE: parsed.COOKIE_SECURE ?? parsed.NODE_ENV === "production",
   ADMIN_PASSWORD: parsed.ADMIN_PASSWORD?.trim() || undefined,
   ADMIN_PASSWORD_HASH: parsed.ADMIN_PASSWORD_HASH?.trim() || "",
