@@ -1,15 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminShell from "../components/layout/AdminShell";
 import Button from "../components/ui/Button";
 import AdminEmptyState from "../components/ui/AdminEmptyState";
+import ResponsiveImage from "../components/ui/ResponsiveImage";
 import FormField from "../components/ui/FormField";
 import MetricTile from "../components/ui/MetricTile";
 import StatusText from "../components/ui/StatusText";
 import { api } from "../lib/api";
 import type { ApiProjectPhoto } from "../lib/api";
+import {
+  mergeGalleryUploadEntries,
+  reserveGallerySortOrders,
+} from "../lib/galleryUploadQueue";
 import { fetchPortfolioCmsProjects } from "../services/portfolioService";
 import type { PortfolioCmsProject } from "../types/portfolio";
 
@@ -39,14 +44,21 @@ export default function PortfolioCmsPage() {
   });
   const deleteMutation = useMutation({
     mutationFn: api.portfolio.delete,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["portfolio-cms-projects"] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["portfolio-cms-projects"] }),
   });
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Parameters<typeof api.portfolio.update>[1] }) =>
-      api.portfolio.update(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Parameters<typeof api.portfolio.update>[1];
+    }) => api.portfolio.update(id, payload),
     onSuccess: async () => {
-      navigate("/admin/portfolio-cms");
-      await queryClient.invalidateQueries({ queryKey: ["portfolio-cms-projects"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["portfolio-cms-projects"],
+      });
     },
   });
 
@@ -70,16 +82,36 @@ export default function PortfolioCmsPage() {
 
         <section className="mb-16 grid border-l border-t border-grey-light md:grid-cols-4">
           {(data?.metrics ?? []).map((metric) => (
-            <MetricTile key={metric.label} label={metric.label} value={metric.value} />
+            <MetricTile
+              key={metric.label}
+              label={metric.label}
+              value={metric.value}
+            />
           ))}
         </section>
 
-        {isAdding ? <ProjectForm onDone={() => setIsAdding(false)} /> : null}
+        {isAdding ? (
+          <ProjectForm
+            onDone={() => setIsAdding(false)}
+            onCreated={(id) => {
+              setIsAdding(false);
+              navigate(`/admin/projects/${id}/edit`);
+            }}
+          />
+        ) : null}
         <CategoryManager />
 
         <section className="border-t border-grey-light">
-          {isLoading ? <p className="border-b border-grey-light py-8 text-sm text-grey">Loading portfolio</p> : null}
-          {isError ? <p className="border-b border-grey-light py-8 text-sm text-grey">Portfolio could not load</p> : null}
+          {isLoading ? (
+            <p className="border-b border-grey-light py-8 text-sm text-grey">
+              Loading portfolio
+            </p>
+          ) : null}
+          {isError ? (
+            <p className="border-b border-grey-light py-8 text-sm text-grey">
+              Portfolio could not load
+            </p>
+          ) : null}
           {!isLoading && !isError && (data?.projects ?? []).length === 0 ? (
             <AdminEmptyState
               icon="image"
@@ -90,21 +122,29 @@ export default function PortfolioCmsPage() {
             />
           ) : null}
           {(data?.projects ?? []).map((project) => (
-            <article key={project.id} className="border-b border-grey-light py-8 transition-colors duration-150 hover:bg-paper-warm">
+            <article
+              key={project.id}
+              className="border-b border-grey-light py-8 transition-colors duration-150 hover:bg-paper-warm"
+            >
               {editingId === project.id ? (
                 <ProjectForm
                   project={project}
                   isSaving={updateMutation.isPending}
                   onCancel={() => navigate("/admin/portfolio-cms")}
-                  onSave={(payload) => updateMutation.mutate({ id: project.id, payload })}
+                  onSave={(payload) =>
+                    updateMutation.mutate({ id: project.id, payload })
+                  }
                 />
               ) : (
                 <div className="studio-plane grid gap-6 md:grid-cols-12 md:items-center">
                   <div className="md:col-span-6 flex items-center gap-6">
                     <div className="h-32 w-24 shrink-0 bg-grey-faint">
-                      <img
+                      <ResponsiveImage
                         src={project.image ?? ""}
                         alt={project.title}
+                        width={240}
+                        height={320}
+                        sizes="96px"
                         className="h-full w-full object-cover grayscale"
                       />
                     </div>
@@ -124,7 +164,13 @@ export default function PortfolioCmsPage() {
                     {project.date}
                   </div>
                   <div className="flex flex-wrap gap-4 md:col-span-3 md:justify-end">
-                    <Button onClick={() => navigate(`/admin/projects/${project.id}/edit`)}>Edit</Button>
+                    <Button
+                      onClick={() =>
+                        navigate(`/admin/projects/${project.id}/edit`)
+                      }
+                    >
+                      Edit
+                    </Button>
                     <Button
                       onClick={() =>
                         updateMutation.mutate({
@@ -165,28 +211,100 @@ function CategoryManager() {
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
-  const { data } = useQuery({ queryKey: ["portfolio-categories"], queryFn: api.portfolio.categories.list });
-  const create = useMutation({ mutationFn: api.portfolio.categories.create, onSuccess: async () => { setName(""); setMessage("Category added."); await queryClient.invalidateQueries({ queryKey: ["portfolio-categories"] }); } });
-  const remove = useMutation({ mutationFn: api.portfolio.categories.delete, onSuccess: async () => { setMessage("Category deleted."); await queryClient.invalidateQueries({ queryKey: ["portfolio-categories"] }); }, onError: (error: Error) => setMessage(error.message) });
-  return <section className="mb-12 border border-grey-light bg-paper-white p-6"><h2 className="text-2xl font-display font-semibold uppercase">Categories</h2><form className="mt-4 flex gap-3" onSubmit={(event) => { event.preventDefault(); if (name.trim()) create.mutate(name); }}><input value={name} onChange={(event) => setName(event.target.value)} placeholder="New category" className="flex-1 border border-grey-light bg-paper px-3 py-2" /><Button type="submit" disabled={create.isPending}>Add Category</Button></form>{message ? <p className="mt-3 text-sm text-text-muted">{message}</p> : null}<div className="mt-4 flex flex-wrap gap-2">{(data?.categories ?? []).map((category) => <span key={category.id} className="inline-flex items-center gap-2 border border-paper-deep px-3 py-2 text-sm"><span>{category.name}</span><button type="button" className="text-red-700" onClick={() => { if (window.confirm(`Delete ${category.name}?`)) remove.mutate(category.id); }}>×</button></span>)}</div></section>;
+  const { data } = useQuery({
+    queryKey: ["portfolio-categories"],
+    queryFn: api.portfolio.categories.list,
+  });
+  const create = useMutation({
+    mutationFn: api.portfolio.categories.create,
+    onSuccess: async () => {
+      setName("");
+      setMessage("Category added.");
+      await queryClient.invalidateQueries({
+        queryKey: ["portfolio-categories"],
+      });
+    },
+  });
+  const remove = useMutation({
+    mutationFn: api.portfolio.categories.delete,
+    onSuccess: async () => {
+      setMessage("Category deleted.");
+      await queryClient.invalidateQueries({
+        queryKey: ["portfolio-categories"],
+      });
+    },
+    onError: (error: Error) => setMessage(error.message),
+  });
+  return (
+    <section className="mb-12 border border-grey-light bg-paper-white p-6">
+      <h2 className="text-2xl font-display font-semibold uppercase">
+        Categories
+      </h2>
+      <form
+        className="mt-4 flex gap-3"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (name.trim()) create.mutate(name);
+        }}
+      >
+        <input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="New category"
+          className="flex-1 border border-grey-light bg-paper px-3 py-2"
+        />
+        <Button type="submit" disabled={create.isPending}>
+          Add Category
+        </Button>
+      </form>
+      {message ? (
+        <p className="mt-3 text-sm text-text-muted">{message}</p>
+      ) : null}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {(data?.categories ?? []).map((category) => (
+          <span
+            key={category.id}
+            className="inline-flex items-center gap-2 border border-paper-deep px-3 py-2 text-sm"
+          >
+            <span>{category.name}</span>
+            <button
+              type="button"
+              className="text-red-700"
+              onClick={() => {
+                if (window.confirm(`Delete ${category.name}?`))
+                  remove.mutate(category.id);
+              }}
+            >
+              ×
+            </button>
+          </span>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function ProjectForm({
   project,
   isSaving = false,
   onDone,
+  onCreated,
   onSave,
   onCancel,
 }: {
   project?: PortfolioCmsProject;
   isSaving?: boolean;
   onDone?: () => void;
+  onCreated?: (id: string) => void;
   onSave?: (payload: Parameters<typeof api.portfolio.update>[1]) => void;
   onCancel?: () => void;
 }) {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState(project?.title ?? "");
-  const { data: categoryData } = useQuery({ queryKey: ["portfolio-categories"], queryFn: api.portfolio.categories.list });
+  const { data: categoryData } = useQuery({
+    queryKey: ["portfolio-categories"],
+    queryFn: api.portfolio.categories.list,
+  });
   const [category, setCategory] = useState(project?.category ?? "");
   const [eventDate, setEventDate] = useState(project?.eventDate ?? "");
   const [coverUrl, setCoverUrl] = useState(project?.coverUrl ?? "");
@@ -204,24 +322,31 @@ function ProjectForm({
   const [isPublished, setIsPublished] = useState(project?.isPublished ?? true);
   const createMutation = useMutation({
     mutationFn: async () => {
-      const uploaded = await uploadSelectedPortfolioFile(
-        file,
-        setUploadStatus,
-        setUploadError,
-      );
+      const uploaded = useCoverUrlFallback
+        ? null
+        : await uploadSelectedPortfolioFile(
+            file,
+            setUploadStatus,
+            setUploadError,
+          );
       return api.portfolio.create({
         title,
         category,
         event_date: eventDate,
         cover_url: uploaded?.url ?? coverUrl,
-        cover_public_id: useCoverUrlFallback ? null : uploaded?.public_id ?? coverPublicId,
+        cover_public_id: useCoverUrlFallback
+          ? null
+          : (uploaded?.public_id ?? coverPublicId),
         is_featured: isFeatured,
         is_published: isPublished,
       });
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["portfolio-cms-projects"] });
+    onSuccess: async ({ event }) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["portfolio-cms-projects"],
+      });
       onDone?.();
+      onCreated?.(event.id);
     },
   });
 
@@ -232,17 +357,21 @@ function ProjectForm({
       return;
     }
     if (project && onSave) {
-      const uploaded = await uploadSelectedPortfolioFile(
-        file,
-        setUploadStatus,
-        setUploadError,
-      );
+      const uploaded = useCoverUrlFallback
+        ? null
+        : await uploadSelectedPortfolioFile(
+            file,
+            setUploadStatus,
+            setUploadError,
+          );
       onSave({
         title,
         category,
         event_date: eventDate,
         cover_url: uploaded?.url ?? coverUrl,
-        cover_public_id: useCoverUrlFallback ? null : uploaded?.public_id ?? coverPublicId,
+        cover_public_id: useCoverUrlFallback
+          ? null
+          : (uploaded?.public_id ?? coverPublicId),
         is_featured: isFeatured,
         is_published: isPublished,
       });
@@ -253,19 +382,49 @@ function ProjectForm({
   }
 
   return (
-    <form className="mb-12 border border-grey-light bg-grey-faint p-8" onSubmit={handleSubmit}>
+    <form
+      className="mb-12 border border-grey-light bg-grey-faint p-8"
+      onSubmit={handleSubmit}
+    >
       <h2 className="mb-8 text-2xl font-display font-semibold uppercase">
         {project ? "Edit Project" : "New Project"}
       </h2>
       <div className="grid gap-8 md:grid-cols-2">
-        <FormField id={`projectTitle-${project?.id ?? "new"}`} label="Project Title" required value={title} onChange={(event) => setTitle(event.target.value)} />
-        <FormField as="select" id={`projectCategory-${project?.id ?? "new"}`} label="Category" required value={category} onChange={(event) => setCategory(event.target.value)}>
+        <FormField
+          id={`projectTitle-${project?.id ?? "new"}`}
+          label="Project Title"
+          required
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+        />
+        <FormField
+          as="select"
+          id={`projectCategory-${project?.id ?? "new"}`}
+          label="Category"
+          required
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+        >
           <option value="">Select a category</option>
-          {(categoryData?.categories ?? []).map((item) => <option key={item.id} value={item.name}>{item.name}</option>)}
+          {(categoryData?.categories ?? []).map((item) => (
+            <option key={item.id} value={item.name}>
+              {item.name}
+            </option>
+          ))}
         </FormField>
-        <FormField id={`eventDate-${project?.id ?? "new"}`} label="Event Date" type="date" required value={eventDate} onChange={(event) => setEventDate(event.target.value)} />
+        <FormField
+          id={`eventDate-${project?.id ?? "new"}`}
+          label="Event Date"
+          type="date"
+          required
+          value={eventDate}
+          onChange={(event) => setEventDate(event.target.value)}
+        />
         <div className="md:col-span-2">
-          <label className="mb-3 block text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey" htmlFor={`projectImage-${project?.id ?? "new"}`}>
+          <label
+            className="mb-3 block text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey"
+            htmlFor={`projectImage-${project?.id ?? "new"}`}
+          >
             Cover Photo
           </label>
           <input
@@ -291,7 +450,10 @@ function ProjectForm({
           </button>
           {useCoverUrlFallback ? (
             <div className="mt-4">
-              <label className="mb-2 block text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey" htmlFor={`projectCoverUrl-${project?.id ?? "new"}`}>
+              <label
+                className="mb-2 block text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey"
+                htmlFor={`projectCoverUrl-${project?.id ?? "new"}`}
+              >
                 Hosted image URL
               </label>
               <input
@@ -305,7 +467,9 @@ function ProjectForm({
                 placeholder="https://example.com/photo.jpg"
                 className="w-full border border-grey-light bg-paper px-3 py-3"
               />
-              {coverUrlError ? <p className="mt-2 text-sm text-red-700">{coverUrlError}</p> : null}
+              {coverUrlError ? (
+                <p className="mt-2 text-sm text-red-700">{coverUrlError}</p>
+              ) : null}
             </div>
           ) : null}
           {file ? (
@@ -313,39 +477,94 @@ function ProjectForm({
               Ready to upload: {file.name}
             </p>
           ) : null}
-          {uploadStatus === "uploading" ? <UploadNote message="Uploading image" /> : null}
-          {uploadStatus === "success" ? <UploadNote message="Image uploaded successfully" /> : null}
+          {uploadStatus === "uploading" ? (
+            <UploadNote message="Uploading image" />
+          ) : null}
+          {uploadStatus === "success" ? (
+            <UploadNote message="Image uploaded successfully" />
+          ) : null}
           {uploadStatus === "error" ? (
-            <UploadNote message={uploadError || "Image upload failed"} tone="error" />
+            <UploadNote
+              message={uploadError || "Image upload failed"}
+              tone="error"
+            />
           ) : null}
           {previewUrl ? (
             <div className="mt-4 flex items-end gap-4">
-              <img
+              <ResponsiveImage
                 src={previewUrl}
-                alt={localPreviewUrl ? "Selected cover preview" : "Current cover preview"}
+                alt={
+                  localPreviewUrl
+                    ? "Selected cover preview"
+                    : "Current cover preview"
+                }
+                width={240}
+                height={320}
+                sizes="96px"
                 className="h-32 w-24 object-cover grayscale"
               />
-              {project && !localPreviewUrl ? <Button type="button" variant="danger" onClick={() => {
-                if (window.confirm("Remove this cover photo? The project will remain available as a draft until a new cover is uploaded.")) {
-                  onSave?.({ title, category, event_date: eventDate, cover_url: null, cover_public_id: null, is_featured: isFeatured, is_published: false });
-                }
-              }}>Remove cover</Button> : null}
+              {project && !localPreviewUrl ? (
+                <Button
+                  type="button"
+                  variant="danger"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Remove this cover photo? The project will remain available as a draft until a new cover is uploaded.",
+                      )
+                    ) {
+                      onSave?.({
+                        title,
+                        category,
+                        event_date: eventDate,
+                        cover_url: null,
+                        cover_public_id: null,
+                        is_featured: isFeatured,
+                        is_published: false,
+                      });
+                    }
+                  }}
+                >
+                  Remove cover
+                </Button>
+              ) : null}
             </div>
           ) : null}
         </div>
         <label className="flex items-center gap-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-grey">
-          <input type="checkbox" checked={isFeatured} onChange={(event) => setIsFeatured(event.target.checked)} />
+          <input
+            type="checkbox"
+            checked={isFeatured}
+            onChange={(event) => setIsFeatured(event.target.checked)}
+          />
           Featured
         </label>
         <label className="flex items-center gap-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-grey">
-          <input type="checkbox" checked={isPublished} onChange={(event) => setIsPublished(event.target.checked)} />
+          <input
+            type="checkbox"
+            checked={isPublished}
+            onChange={(event) => setIsPublished(event.target.checked)}
+          />
           Publish now
         </label>
       </div>
       <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-        <Button type="button" variant="neutral" onClick={onCancel ?? onDone}>Cancel</Button>
+        <Button
+          type="button"
+          variant="neutral"
+          onClick={onCancel ?? onDone}
+          disabled={
+            uploadStatus === "uploading" || createMutation.isPending || isSaving
+          }
+        >
+          Cancel
+        </Button>
         <Button type="submit" disabled={createMutation.isPending || isSaving}>
-          {createMutation.isPending || isSaving ? "Saving" : project ? "Save Project" : "Publish Project"}
+          {createMutation.isPending || isSaving
+            ? "Saving"
+            : project
+              ? "Save Project"
+              : "Publish Project"}
         </Button>
       </div>
       {project ? <ProjectPhotoManager projectId={project.id} /> : null}
@@ -355,7 +574,16 @@ function ProjectForm({
 
 function ProjectPhotoManager({ projectId }: { projectId: string }) {
   const queryClient = useQueryClient();
-  const [uploads, setUploads] = useState<Array<{ id: string; file: File; progress: number; error?: string }>>([]);
+  const [uploads, setUploads] = useState<
+    Array<{
+      id: string;
+      file: File;
+      sortOrder: number;
+      progress: number;
+      error?: string;
+    }>
+  >([]);
+  const nextReservedSortOrder = useRef(0);
   const [isDragActive, setIsDragActive] = useState(false);
   const [galleryUrl, setGalleryUrl] = useState("");
   const [galleryUrlError, setGalleryUrlError] = useState("");
@@ -366,29 +594,88 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
   });
   const photos = data?.photos ?? [];
   const refresh = () =>
-    queryClient.invalidateQueries({ queryKey: ["portfolio-project-photos", projectId] });
+    queryClient.invalidateQueries({
+      queryKey: ["portfolio-project-photos", projectId],
+    });
   const updateMutation = useMutation({
-    mutationFn: ({ photoId, payload }: { photoId: string; payload: Partial<Pick<ApiProjectPhoto, "caption" | "alt_text" | "sort_order">> }) =>
-      api.portfolio.updatePhoto(projectId, photoId, payload),
+    mutationFn: ({
+      photoId,
+      payload,
+    }: {
+      photoId: string;
+      payload: Partial<
+        Pick<ApiProjectPhoto, "caption" | "alt_text" | "sort_order">
+      >;
+    }) => api.portfolio.updatePhoto(projectId, photoId, payload),
     onSuccess: refresh,
   });
   const deleteMutation = useMutation({
-    mutationFn: (photoId: string) => api.portfolio.deletePhoto(projectId, photoId),
+    mutationFn: (photoId: string) =>
+      api.portfolio.deletePhoto(projectId, photoId),
     onSuccess: refresh,
   });
 
-  async function uploadFiles(files: FileList | File[]) {
-    const queued = Array.from(files).map((file) => ({ id: crypto.randomUUID(), file, progress: 0, error: isValidPortfolioFile(file) ? undefined : "Use JPEG, PNG, or WebP under 15MB." }));
-    setUploads((current) => [...current, ...queued]);
-    await Promise.all(queued.map(async (entry, index) => {
-      if (entry.error) return;
-      try {
-        await uploadPhotoWithProgress(projectId, entry.file, photos.length + index, (progress) => setUploads((current) => current.map((item) => item.id === entry.id ? { ...item, progress } : item)));
-        setUploads((current) => current.filter((item) => item.id !== entry.id));
-      } catch (error) {
-        setUploads((current) => current.map((item) => item.id === entry.id ? { ...item, error: error instanceof Error ? error.message : "Upload failed" } : item));
-      }
-    }));
+  async function uploadFiles(
+    files: FileList | File[],
+    retry?: { id: string; sortOrder: number },
+  ) {
+    if (isLoading) return;
+    const newUploadCount = files.length - (retry ? 1 : 0);
+    const reservation = reserveGallerySortOrders(
+      photos.map((photo) => photo.sort_order),
+      nextReservedSortOrder.current,
+      newUploadCount,
+    );
+    nextReservedSortOrder.current = reservation.nextReservedSortOrder;
+    let nextNewUploadIndex = 0;
+    const queued = Array.from(files).map((file, index) => {
+      const isRetry = retry && index === 0;
+      return {
+        id: isRetry ? retry.id : crypto.randomUUID(),
+        file,
+        sortOrder: isRetry
+          ? retry.sortOrder
+          : reservation.sortOrders[nextNewUploadIndex++],
+        progress: 0,
+        error: isValidPortfolioFile(file)
+          ? undefined
+          : "Use JPEG, PNG, or WebP under 15MB.",
+      };
+    });
+    setUploads((current) => mergeGalleryUploadEntries(current, queued));
+    await Promise.all(
+      queued.map(async (entry) => {
+        if (entry.error) return;
+        try {
+          await uploadPhotoWithProgress(
+            projectId,
+            entry.file,
+            entry.sortOrder,
+            (progress) =>
+              setUploads((current) =>
+                current.map((item) =>
+                  item.id === entry.id ? { ...item, progress } : item,
+                ),
+              ),
+          );
+          setUploads((current) =>
+            current.filter((item) => item.id !== entry.id),
+          );
+        } catch (error) {
+          setUploads((current) =>
+            current.map((item) =>
+              item.id === entry.id
+                ? {
+                    ...item,
+                    error:
+                      error instanceof Error ? error.message : "Upload failed",
+                  }
+                : item,
+            ),
+          );
+        }
+      }),
+    );
     await refresh();
   }
 
@@ -409,8 +696,22 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
   }
 
   async function addPhotoFromUrl() {
-    if (!isValidImageUrl(galleryUrl)) { setGalleryUrlError("Enter a valid http or https image URL."); return; }
-    await api.portfolio.addPhotoFromUrl(projectId, galleryUrl, photos.length);
+    if (isLoading) return;
+    if (!isValidImageUrl(galleryUrl)) {
+      setGalleryUrlError("Enter a valid http or https image URL.");
+      return;
+    }
+    const reservation = reserveGallerySortOrders(
+      photos.map((photo) => photo.sort_order),
+      nextReservedSortOrder.current,
+      1,
+    );
+    nextReservedSortOrder.current = reservation.nextReservedSortOrder;
+    await api.portfolio.addPhotoFromUrl(
+      projectId,
+      galleryUrl,
+      reservation.sortOrders[0],
+    );
     setGalleryUrl("");
     setGalleryUrlError("");
     await refresh();
@@ -420,8 +721,13 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
     <section className="mt-10 border-t border-grey-light pt-8">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h3 className="text-xl font-display font-semibold uppercase">Project Photos</h3>
-          <p className="mt-1 text-sm text-grey">Drag the grip to arrange gallery images. Captions save when you leave the field.</p>
+          <h3 className="text-xl font-display font-semibold uppercase">
+            Project Photos
+          </h3>
+          <p className="mt-1 text-sm text-grey">
+            Drag the grip to arrange gallery images. Captions save when you
+            leave the field.
+          </p>
         </div>
         <label className="cursor-pointer bg-accent px-4 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-white hover:bg-accent/90">
           {uploads.length > 0 ? "Uploading…" : "Add Photo"}
@@ -430,6 +736,7 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
             accept="image/jpeg,image/png,image/webp"
             multiple
             className="sr-only"
+            disabled={isLoading}
             onChange={(event) => {
               if (event.target.files) void uploadFiles(event.target.files);
               event.currentTarget.value = "";
@@ -438,23 +745,93 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
         </label>
       </div>
       <label
-        onDragOver={(event) => { event.preventDefault(); setIsDragActive(true); }}
+        onDragOver={(event) => {
+          event.preventDefault();
+          setIsDragActive(true);
+        }}
         onDragLeave={() => setIsDragActive(false)}
-        onDrop={(event) => { event.preventDefault(); setIsDragActive(false); void uploadFiles(event.dataTransfer.files); }}
+        onDrop={(event) => {
+          event.preventDefault();
+          setIsDragActive(false);
+          if (!isLoading) void uploadFiles(event.dataTransfer.files);
+        }}
         className={`mb-5 block cursor-pointer border-2 border-dashed p-8 text-center text-sm text-grey ${isDragActive ? "border-accent bg-accent/5" : "border-grey-light"}`}
       >
-        Drag photos here or click to browse<br /><span className="text-xs">JPEG · PNG · WebP · Max 15MB per photo</span>
-        <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" onChange={(event) => { if (event.target.files) void uploadFiles(event.target.files); event.currentTarget.value = ""; }} />
+        Drag photos here or click to browse
+        <br />
+        <span className="text-xs">JPEG · PNG · WebP · Max 15MB per photo</span>
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          className="sr-only"
+          disabled={isLoading}
+          onChange={(event) => {
+            if (event.target.files) void uploadFiles(event.target.files);
+            event.currentTarget.value = "";
+          }}
+        />
       </label>
       <div className="mb-5 flex flex-wrap gap-3">
-        <input value={galleryUrl} onChange={(event) => { setGalleryUrl(event.target.value); setGalleryUrlError(""); }} placeholder="Add a hosted or Cloudinary image URL" type="url" className="min-w-0 flex-1 border border-grey-light bg-paper px-3 py-3 text-sm" />
-        <Button type="button" variant="secondary" onClick={() => void addPhotoFromUrl()}>Add via URL</Button>
+        <input
+          value={galleryUrl}
+          onChange={(event) => {
+            setGalleryUrl(event.target.value);
+            setGalleryUrlError("");
+          }}
+          placeholder="Add a hosted or Cloudinary image URL"
+          type="url"
+          className="min-w-0 flex-1 border border-grey-light bg-paper px-3 py-3 text-sm"
+        />
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => void addPhotoFromUrl()}
+          disabled={isLoading}
+        >
+          Add via URL
+        </Button>
       </div>
-      {galleryUrlError ? <p className="-mt-3 mb-4 text-sm text-red-700">{galleryUrlError}</p> : null}
-      {uploads.map((upload) => <div key={upload.id} className="mb-3 border border-grey-light p-3 text-sm"><div className="flex justify-between gap-3"><span className="truncate">{upload.file.name}</span><span>{upload.error ? "Failed" : `${upload.progress}%`}</span></div>{!upload.error ? <div className="mt-2 h-1 bg-grey-light"><div className="h-full bg-accent" style={{ width: `${upload.progress}%` }} /></div> : <button type="button" className="mt-2 text-accent underline" onClick={() => void uploadFiles([upload.file])}>Retry</button>}</div>)}
+      {galleryUrlError ? (
+        <p className="-mt-3 mb-4 text-sm text-red-700">{galleryUrlError}</p>
+      ) : null}
+      {uploads.map((upload) => (
+        <div
+          key={upload.id}
+          className="mb-3 border border-grey-light p-3 text-sm"
+        >
+          <div className="flex justify-between gap-3">
+            <span className="truncate">{upload.file.name}</span>
+            <span>{upload.error ? "Failed" : `${upload.progress}%`}</span>
+          </div>
+          {!upload.error ? (
+            <div className="mt-2 h-1 bg-grey-light">
+              <div
+                className="h-full bg-accent"
+                style={{ width: `${upload.progress}%` }}
+              />
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="mt-2 text-accent underline"
+              onClick={() =>
+                void uploadFiles([upload.file], {
+                  id: upload.id,
+                  sortOrder: upload.sortOrder,
+                })
+              }
+            >
+              Retry
+            </button>
+          )}
+        </div>
+      ))}
       {isLoading ? <div className="h-32 animate-pulse bg-paper-deep" /> : null}
       {!isLoading && photos.length === 0 ? (
-        <p className="border border-dashed border-grey-light p-6 text-sm text-grey">No additional photos yet.</p>
+        <p className="border border-dashed border-grey-light p-6 text-sm text-grey">
+          No additional photos yet.
+        </p>
       ) : null}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
         {photos.map((photo, index) => (
@@ -467,8 +844,20 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
             className="border border-grey-light bg-paper-white p-2"
           >
             <div className="relative aspect-square overflow-hidden bg-grey-faint">
-              <img src={photo.cloudinary_url} alt={photo.caption ?? "Project photo"} className="h-full w-full object-cover" />
-              <span className="absolute left-2 top-2 bg-paper/90 px-2 py-1 text-xs text-text-muted" title="Drag to reorder">⋮⋮ {index + 1}</span>
+              <ResponsiveImage
+                src={photo.cloudinary_url}
+                alt={photo.alt_text ?? photo.caption ?? "Project photo"}
+                width={480}
+                height={480}
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                className="h-full w-full object-cover"
+              />
+              <span
+                className="absolute left-2 top-2 bg-paper/90 px-2 py-1 text-xs text-text-muted"
+                title="Drag to reorder"
+              >
+                ⋮⋮ {index + 1}
+              </span>
             </div>
             <input
               defaultValue={photo.caption ?? ""}
@@ -477,7 +866,10 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
               maxLength={255}
               onBlur={(event) => {
                 if (event.target.value !== (photo.caption ?? "")) {
-                  updateMutation.mutate({ photoId: photo.id, payload: { caption: event.target.value } });
+                  updateMutation.mutate({
+                    photoId: photo.id,
+                    payload: { caption: event.target.value },
+                  });
                 }
               }}
               className="mt-2 w-full border border-grey-light bg-paper px-2 py-2 text-sm"
@@ -488,7 +880,11 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
               placeholder="Alt text"
               maxLength={255}
               onBlur={(event) => {
-                if (event.target.value !== (photo.alt_text ?? "")) updateMutation.mutate({ photoId: photo.id, payload: { alt_text: event.target.value } });
+                if (event.target.value !== (photo.alt_text ?? ""))
+                  updateMutation.mutate({
+                    photoId: photo.id,
+                    payload: { alt_text: event.target.value },
+                  });
               }}
               className="mt-2 w-full border border-grey-light bg-paper px-2 py-2 text-sm"
             />
@@ -497,7 +893,8 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
               className="mt-2 text-xs font-semibold uppercase tracking-widest text-red-700"
               disabled={deleteMutation.isPending}
               onClick={() => {
-                if (window.confirm("Delete this photo permanently?")) deleteMutation.mutate(photo.id);
+                if (window.confirm("Delete this photo permanently?"))
+                  deleteMutation.mutate(photo.id);
               }}
             >
               Delete
@@ -510,7 +907,10 @@ function ProjectPhotoManager({ projectId }: { projectId: string }) {
 }
 
 function useFilePreview(file: File | null) {
-  const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : ""), [file]);
+  const previewUrl = useMemo(
+    () => (file ? URL.createObjectURL(file) : ""),
+    [file],
+  );
 
   useEffect(() => {
     return () => {
@@ -546,19 +946,36 @@ async function uploadSelectedPortfolioFile(
 }
 
 function isValidPortfolioFile(file: File) {
-  return ["image/jpeg", "image/png", "image/webp"].includes(file.type) && file.size <= 15 * 1024 * 1024;
+  return (
+    ["image/jpeg", "image/png", "image/webp"].includes(file.type) &&
+    file.size <= 15 * 1024 * 1024
+  );
 }
 
-function uploadPhotoWithProgress(projectId: string, file: File, sortOrder: number, onProgress: (progress: number) => void) {
+function uploadPhotoWithProgress(
+  projectId: string,
+  file: File,
+  sortOrder: number,
+  onProgress: (progress: number) => void,
+) {
   return new Promise<void>((resolve, reject) => {
     const request = new XMLHttpRequest();
     const formData = new FormData();
     formData.append("image", file);
     formData.append("sort_order", String(sortOrder));
-    request.open("POST", `${import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000"}/portfolio/${projectId}/photos`);
+    request.open(
+      "POST",
+      `${import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000"}/portfolio/${projectId}/photos`,
+    );
     request.withCredentials = true;
-    request.upload.onprogress = (event) => { if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100)); };
-    request.onload = () => request.status >= 200 && request.status < 300 ? resolve() : reject(new Error("Upload failed"));
+    request.upload.onprogress = (event) => {
+      if (event.lengthComputable)
+        onProgress(Math.round((event.loaded / event.total) * 100));
+    };
+    request.onload = () =>
+      request.status >= 200 && request.status < 300
+        ? resolve()
+        : reject(new Error("Upload failed"));
     request.onerror = () => reject(new Error("Upload failed"));
     request.send(formData);
   });
