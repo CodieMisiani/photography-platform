@@ -72,9 +72,11 @@ malume-photography/
   events/
 ```
 
-### Image optimization
+### Image optimization and delivery
 
-Upload full-resolution photographs. Cloudinary handles optimized delivery for the website.
+Keep the uploaded original in Cloudinary; do not manually convert or overwrite it. Public frontend image components request Cloudinary delivery variants with `f_auto,q_auto`, a layout-appropriate width, and `c_limit`. Cloudinary negotiates an output format supported by the visitor's browser and the quality setting, so the same asset can be delivered as a modern format such as WebP/AVIF where available. The browser receives responsive `srcset` candidates and selects one using viewport and device conditions. Images not hosted on Cloudinary and the local homepage marquee images do not use this Cloudinary transformation path.
+
+Portfolio cards and gallery previews request smaller widths than the project detail lightbox. Below-the-fold public images are lazy-loaded; the lead project image and selected lead content are prioritized. If a transformed Cloudinary URL fails, the component retries the original URL before displaying an accessible placeholder. Verify actual `Content-Type`, selected `currentSrc`, dimensions, and transfer size in browser DevTools; this repository has not recorded production before/after Lighthouse or Core Web Vitals measurements.
 
 ### Removing images
 

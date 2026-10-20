@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import StatCard from "../components/StatCard";
 import FadeUp from "../components/motion/FadeUp";
 import Button from "../components/ui/Button";
+import ResponsiveImage from "../components/ui/ResponsiveImage";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import {
@@ -57,7 +58,9 @@ export default function HomePage() {
                     <img
                       src={image.image}
                       alt={image.title}
-                      loading={index > 2 ? "lazy" : "eager"}
+                      loading={index === 0 ? "eager" : "lazy"}
+                      fetchPriority={index === 0 ? "high" : "auto"}
+                      decoding="async"
                     />
                   </figure>
                 ),
@@ -178,9 +181,12 @@ export default function HomePage() {
                     className="studio-plane bg-paper-white p-8 text-left"
                   >
                     <div className="relative mb-8 overflow-hidden border border-paper-deep bg-paper-warm">
-                      <img
+                      <ResponsiveImage
                         src={project.cover_url ?? ""}
                         alt={project.title}
+                        width={960}
+                        height={840}
+                        sizes="(max-width: 768px) 100vw, 50vw"
                         className="h-[420px] w-full object-cover"
                       />
                       <div className="absolute inset-0 bg-ink-rich/10 transition-colors duration-300 hover:bg-ink-rich/20" />

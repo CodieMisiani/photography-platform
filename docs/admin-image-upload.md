@@ -83,6 +83,8 @@ After saving:
 3. Confirm the image loads on desktop and mobile.
 4. In Cloudinary, confirm the image exists in the expected folder.
 
+Public Cloudinary images are delivered through frontend-generated responsive transformations (`f_auto,q_auto`, bounded widths, and `c_limit`); uploaded originals and asset IDs are not rewritten. A browser can choose among `srcset` widths according to its viewport and the component's `sizes` value. Gallery cards use smaller candidates than the detailed lightbox. Verify a real request in DevTools: inspect `currentSrc`, response `Content-Type`, image dimensions, and transferred bytes. The repository has no recorded production Lighthouse baseline, so do not treat a specific percentage improvement as measured.
+
 ## Troubleshooting
 
 - If upload fails, confirm Cloudinary env vars are set in Render.
