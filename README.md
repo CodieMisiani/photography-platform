@@ -29,8 +29,10 @@ A production-ready photography business platform for Malume Photography. The app
 - Sessions: Redis-backed admin sessions.
 - Media: Cloudinary.
 - Payments: Safaricom M-Pesa Daraja STK Push.
-- Email: SMTP for newsletter notifications.
+- Notifications: configured email providers (Gmail SMTP or Resend) and WhatsApp provider adapters; verify provider readiness before relying on notifications.
 - CI/CD: GitHub Actions workflow for lint/build/typecheck/migration checks.
+
+The current checkout does **not** contain an invoice PDF export. A PDF feature exists on a separate local/remote feature branch, but it is not part of this branch; do not assume it is available in production.
 
 ## Project Structure
 
@@ -65,23 +67,25 @@ Current implementation:
 
 ## Local Development
 
+Use Node.js 22 (the CI and backend container runtime). Install the frontend and backend dependencies independently with their checked-in lockfiles:
+
 1. Install frontend dependencies:
 
    ```bash
    cd client
-   npm install
+   npm ci
    ```
 
 2. Install backend dependencies:
 
    ```bash
    cd server
-   npm install
+   npm ci
    ```
 
 3. Start local PostgreSQL and Redis.
 
-4. Create `server/.env` from `server/.env.example` and fill real local values.
+4. Copy `server/.env.example` to `server/.env` and set local values for PostgreSQL and Redis. Add provider credentials only for integrations you intend to test locally.
 
    Never commit real credentials. Keep production secrets in the deployment dashboard.
 
@@ -98,6 +102,8 @@ Current implementation:
    cd server
    npm run seed:admin
    ```
+
+   The seed script requires `ADMIN_PASSWORD` or `ADMIN_PASSWORD_HASH`; it creates or updates the admin password. Use local/test credentials only. Render's current pre-deploy command also runs this script, so keep the deployment's admin seed secret intentional and managed outside Git.
 
 7. Start the backend:
 
@@ -140,6 +146,7 @@ Backend:
 ```bash
 cd server
 npm run typecheck
+npm test
 npm run build
 ```
 
@@ -150,15 +157,28 @@ cd server
 npm run migrate
 ```
 
+`npm test` runs the client Cloudinary URL/gallery queue tests and the backend CORS, error-response, and newsletter-delivery tests. Both use Node's built-in test runner; the client tests use TypeScript stripping. The migration command is destructive only if migrations themselves contain destructive operations; point it at a disposable local/test database, never a production URL during routine verification. CI provides PostgreSQL 16 and Redis 7 service containers and runs backend typecheck, tests, migrations, admin seeding, and build.
+
 ## Deployment Notes
 
-- Frontend: deploy `client/` to Vercel with `VITE_API_BASE_URL` pointing to the backend API.
-- Backend: deploy `server/` to Railway or Render with PostgreSQL, Redis/Upstash, Cloudinary, SMTP, and Daraja environment variables configured.
-- Database: run `npm run migrate` against the production `DATABASE_URL` before server startup. The server schema guard fails fast if required tables are missing.
+- Frontend: `vercel.json` configures Vite with `client/dist` output and SPA rewrites. Set `VITE_API_BASE_URL` to the API base URL when it is not the local default (`http://localhost:4000`).
+- Backend: `render.yaml` configures the Render web service `photography-platform-backend` with `server/` as its root, Node runtime, automatic deploys, a `/health` check, and build/start commands. It runs migrations and `seed:admin` during pre-deploy. This repository does not configure Railway as its deployment target.
+- Database and cache: configure `DATABASE_URL` and `REDIS_URL` in the backend environment. The schema guard checks required tables at startup; Render's pre-deploy command applies migrations.
 - Media: set Cloudinary credentials. Portfolio uploads use `malume-photography/portfolio`; public event uploads use `malume-photography/events`.
-- Newsletter: set SMTP credentials and `NEWSLETTER_NOTIFY_EMAIL`.
+- Notifications: set the credentials for the selected email/WhatsApp provider. Newsletter signup emails require `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASS`, plus an explicitly configured `NEWSLETTER_NOTIFY_EMAIL` recipient. `SMTP_PORT`, `SMTP_SECURE`, and `SMTP_FROM` control SMTP transport/sender details. With no recipient or complete SMTP configuration, subscriptions still save but the notification is skipped.
+- Newsletter delivery reads the legacy SMTP variables above; `EMAIL_PROVIDER` / Gmail provider credentials are used by the separate provider-based notification service and are not substituted automatically for newsletter signup mail.
 - Payments: set Daraja credentials and a public `DARAJA_CALLBACK_URL` ending in `/webhooks/daraja`.
-- Security: use HTTPS, secure cookies in production, strong admin credentials, and deployment-managed secrets only.
+- Security: configure a long random `SESSION_SECRET`, `COOKIE_SECURE=true`, HTTPS, exact `CLIENT_ORIGIN` entries, and deployment-managed secrets only. Do not test payments or migration commands against production without explicit operational approval.
+
+### Environment configuration
+
+The backend validates its environment in `server/src/config/env.ts`; `server/.env.example` is the starter file. Main variable groups are `NODE_ENV`, `PORT`, `CLIENT_ORIGIN`, `DATABASE_URL`, `REDIS_URL`, session cookie/secret settings, `ADMIN_EMAIL` and admin seed password/hash, Cloudinary credentials/folder, email provider settings, WhatsApp provider settings, and Daraja environment/credentials/callback URL. Newsletter notifications specifically need SMTP host/user/password and an operator-chosen `NEWSLETTER_NOTIFY_EMAIL`; no personal address is supplied as a default. Keep secrets in an untracked local `.env` or deployment secret store. `VITE_API_BASE_URL` is a frontend build-time setting, not a backend secret.
+
+The deployment's admin seed runs on each Render pre-deploy. Its configured password/hash must remain deliberate: changing it updates the seeded admin credential.
+
+### Image delivery
+
+Original Cloudinary uploads are retained. Public portfolio, project gallery, journal-cover, and event images use Cloudinary delivery transformations with `f_auto,q_auto`, width limits, and responsive `srcset` candidates; Cloudinary negotiates a supported modern format (such as WebP/AVIF) per request. `sizes` describes the layout so browsers can select a suitable candidate. Non-Cloudinary hosted URLs and local homepage assets keep their existing format and URL. Public images below the fold are lazy-loaded; only selected visible hero/lead content gets eager/high priority. Gallery cards use smaller variants, while the lightbox requests a larger variant. The helper falls back to the original Cloudinary URL if a transformed request fails. No before/after production transfer-size or Core Web Vitals measurement has been made in this repository; verify selected format, candidate size, and transfer bytes in browser DevTools or Lighthouse on production/staging before claiming a measured gain.
 
 ## Production API CORS
 
