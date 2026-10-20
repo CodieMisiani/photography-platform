@@ -34,11 +34,11 @@ Delete the portfolio item from the admin dashboard. The item is removed from the
 
 ### Best photo sizes
 
-| Type | Minimum size | Format |
-| --- | --- | --- |
-| Landscape weddings or events | 2400 x 1600px | JPEG |
-| Portraits or maternity | 1600 x 2400px | JPEG |
-| Square crops | 1200 x 1200px | JPEG |
+| Type                         | Minimum size  | Format |
+| ---------------------------- | ------------- | ------ |
+| Landscape weddings or events | 2400 x 1600px | JPEG   |
+| Portraits or maternity       | 1600 x 2400px | JPEG   |
+| Square crops                 | 1200 x 1200px | JPEG   |
 
 Use JPEG for normal photographs. Use PNG only for images that need transparency. Keep files under 10MB before uploading.
 
@@ -46,17 +46,15 @@ Use JPEG for normal photographs. Use PNG only for images that need transparency.
 
 Use this format:
 
-```text
+````text
 YYYY-MM-DD_description_number.jpg
-```
-
 Examples:
 
 ```text
 2024-03-15_wanjiku-james-wedding_001.jpg
 2024-06-01_karen-corporate-headshots_003.jpg
 2024-12-25_nairobi-family-portraits_012.jpg
-```
+````
 
 Use no spaces. Hyphens and underscores are fine.
 
