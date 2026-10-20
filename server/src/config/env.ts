@@ -39,10 +39,7 @@ const envSchema = z.object({
     .string()
     .optional()
     .transform((value) => value === "true"),
-  NEWSLETTER_NOTIFY_EMAIL: z
-    .string()
-    .email()
-    .default("nimrodmisiani42@gmail.com"),
+  NEWSLETTER_NOTIFY_EMAIL: z.string().email().optional(),
   EMAIL_PROVIDER: z.enum(["gmail", "resend"]).default("gmail"),
   GMAIL_USER: z.string().optional().default(""),
   GMAIL_APP_PASSWORD: z.string().optional().default(""),
