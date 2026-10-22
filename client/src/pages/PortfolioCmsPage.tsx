@@ -11,6 +11,7 @@ import MetricTile from "../components/ui/MetricTile";
 import StatusText from "../components/ui/StatusText";
 import { api } from "../lib/api";
 import type { ApiProjectPhoto } from "../lib/api";
+import { uploadWithProgress } from "../lib/xhrUpload";
 import {
   mergeGalleryUploadEntries,
   reserveGallerySortOrders,
@@ -958,27 +959,14 @@ function uploadPhotoWithProgress(
   sortOrder: number,
   onProgress: (progress: number) => void,
 ) {
-  return new Promise<void>((resolve, reject) => {
-    const request = new XMLHttpRequest();
-    const formData = new FormData();
-    formData.append("image", file);
-    formData.append("sort_order", String(sortOrder));
-    request.open(
-      "POST",
-      `${import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000"}/portfolio/${projectId}/photos`,
-    );
-    request.withCredentials = true;
-    request.upload.onprogress = (event) => {
-      if (event.lengthComputable)
-        onProgress(Math.round((event.loaded / event.total) * 100));
-    };
-    request.onload = () =>
-      request.status >= 200 && request.status < 300
-        ? resolve()
-        : reject(new Error("Upload failed"));
-    request.onerror = () => reject(new Error("Upload failed"));
-    request.send(formData);
-  });
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("sort_order", String(sortOrder));
+  return uploadWithProgress(
+    `${import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000"}/portfolio/${projectId}/photos`,
+    formData,
+    onProgress,
+  );
 }
 
 function UploadNote({

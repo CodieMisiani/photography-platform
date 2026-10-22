@@ -67,7 +67,7 @@ Use no spaces. Hyphens and underscores are fine.
 
 ## Part B - For The Developer
 
-Portfolio and public event image uploads go through the backend Cloudinary client. Keep Cloudinary credentials in `server/.env` locally or Railway secrets in production. Do not expose Cloudinary API secrets to the frontend.
+Portfolio and public event image uploads go through the backend Cloudinary client. Keep Cloudinary credentials in `server/.env` locally or Render secrets in production. Do not expose Cloudinary API secrets to the frontend.
 
 Recommended production checks:
 

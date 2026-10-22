@@ -9,6 +9,31 @@ Do not upload production portfolio photos by editing code. Use the admin dashboa
 
 ## Before You Upload
 
+### Server validation and limits
+
+Portfolio cover assets, each gallery image, public-event images, and journal covers accept JPEG, PNG, and WebP. The server requires the filename extension, multipart MIME declaration, and decoded image format to agree. Sharp/libvips inspects dimensions and fully decodes the image before the original bytes are sent to Cloudinary; uploaded photography is not recompressed by the application.
+
+The shared server limits are:
+
+- Maximum compressed file size: 15 MiB per image.
+- Maximum width: 12,000 pixels.
+- Maximum height: 12,000 pixels.
+- Maximum total pixels: 40 million.
+- Maximum files in a multipart request: 1. Gallery selection can contain multiple photos, but the CMS sends each photo in its own request.
+- Animated WebP and other multi-page images are rejected.
+
+These limits are enforced in the backend after the admin session, Origin, and CSRF checks and during multipart parsing; invalid or over-limit images are rejected before Cloudinary is called. There is no upload-specific environment configuration. Automated tests use generated in-memory images and a mocked Cloudinary boundary; they do not verify Cloudinary or production hosting behavior.
+
+### Runtime and workflow verification status
+
+The server imports Sharp directly and declares `sharp: "0.35.3"` in `server/package.json`; the lockfile root dependency matches, and npm 10.9.2 accepts the complete lock tree with `npm ls --package-lock-only --all`. Sharp requires Node >=20.9; CI and the Dockerfile use Node 22 (the Docker image is Alpine), while `render.yaml` does not pin Node. On Windows x64/Node 22.16.0, installed package resolution still fails with `EPERM` while trying to `lstat C:\Users\NIMROD`. An isolated offline install lacked cached packages; registry fetches failed with `EACCES`. No clean install or Sharp native load/fixture decode completed, and no Docker or WSL Linux environment is installed. Confirm the target Linux binary by a clean install and in-memory decode in CI or staging before release.
+
+Local verification also passed all seven JPEGs in `client/src/assets/images/home` through the server validator (each 1800 × 1350). These are repository homepage assets, not a production portfolio inventory. No production Cloudinary assets were inspected. The automated suite verifies decoding, rejection, parser limits, and the mocked upload boundary; it does not exercise a database-backed create/edit/gallery/event/journal workflow. Gallery photo and journal create/update upload to Cloudinary before writing their row, with no compensating delete if the database write fails, so that failure can leave an orphaned asset. Portfolio cover and public-event uploads are separate upload-then-save actions with the same abandoned-asset risk. Before production, add a staged integration check using isolated database and Cloudinary test boundaries, verify failure compensation, and confirm actual server memory/timeout behavior under realistic image batches.
+
+The parser uses memory storage. A valid 40-megapixel image can require substantial decoded working memory, and the CMS sends selected gallery files concurrently as separate requests. There is no upload-specific concurrency gate or app-level upload timeout; server/host defaults apply. The Render plan is listed as free, but this repository does not establish a memory budget or measured capacity. The per-file and pixel limits bound one upload; they do not prove safety under concurrent upload bursts. Stage-load validation and a bounded server-side upload concurrency policy remain release checks.
+
+Deletion also has provider/database consistency gaps: portfolio-event and public-event deletion attempt Cloudinary deletion before deleting the database row, while gallery/journal deletion removes the row first and `deleteMedia` logs and continues on provider failure. These paths can respectively leave a database reference to a deleted asset or leave an unreferenced Cloudinary asset. Existing automated cleanup tests cover portfolio cover replacement persistence ordering, not these provider/database failure cases.
+
 1. Confirm the backend has Cloudinary environment variables:
 
    ```env

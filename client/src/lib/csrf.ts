@@ -8,6 +8,15 @@ export function applyCsrfHeader(method: string, headers: Headers) {
   }
 }
 
+export function applyCsrfHeaderToRequest(
+  method: string,
+  request: { setRequestHeader: (name: string, value: string) => void },
+) {
+  if (!safeMethods.has(method.toUpperCase()) && csrfToken) {
+    request.setRequestHeader(csrfHeaderName, csrfToken);
+  }
+}
+
 export function updateCsrfTokenFromAuthResponse(
   path: string,
   payload: unknown,
