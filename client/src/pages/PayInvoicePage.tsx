@@ -6,7 +6,7 @@ import Footer from "../components/Footer";
 import Button from "../components/ui/Button";
 import FormField from "../components/ui/FormField";
 import StatusText from "../components/ui/StatusText";
-import { api } from "../lib/api";
+import { ApiError, api } from "../lib/api";
 import { fetchPayableInvoice } from "../services/invoiceService";
 
 type PaymentStep = "lookup" | "payment" | "pending" | "success" | "failed";
@@ -20,6 +20,7 @@ export default function PayInvoicePage() {
   const [step, setStep] = useState<PaymentStep>(
     initialInvoiceNo ? "payment" : "lookup",
   );
+  const [paymentStatusTimedOut, setPaymentStatusTimedOut] = useState(false);
   const [error, setError] = useState("");
   const { data, isFetching, isError } = useQuery({
     queryKey: ["payable-invoice", verifiedInvoiceId],
@@ -49,7 +50,10 @@ export default function PayInvoicePage() {
     if (step !== "pending") {
       return;
     }
-    const timeout = window.setTimeout(() => setStep("failed"), 90_000);
+    const timeout = window.setTimeout(() => {
+      setPaymentStatusTimedOut(true);
+      setStep("failed");
+    }, 90_000);
     return () => window.clearTimeout(timeout);
   }, [step]);
 
@@ -69,10 +73,30 @@ export default function PayInvoicePage() {
     }
 
     try {
-      await paymentMutation.mutateAsync({ id: data.databaseId, phoneNumber: phone });
+      const result = await paymentMutation.mutateAsync({
+        id: data.databaseId,
+        phoneNumber: phone,
+      });
+      setPaymentStatusTimedOut(false);
+      if (result.attempt_status === "verification_pending") {
+        setError(
+          "A previous payment attempt needs to be reconciled before another prompt can be sent. Please contact the studio.",
+        );
+        return;
+      }
       setStep("pending");
-    } catch {
-      setError("The M-Pesa prompt could not be sent. Check the phone number and try again.");
+    } catch (requestError) {
+      if (
+        requestError instanceof ApiError &&
+        (requestError.code === "DARAJA_STK_OUTCOME_UNKNOWN" ||
+          requestError.code === "PAYMENT_ATTEMPT_RECONCILIATION_REQUIRED")
+      ) {
+        setError(
+          "We could not confirm whether the payment prompt was created. Do not retry; contact the studio to reconcile this attempt.",
+        );
+      } else {
+        setError("The M-Pesa prompt could not be sent. Check the phone number and try again.");
+      }
     }
   }
 
@@ -180,8 +204,16 @@ export default function PayInvoicePage() {
 
         {displayedStep === "pending" ? (
           <StatusPanel
-            title="Check Your Phone"
-            message="We sent an M-Pesa prompt. Enter your PIN to complete payment."
+            title={
+              paymentMutation.data?.attempt_status === "initiating"
+                ? "Payment Request Processing"
+                : "Check Your Phone"
+            }
+            message={
+              paymentMutation.data?.attempt_status === "initiating"
+                ? "A payment request is already being processed. Wait for confirmation and do not request another prompt."
+                : "If the M-Pesa prompt arrived, enter your PIN. Do not request another prompt while this attempt is unresolved."
+            }
             busy
           />
         ) : null}
@@ -195,8 +227,12 @@ export default function PayInvoicePage() {
 
         {displayedStep === "failed" ? (
           <StatusPanel
-            title="Payment Not Completed"
-            message="The payment failed or timed out. You can return to the invoice and try again."
+            title={paymentStatusTimedOut ? "Payment Status Unconfirmed" : "Payment Not Completed"}
+            message={
+              paymentStatusTimedOut
+                ? "We could not confirm the payment status. Do not request another prompt; contact the studio to reconcile this attempt."
+                : "The payment was not completed. Contact the studio if you believe the charge went through before trying again."
+            }
           />
         ) : null}
       </main>

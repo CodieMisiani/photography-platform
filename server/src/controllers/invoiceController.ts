@@ -5,7 +5,9 @@ import {
   deleteInvoice,
   findInvoiceByNumber,
   getInvoiceStatus,
+  getInvoicePaymentHistory,
   listInvoices,
+  reconcileInvoicePayment,
   startInvoicePayment,
   updateInvoice,
 } from "../services/invoiceService.js";
@@ -28,7 +30,30 @@ export async function removeAdminInvoice(req: Request, res: Response) {
   res.status(204).send();
 }
 
+export async function getAdminInvoicePaymentHistory(req: Request, res: Response) {
+  res.setHeader("Cache-Control", "private, no-store");
+  res.status(200).json({
+    history: await getInvoicePaymentHistory(String(req.params.id)),
+  });
+}
+
+export async function reconcileAdminInvoicePayment(req: Request, res: Response) {
+  if (!req.adminEmail) {
+    throw new Error("Authenticated administrator identity is missing");
+  }
+  const { attempt_id, outcome, reason, evidence_reference } = req.body;
+  const invoice = await reconcileInvoicePayment(String(req.params.id), {
+    attemptId: attempt_id,
+    outcome,
+    reason,
+    evidenceReference: evidence_reference,
+    actorEmail: req.adminEmail,
+  });
+  res.status(200).json({ invoice });
+}
+
 export async function lookupInvoice(req: Request, res: Response) {
+  res.setHeader("Cache-Control", "private, no-store");
   res.status(200).json({ invoice: await findInvoiceByNumber(String(req.params.invoiceNo)) });
 }
 
@@ -37,11 +62,12 @@ export async function payInvoice(req: Request, res: Response) {
 }
 
 export async function invoiceStatus(req: Request, res: Response) {
+  res.setHeader("Cache-Control", "private, no-store");
   res.status(200).json(await getInvoiceStatus(String(req.params.id)));
 }
 
 export async function darajaWebhook(req: Request, res: Response) {
   const invoice = await applyDarajaCallback(req.body);
-  if (invoice.status === "paid") notificationService.sendInvoicePaidConfirmation(invoice).catch((error: unknown) => console.error("[notifications] Payment confirmation failed", error));
+  if (invoice?.status === "paid") notificationService.sendInvoicePaidConfirmation(invoice).catch((error: unknown) => console.error("[notifications] Payment confirmation failed", error));
   res.status(200).json({ ok: true });
 }

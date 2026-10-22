@@ -73,12 +73,16 @@ export const invoiceCreateSchema = z.object({
   line_items: z.array(invoiceLineItemSchema).min(1).optional(),
 });
 
-export const invoicePatchSchema = invoiceCreateSchema
-  .extend({
-    status: z.enum(["unpaid", "paid", "failed"]).optional(),
-    mpesa_ref: z.string().max(160).optional().nullable(),
+export const invoicePatchSchema = invoiceCreateSchema.partial().strict();
+
+export const invoiceReconciliationSchema = z
+  .object({
+    attempt_id: z.string().uuid(),
+    outcome: z.enum(["paid", "failed"]),
+    reason: z.string().trim().min(10).max(2000),
+    evidence_reference: z.string().trim().min(3).max(255),
   })
-  .partial();
+  .strict();
 
 export const invoicePaySchema = z.object({
   phone: kenyanPhone,

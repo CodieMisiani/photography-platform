@@ -44,6 +44,13 @@ export type ApiInvoiceLineItem = {
   created_at?: string;
 };
 
+export type ApiPublicInvoice = Pick<
+  ApiInvoice,
+  "id" | "invoice_no" | "amount" | "status"
+> & {
+  line_items: Array<Pick<ApiInvoiceLineItem, "description" | "quantity" | "unit_price">>;
+};
+
 export type ApiPublicEvent = {
   id: string;
   title: string;
@@ -386,8 +393,6 @@ export const api = {
         client_name: string;
         phone: string;
         amount: number;
-        status: ApiInvoice["status"];
-        mpesa_ref: string | null;
         line_items: Array<{
           description: string;
           quantity: number;
@@ -399,10 +404,30 @@ export const api = {
         method: "PATCH",
         body: payload,
       }),
+    paymentHistory: (id: string) =>
+      request<{
+        history: {
+          attempts: Array<Record<string, unknown>>;
+          reconciliations: Array<Record<string, unknown>>;
+        };
+      }>(`/admin/invoices/${id}/payment-history`),
+    reconcile: (
+      id: string,
+      payload: {
+        attempt_id: string;
+        outcome: "paid" | "failed";
+        reason: string;
+        evidence_reference: string;
+      },
+    ) =>
+      request<{ invoice: ApiInvoice }>(`/admin/invoices/${id}/reconcile`, {
+        method: "POST",
+        body: payload,
+      }),
     delete: (id: string) =>
       request<void>(`/admin/invoices/${id}`, { method: "DELETE" }),
     lookup: (invoiceNo: string) =>
-      request<{ invoice: ApiInvoice }>(
+      request<{ invoice: ApiPublicInvoice }>(
         `/invoices/${encodeURIComponent(invoiceNo)}`,
       ),
     pay: (id: string, phone: string) =>
@@ -410,17 +435,13 @@ export const api = {
         invoice_id: string;
         checkout_request_id: string | null;
         status: string;
+        attempt_status?: "initiating" | "pending" | "verification_pending";
       }>(`/invoices/${id}/pay`, {
         method: "POST",
         body: { phone },
       }),
     status: (id: string) =>
-      request<
-        Pick<
-          ApiInvoice,
-          "id" | "invoice_no" | "status" | "mpesa_ref" | "paid_at"
-        >
-      >(`/invoices/${id}/status`),
+      request<{ status: ApiInvoice["status"] }>(`/invoices/${id}/status`),
   },
   publicEvents: {
     list: () => request<{ events: ApiPublicEvent[] }>("/events"),

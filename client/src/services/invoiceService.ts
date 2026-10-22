@@ -1,4 +1,4 @@
-import { api, type ApiInvoice } from "../lib/api";
+import { api, type ApiInvoice, type ApiPublicInvoice } from "../lib/api";
 
 const moneyFormatter = new Intl.NumberFormat("en-KE", {
   style: "currency",
@@ -63,7 +63,9 @@ function sumInvoices(invoices: ApiInvoice[]) {
   return invoices.reduce((total, invoice) => total + Number(invoice.amount), 0);
 }
 
-function mapLineItems(invoice: ApiInvoice) {
+function mapLineItems(
+  invoice: Pick<ApiInvoice, "amount"> & Pick<ApiPublicInvoice, "line_items">,
+) {
   if (invoice.line_items.length === 0) {
     return [
       {

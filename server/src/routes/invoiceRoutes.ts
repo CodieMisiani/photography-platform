@@ -2,12 +2,14 @@ import { Router } from "express";
 import {
   createAdminInvoice,
   darajaWebhook,
+  getAdminInvoicePaymentHistory,
   invoiceStatus,
   listAdminInvoices,
   lookupInvoice,
   payInvoice,
   patchAdminInvoice,
   removeAdminInvoice,
+  reconcileAdminInvoicePayment,
 } from "../controllers/invoiceController.js";
 import { requireAdminSession } from "../middleware/auth.js";
 import { publicWriteLimiter } from "../middleware/rateLimiters.js";
@@ -19,6 +21,7 @@ import {
   invoicePatchSchema,
   invoiceNoParamsSchema,
   invoicePaySchema,
+  invoiceReconciliationSchema,
 } from "./schemas.js";
 
 export const invoiceRoutes = Router();
@@ -41,6 +44,18 @@ invoiceRoutes.delete(
   requireAdminSession,
   validate({ params: idParamsSchema }),
   asyncHandler(removeAdminInvoice),
+);
+invoiceRoutes.get(
+  "/admin/invoices/:id/payment-history",
+  requireAdminSession,
+  validate({ params: idParamsSchema }),
+  asyncHandler(getAdminInvoicePaymentHistory),
+);
+invoiceRoutes.post(
+  "/admin/invoices/:id/reconcile",
+  requireAdminSession,
+  validate({ params: idParamsSchema, body: invoiceReconciliationSchema }),
+  asyncHandler(reconcileAdminInvoicePayment),
 );
 invoiceRoutes.get(
   "/invoices/:invoiceNo",

@@ -45,15 +45,75 @@ const envSchema = z.object({
   GMAIL_APP_PASSWORD: z.string().optional().default(""),
   WHATSAPP_PROVIDER: z.enum(["baileys", "meta"]).default("baileys"),
   BAILEYS_SESSION_PATH: z.string().optional().default("./baileys-session"),
-  DARAJA_ENV: z.enum(["sandbox", "production"]).default("sandbox"),
+  DARAJA_ENV: z.enum(["sandbox", "production"]).optional(),
+  DARAJA_PRODUCTION_INITIATION_ENABLED: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
   DARAJA_CONSUMER_KEY: z.string().optional().default(""),
   DARAJA_CONSUMER_SECRET: z.string().optional().default(""),
   DARAJA_PASSKEY: z.string().optional().default(""),
   DARAJA_SHORTCODE: z.string().optional().default(""),
   DARAJA_CALLBACK_URL: z.string().optional().default(""),
+}).superRefine((values, context) => {
+  if (values.NODE_ENV === "production" && !values.DARAJA_ENV) {
+    context.addIssue({
+      code: "custom",
+      path: ["DARAJA_ENV"],
+      message: "DARAJA_ENV must be explicitly set in production",
+    });
+  }
+
+  if (values.DARAJA_ENV === "production" && values.NODE_ENV !== "production") {
+    context.addIssue({
+      code: "custom",
+      path: ["DARAJA_ENV"],
+      message: "Production Daraja is only allowed when NODE_ENV=production",
+    });
+  }
+
+  if (values.DARAJA_PRODUCTION_INITIATION_ENABLED) {
+    if (values.NODE_ENV !== "production" || values.DARAJA_ENV !== "production") {
+      context.addIssue({
+        code: "custom",
+        path: ["DARAJA_PRODUCTION_INITIATION_ENABLED"],
+        message:
+          "Production initiation approval requires NODE_ENV=production and DARAJA_ENV=production",
+      });
+    }
+
+    for (const key of [
+      "DARAJA_CONSUMER_KEY",
+      "DARAJA_CONSUMER_SECRET",
+      "DARAJA_PASSKEY",
+      "DARAJA_SHORTCODE",
+    ] as const) {
+      if (!values[key].trim()) {
+        context.addIssue({
+          code: "custom",
+          path: [key],
+          message: `${key} is required when production initiation is approved`,
+        });
+      }
+    }
+
+    try {
+      const callback = new URL(values.DARAJA_CALLBACK_URL);
+      if (callback.protocol !== "https:") throw new Error("HTTPS required");
+    } catch {
+      context.addIssue({
+        code: "custom",
+        path: ["DARAJA_CALLBACK_URL"],
+        message:
+          "A valid HTTPS DARAJA_CALLBACK_URL is required when production initiation is approved",
+      });
+    }
+  }
 });
 
-const parsed = envSchema.parse(process.env);
+export function parseEnvironment(source: NodeJS.ProcessEnv = process.env) {
+  const parsed = envSchema.parse(source);
+  const darajaEnvironment = parsed.DARAJA_ENV ?? "sandbox";
 const clientOrigins = (
   parsed.CLIENT_ORIGIN ??
   (parsed.NODE_ENV === "production"
@@ -84,10 +144,14 @@ const validatedClientOrigins = z
   })
   .parse([...new Set(clientOrigins)]);
 
-export const env = {
-  ...parsed,
-  CLIENT_ORIGIN: validatedClientOrigins,
-  COOKIE_SECURE: parsed.COOKIE_SECURE ?? parsed.NODE_ENV === "production",
-  ADMIN_PASSWORD: parsed.ADMIN_PASSWORD?.trim() || undefined,
-  ADMIN_PASSWORD_HASH: parsed.ADMIN_PASSWORD_HASH?.trim() || "",
-};
+  return {
+    ...parsed,
+    DARAJA_ENV: darajaEnvironment,
+    CLIENT_ORIGIN: validatedClientOrigins,
+    COOKIE_SECURE: parsed.COOKIE_SECURE ?? parsed.NODE_ENV === "production",
+    ADMIN_PASSWORD: parsed.ADMIN_PASSWORD?.trim() || undefined,
+    ADMIN_PASSWORD_HASH: parsed.ADMIN_PASSWORD_HASH?.trim() || "",
+  };
+}
+
+export const env = parseEnvironment();

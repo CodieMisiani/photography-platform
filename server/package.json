@@ -10,7 +10,7 @@
     "start:server": "node dist/server.js",
     "start:render": "npm start",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --import tsx --test src/app.cors.test.ts src/middleware/errorHandler.test.ts src/middleware/csrf.test.ts src/services/newsletterDelivery.test.ts src/services/portfolioCoverUpdate.test.ts",
+    "test": "node --import tsx --test src/app.cors.test.ts src/middleware/errorHandler.test.ts src/middleware/csrf.test.ts src/routes/invoiceSchemas.test.ts src/services/darajaCallbackProcessor.test.ts src/services/darajaSafety.test.ts src/services/mediaService.test.ts src/services/paymentAttemptService.test.ts src/services/invoicePaymentIntegrity.integration.test.ts src/services/newsletterDelivery.test.ts src/services/portfolioCoverUpdate.test.ts src/services/publicInvoiceView.test.ts",
     "migrate": "node --import tsx/esm ./node_modules/knex/bin/cli.js migrate:latest --knexfile knexfile.cjs",
     "migrate:rollback": "node --import tsx/esm ./node_modules/knex/bin/cli.js migrate:rollback --knexfile knexfile.cjs",
     "seed:admin": "node --import tsx/esm src/db/seedAdmin.ts"
