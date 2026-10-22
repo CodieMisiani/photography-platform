@@ -4,7 +4,7 @@
 
 This project is a website and control room for a photography studio.
 
-A visitor can open the website, look at the studio's photography work, see public studio events, request a quote for a bigger creative idea, book a specific open date, and pay an invoice with M-Pesa.
+A visitor can open the website, look at the studio's photography work, see public studio events, request a quote for a bigger creative idea, book a specific open date, and request an M-Pesa STK prompt for an invoice. Payment callbacks are not independently verified and do not settle invoices.
 
 An admin can sign in to a private dashboard and manage the business: portfolio photos, client bookings, quote requests, invoices, payment status, blocked calendar dates, and public event listings.
 
@@ -14,15 +14,15 @@ Think of the system like a real studio:
 - The backend is the back office. It receives forms, checks login sessions, stores records, and talks to outside services.
 - Postgres is the filing cabinet. It keeps bookings, quotes, invoices, events, and portfolio records.
 - Redis is the wristband at the door. It remembers which admin is logged in for eight hours.
-- Cloudinary is the photo shelf. It stores uploaded portfolio and public event images.
+- Cloudinary is the photo shelf. It stores uploaded portfolio covers/galleries, journal covers, and public event images.
 - SMTP email is the studio bell. It tells the admin when somebody joins the newsletter.
-- Daraja is the messenger to M-Pesa. It sends the STK Push prompt and reports whether the payment worked.
+- Daraja sends the STK Push prompt. Callback payloads are acknowledged but are not trusted to confirm payment.
 
 ## Section B - Technical Setup & Handoff Doc
 
 ### Architecture
 
-The browser runs the React/Vite frontend in `client`. React components call one typed API layer at `client/src/lib/api.ts`. That API layer calls the Express backend in `server`. Express validates requests with Zod, checks admin sessions with Redis, reads and writes Postgres through Knex, uploads portfolio and public event images to Cloudinary, sends newsletter signup notifications through SMTP, and triggers M-Pesa STK Push through Safaricom Daraja.
+The browser runs the React/Vite frontend in `client`. React components call one typed API layer at `client/src/lib/api.ts`. That API layer calls the Express backend in `server`. Express validates requests with Zod, checks admin sessions with Redis, reads and writes Postgres through Knex, validates and uploads portfolio, journal, and public event images to Cloudinary, sends newsletter signup notifications through SMTP, and triggers M-Pesa STK Push through Safaricom Daraja.
 
 The homepage image marquee reads from real local photography assets listed in `homeMarqueeImages` in `client/src/data/homeFixtures.ts`. The homepage duplicates that list automatically for the seamless loop.
 
@@ -58,7 +58,7 @@ These match `server/.env.example`.
 - `CLOUDINARY_CLOUD_NAME`: From Cloudinary dashboard.
 - `CLOUDINARY_API_KEY`: From Cloudinary dashboard.
 - `CLOUDINARY_API_SECRET`: From Cloudinary dashboard.
-- `CLOUDINARY_FOLDER`: Root Cloudinary folder. Defaults to `malume-photography`; uploads are separated into `/portfolio` and `/events`.
+- `CLOUDINARY_FOLDER`: Root Cloudinary folder. Defaults to `malume-photography`; uploads are separated into `/portfolio`, `/events`, and `/journal`.
 - `SMTP_HOST`: SMTP server host for newsletter signup notifications.
 - `SMTP_PORT`: SMTP server port, usually `587` or `465`.
 - `SMTP_USER`: SMTP username.
@@ -66,7 +66,12 @@ These match `server/.env.example`.
 - `SMTP_FROM`: Sender address shown on newsletter notification emails.
 - `SMTP_SECURE`: `true` for implicit TLS, usually port `465`; `false` for STARTTLS, usually port `587`.
 - `NEWSLETTER_NOTIFY_EMAIL`: Optional recipient for new-subscriber notification emails; configure an inbox you control to enable delivery.
+- `EMAIL_PROVIDER`: `gmail` or `resend` for the separate provider-based notification service; Resend is currently a stub. Newsletter signup mail uses the SMTP variables above independently.
+- `GMAIL_USER` / `GMAIL_APP_PASSWORD`: Credentials for the implemented Gmail notification provider.
+- `WHATSAPP_PROVIDER`: `baileys` or `meta`; both provider transports currently skip delivery.
+- `BAILEYS_SESSION_PATH`: Configured session path; a durable QR/session transport is not implemented.
 - `DARAJA_ENV`: `sandbox` or `production`.
+- `DARAJA_PRODUCTION_INITIATION_ENABLED`: Defaults to `false`; keep false until live initiation controls and provider verification are approved.
 - `DARAJA_CONSUMER_KEY`: From Safaricom Daraja app.
 - `DARAJA_CONSUMER_SECRET`: From Safaricom Daraja app.
 - `DARAJA_PASSKEY`: Daraja STK Push passkey.
@@ -104,7 +109,7 @@ For the frontend, set `VITE_API_BASE_URL` to the backend URL.
 
 3. Create `server/.env` from `server/.env.example` and fill real local or production PostgreSQL/Redis values.
 
-   For image uploads, also fill the Cloudinary variables. Existing rows that do not have `cover_public_id` or `image_public_id` still render, but Cloudinary deletion is skipped for those legacy records because the app cannot safely guess the old public ID.
+   Point `DATABASE_URL` and `REDIS_URL` at disposable local/test services for development and tests; never use the configured remote Neon URL for routine migration checks. For image uploads, also fill the Cloudinary variables. Existing rows that do not have a stored Cloudinary public ID still render, but deletion is skipped because the app cannot safely guess an ID.
 
    For newsletter notifications, fill the SMTP variables. If SMTP is missing, subscriptions still save and the backend logs that the notification was skipped.
 
@@ -148,20 +153,21 @@ Current local verification commands:
 
 ```bash
 cd client
+npm test
 npm run lint
 npm run build
 ```
 
 ```bash
 cd server
+npm test
 npm run typecheck
 npm run build
-npm run migrate
 ```
 
-GitHub Actions are configured in `.github/workflows/ci.yml`. CI installs frontend/backend dependencies, runs frontend lint/build, runs backend typecheck/build, starts throwaway Postgres and Redis services, and runs migrations plus admin seeding.
+Run `npm run migrate` separately and only after verifying that `DATABASE_URL` points to an explicitly disposable local/test database. It changes schema and data; never use the configured remote Neon URL for routine validation.
 
-Full Jest/React Testing Library/Supertest test suites are still not built.
+GitHub Actions are configured in `.github/workflows/ci.yml`. The current CI workflow runs frontend lint, Node tests, and build; backend typecheck, Node tests, migrations, admin seeding, and build against disposable PostgreSQL/Redis services. The project uses Node's built-in test runner; no browser E2E suite is currently configured. See [the audited project status](docs/PROJECT_STATUS.md) for exact verification boundaries and blockers.
 
 ### Deployment Topology
 
@@ -169,6 +175,7 @@ Current repository deployment configuration:
 
 - Frontend: Vercel (`vercel.json`).
 - Backend API: Render (`render.yaml`).
+- Runtime: CI and Docker use Node 22; `render.yaml` does not pin Node. Select a supported Node 22 patch in Render before release and verify the deployed version.
 - PostgreSQL: configured through Render's `DATABASE_URL` environment setting.
 - Redis: configured through `REDIS_URL` (Upstash is supported but not required by repository code).
 - Media: Cloudinary.
@@ -181,13 +188,13 @@ To deploy:
 3. Deploy the frontend from `client` to Vercel and set `VITE_API_BASE_URL` to the Render backend URL.
 4. Set Daraja callback URL to the public backend URL ending in `/webhooks/daraja`.
 5. Confirm `/health` returns sanitized Postgres and Redis status.
-6. Test admin login, booking creation, quote submission, invoice creation, and M-Pesa sandbox payment using non-production data.
+6. Test admin login, booking creation, quote submission, invoice creation, and M-Pesa sandbox STK initiation using non-production data. Keep `DARAJA_ENV=sandbox` and `DARAJA_PRODUCTION_INITIATION_ENABLED=false`; automatic callback settlement is disabled pending trusted verification.
 
 Rollback:
 
 - Vercel: promote a previous deployment.
-- Railway: redeploy a previous successful build.
-- Database: use backups/snapshots before running destructive migrations.
+- Render: redeploy a previous successful build after checking migration compatibility.
+- Database: no restore drill is evidenced. Establish a managed backup policy and verify restore to a separate database before relying on recovery.
 
 ### What's Finished
 
@@ -227,9 +234,9 @@ Rollback:
 - Warm editorial visual system with two-color discipline, warmer paper/ink tokens, Cormorant Garamond display typography, richer public/admin surface states, and improved focus treatment.
 - Brass accent removed from live UI tokens and replaced with neutral semantic text hierarchy.
 - 2026 interaction polish: scroll progress bar, portfolio lightbox, booking confirmation animation, floating WhatsApp CTA, warm editorial empty states, scroll-aware navbar, footer micro-interactions, portfolio card zoom, CTA pulse, service-card lift, and arrow-link nudges.
-- Daraja STK Push trigger, webhook update, and frontend polling/failure timeout.
+- Daraja STK Push initiation, persisted payment-attempt tracking, and frontend status polling. Callbacks are acknowledged but deliberately cannot settle invoices until a provider-supported verifier is implemented.
 - Health endpoint checks Postgres and Redis.
-- CI workflow for lint/build/typecheck/migration check.
+- CI workflow for frontend lint/tests/build and backend typecheck/tests/migrations/admin seed/build; PostgreSQL 16 and Redis 7 run as CI services.
 - `docs/TESTING_DARAJA.md` for sandbox/production M-Pesa STK Push verification.
 - `docs/ADMIN_INVOICE_GUIDE.md` for invoice creation, sharing, and payment tracking.
 - `docs/JOURNAL_GUIDE.md` for journal publishing and implementation details.

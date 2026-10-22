@@ -1,144 +1,32 @@
-# Testing Daraja STK Push
+# Testing Daraja STK Initiation
 
-## 1. What You Are Testing
+## What current tests establish
 
-This test confirms the full invoice payment journey. A client opens an invoice link, sees the itemised KSh breakdown, enters their M-Pesa number, and clicks Pay. Safaricom sends an STK prompt to the client's phone, the client enters their PIN, and Daraja calls the backend webhook. The backend then updates the invoice status and stores the M-Pesa receipt number when payment succeeds.
+The repository tests exercise deterministic application logic with mocked provider results. `darajaSafety.test.ts` parses environment settings, passes them through the Daraja config and payment-attempt coordinator, and uses mocked HTTP to establish sandbox host selection and denial of unapproved production initiation before reservation or HTTP. The suite also covers attempt reservation policy and callback processor behavior when a verifier result is injected. Tests do not contact Safaricom, do not prove the production verifier works, and do not prove PostgreSQL row-lock concurrency.
 
-## 2. Prerequisites Checklist
+For local development and CI, use `DARAJA_ENV=sandbox` and `DARAJA_PRODUCTION_INITIATION_ENABLED=false`. Production requires an explicit `DARAJA_ENV=production` and approval flag; do not set that flag or configure production credentials before verification and reconciliation requirements are completed. See [Daraja setup](DARAJA_SETUP.md).
 
-```text
-[ ] server/.env contains: DARAJA_CONSUMER_KEY, DARAJA_CONSUMER_SECRET,
-    DARAJA_PASSKEY, DARAJA_SHORTCODE, DARAJA_CALLBACK_URL, DARAJA_ENV
-[ ] Backend running: npm run dev (in server/)
-[ ] Frontend running: npm run dev (in client/)
-[ ] GET /health returns: { postgres: "ok", redis: "ok" }
-[ ] Safaricom SIM available for production testing
-[ ] For sandbox: sandbox credentials from developer.safaricom.co.ke
-[ ] For production: DARAJA_ENV=production and live Paybill credentials set
+In production code, callback verification currently returns `null`; therefore success and failure callback claims leave invoices unchanged. This is intentional fail-closed behavior. Do not use the sample callback payloads from older documentation or manually post a callback to mark an invoice paid.
+
+## Run offline tests
+
+```powershell
+cd server
+npm test
+npm run typecheck
+npm run build
 ```
 
-## 3. Sandbox Test
+Payment safety tests mock provider responses; they never contact Safaricom. No email, Cloudinary, or Redis is required. The PostgreSQL integrity suite runs only when explicitly pointed to a safe isolated database as described below; absent that opt-in it skips without connecting.
 
-### Step 1 - Create A Test Invoice
+## Database tests
 
-Log in to the admin dashboard, open **Invoices**, and create an invoice:
+`invoicePaymentIntegrity.integration.test.ts` runs only when all safeguards are satisfied: `PAYMENT_TEST_DATABASE_URL` names `photography_platform_test` on `localhost` or `127.0.0.1` (port 5432 or the default), `REDIS_URL` names a local Redis service on `localhost` or `127.0.0.1` (port 6379 or the default), and both `PAYMENT_TEST_DATABASE_DISPOSABLE=1` and `PAYMENT_TEST_REDIS_DISPOSABLE=1` are set. Otherwise the suite is skipped without connecting. CI maps its disposable PostgreSQL 16 and Redis 7 services to localhost and sets these explicit opt-in values; it migrates the PostgreSQL service before running tests. The suite exercises actual FK deletion restrictions, invoice-row locking against deletion, active-attempt uniqueness via concurrent service calls, reconciliation audit immutability, and mocked sandbox provider requests. The current `server/.env` targets remote Neon and must never be used for these tests.
 
-- Client Name: `Test Client`
-- Phone: `+254712345678`
-- Line item: `Photography Session`, quantity `1`, unit price `100`
+Do not run `npm run migrate`, `npm run migrate:rollback`, or `npm run seed:admin` until the connection target is proven disposable. See the database prerequisite in [project status](PROJECT_STATUS.md). Migration 015 down migration refuses when reconciliation history exists; PostgreSQL retains its new enum label after rollback. Hosted migration-history compatibility remains for the deployment owner to confirm. No database was contacted or mutated during this work.
 
-Save the invoice and note the generated invoice number, for example `INV-20260802-ABCDE`.
+## Authorized sandbox checks
 
-### Step 2 - Trigger The STK Push
+Automated code changes should use mocked provider responses. Only use Safaricom sandbox credentials and test phone numbers for a separately approved sandbox smoke test; verify `DARAJA_ENV=sandbox` without printing secrets, and never reuse a production shortcode, credentials, or customer invoice. No sandbox request was made in this review.
 
-Open the public invoice payment page, enter the invoice number, and confirm the KSh 100 breakdown appears. Enter the sandbox test MSISDN `254708374149`, click **Pay with M-Pesa** or **Send STK Push**, then check the backend terminal for:
-
-```text
-[Daraja] STK Push initiated -> CheckoutRequestID: ws_CO_xxx
-```
-
-### Step 3 - Simulate The Daraja Callback
-
-The Daraja webhook is registered in `server/src/routes/invoiceRoutes.ts` as `POST /webhooks/daraja`. The handler calls `applyDarajaCallback` in `server/src/services/invoiceService.ts`, which expects `Body.stkCallback.CheckoutRequestID`, `ResultCode`, and optional `CallbackMetadata.Item`.
-
-Replace `[copy from backend log in Step 2]` with the CheckoutRequestID from your backend log:
-
-```bash
-curl -X POST http://localhost:4000/webhooks/daraja \
-  -H "Content-Type: application/json" \
-  -d '{
-    "Body": {
-      "stkCallback": {
-        "MerchantRequestID": "test-merchant-id",
-        "CheckoutRequestID": "[copy from backend log in Step 2]",
-        "ResultCode": 0,
-        "ResultDesc": "The service request is processed successfully.",
-        "CallbackMetadata": {
-          "Item": [
-            { "Name": "Amount", "Value": 100 },
-            { "Name": "MpesaReceiptNumber", "Value": "TEST000001" },
-            { "Name": "TransactionDate", "Value": 20240101120000 },
-            { "Name": "PhoneNumber", "Value": 254708374149 }
-          ]
-        }
-      }
-    }
-  }'
-```
-
-### Step 4 - Verify Success
-
-Open the admin invoice list and confirm the invoice status is **Paid** and the receipt is `TEST000001`. Open the public invoice page again and confirm it shows the paid state.
-
-### Step 5 - Test Cancelled Payment
-
-Trigger a new STK push for an unpaid invoice, then simulate a cancellation:
-
-```bash
-curl -X POST http://localhost:4000/webhooks/daraja \
-  -H "Content-Type: application/json" \
-  -d '{
-    "Body": {
-      "stkCallback": {
-        "MerchantRequestID": "test-merchant-id",
-        "CheckoutRequestID": "[copy from backend log in Step 2]",
-        "ResultCode": 1032,
-        "ResultDesc": "Request cancelled by user."
-      }
-    }
-  }'
-```
-
-Current application behavior: the invoice is marked **Failed**, and the frontend shows a clear failure state instead of spinning forever.
-
-### Step 6 - Test Timeout
-
-Trigger a push and send no callback. Wait for the frontend polling timeout. Expected result: the frontend shows that payment was not completed and lets the client try again.
-
-## 4. Production Test
-
-1. Set `DARAJA_ENV=production` on Railway or Render.
-2. Set `DARAJA_CALLBACK_URL=https://your-api-domain/webhooks/daraja`.
-3. Create an invoice for KSh 1.
-4. Enter a real Safaricom number you control.
-5. The STK prompt should appear within 5-10 seconds.
-6. Enter the PIN and confirm the invoice is marked Paid with the receipt stored.
-
-Phone numbers must be `2547XXXXXXXX`: no `+`, no leading `0`.
-
-| Symptom | Likely Cause | Fix |
-|---|---|---|
-| No prompt on phone | `DARAJA_CALLBACK_URL` is not publicly reachable | Deploy the backend first and use the public URL |
-| `invalid access token` | Wrong consumer key or secret | Re-copy from the Daraja portal |
-| `Bad Request - Invalid Initiator Information` | Wrong passkey | Re-copy the passkey |
-| Amount error | Invoice total is below KSh 1 | Fix invoice validation or create a valid invoice |
-| Invoice not updating after payment | Webhook not received | Check backend logs for `POST /webhooks/daraja` |
-| `ResultCode: 1` after paying | Wrong production shortcode | Confirm shortcode with Safaricom |
-
-## 5. Expected Backend Log Output
-
-These log statements are present in `server/src/services/invoiceService.ts`.
-
-Success flow:
-
-```text
-[Daraja] STK Push initiated -> CheckoutRequestID: ws_CO_xxx
-[Daraja] Webhook received -> ResultCode: 0
-[Daraja] Invoice INV-20260802-ABCDE marked PAID -> MpesaRef: QKL0000001
-```
-
-Failure flow:
-
-```text
-[Daraja] STK Push initiated -> CheckoutRequestID: ws_CO_xxx
-[Daraja] Webhook received -> ResultCode: 1032 (Request cancelled by user)
-[Daraja] Invoice INV-20260802-ABCDE marked FAILED -> CheckoutRequestID: ws_CO_xxx
-```
-
-## 6. Troubleshooting Notes
-
-- If `/health` fails, fix Postgres or Redis before testing payments.
-- If the invoice lookup fails, confirm the invoice number exists in the admin invoice list.
-- If the webhook returns `INVOICE_PAYMENT_NOT_FOUND`, the callback CheckoutRequestID does not match the invoice `mpesa_ref`.
-- If Daraja credentials are missing, the backend cannot request an access token.
-- Never commit Daraja credentials to Git.
+Even a sandbox STK prompt does not verify callback authenticity or production settlement. Automatic settlement must remain disabled until the independent verification prerequisites in [Daraja setup](DARAJA_SETUP.md) are satisfied.

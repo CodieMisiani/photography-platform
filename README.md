@@ -1,6 +1,6 @@
 # Malume Photography Platform
 
-A production-ready photography business platform for Malume Photography. The app combines a premium editorial public website with a secure admin dashboard for portfolio management, bookings, quotes, invoices, newsletter subscribers, public events, Cloudinary uploads, and M-Pesa Daraja payments.
+A photography business platform for Malume Photography. The app combines an editorial public website with an admin dashboard for portfolio management, bookings, quotes, invoices, newsletter subscribers, public events, Cloudinary uploads, and M-Pesa Daraja STK initiation. See [current status and production-readiness blockers](docs/PROJECT_STATUS.md); automatic payment settlement is deliberately disabled until independent provider verification is implemented.
 
 ## Current Features
 
@@ -12,11 +12,11 @@ A production-ready photography business platform for Malume Photography. The app
 - Book Me calendar flow with availability lookup, booking form, and animated booking confirmation.
 - Request a Quote flow with multi-step inquiry form and clear studio copy.
 - Public invoice lookup and payment routes, including `/pay-invoice` and `/invoice/:invoiceNo`.
-- Daraja STK Push payment initiation, webhook handling, status polling, and backend payment logs.
+- Daraja STK Push initiation with persisted payment attempts and status polling. Webhooks fail closed: they do not settle invoices until a trusted provider-verification flow is implemented.
 - Newsletter subscription with duplicate-aware messaging, SMTP notification support, and admin subscriber management.
 - Secure admin login with Redis-backed sessions and protected admin routes.
 - Admin dashboard for bookings, calendar blocks, quotes, invoices, portfolio CMS, public events, stats, settings, and newsletter subscribers.
-- Cloudinary image uploads for portfolio and public event images, including stored public IDs for cleanup on replace/delete.
+- Cloudinary image uploads for portfolio covers and galleries, journal covers, and public event images. The backend validates image bytes with Sharp and stores Cloudinary public IDs for asset management.
 - PostgreSQL migrations through Knex, including schema guard checks on server startup.
 - Kenya localization for KSh, +254 phone numbers, and DD/MM/YYYY-oriented UX.
 
@@ -29,8 +29,8 @@ A production-ready photography business platform for Malume Photography. The app
 - Sessions: Redis-backed admin sessions.
 - Media: Cloudinary.
 - Payments: Safaricom M-Pesa Daraja STK Push.
-- Notifications: configured email providers (Gmail SMTP or Resend) and WhatsApp provider adapters; verify provider readiness before relying on notifications.
-- CI/CD: GitHub Actions workflow for lint/build/typecheck/migration checks.
+- Notifications: newsletter signup alerts use SMTP; the separate Gmail notification provider is implemented. Resend and WhatsApp providers are currently stubs/no-ops.
+- CI/CD: GitHub Actions runs frontend lint/tests/build and backend typecheck/tests/migrations/admin seed/build on Node 22.
 
 The current checkout does **not** contain an invoice PDF export. A PDF feature exists on a separate local/remote feature branch, but it is not part of this branch; do not assume it is available in production.
 
@@ -137,6 +137,7 @@ Frontend:
 
 ```bash
 cd client
+npm test
 npm run lint
 npm run build
 ```
@@ -157,17 +158,17 @@ cd server
 npm run migrate
 ```
 
-`npm test` runs the client Cloudinary URL/gallery queue tests and the backend CORS, error-response, and newsletter-delivery tests. Both use Node's built-in test runner; the client tests use TypeScript stripping. The migration command is destructive only if migrations themselves contain destructive operations; point it at a disposable local/test database, never a production URL during routine verification. CI provides PostgreSQL 16 and Redis 7 service containers and runs backend typecheck, tests, migrations, admin seeding, and build.
+`npm test` in each package runs that package's listed test files with Node's built-in test runner. The client tests use TypeScript stripping. Knex migration and seed commands mutate data: use only an explicitly verified disposable local/test database, never the configured remote Neon URL or a production database. CI defines PostgreSQL 16 and Redis 7 service containers and runs backend typecheck, tests, migrations, admin seeding, and build; a successful local unit suite does not prove PostgreSQL concurrency or deployment behavior.
 
 ## Deployment Notes
 
 - Frontend: `vercel.json` configures Vite with `client/dist` output and SPA rewrites. Set `VITE_API_BASE_URL` to the API base URL when it is not the local default (`http://localhost:4000`).
-- Backend: `render.yaml` configures the Render web service `photography-platform-backend` with `server/` as its root, Node runtime, automatic deploys, a `/health` check, and build/start commands. It runs migrations and `seed:admin` during pre-deploy. This repository does not configure Railway as its deployment target.
+- Backend: `render.yaml` configures the Render web service `photography-platform-backend` with `server/` as its root, Node runtime, automatic deploys, a `/health` check, and build/start commands. CI and Docker use Node 22, but Render does not explicitly pin a Node version; verify/pin a supported Node 22 patch before release. The blueprint runs migrations and `seed:admin` during pre-deploy, and `npm start` also runs migrations. Review that repeated migration invocation and the password-changing seed behavior with the deploy owner. This repository does not configure Railway as its deployment target.
 - Database and cache: configure `DATABASE_URL` and `REDIS_URL` in the backend environment. The schema guard checks required tables at startup; Render's pre-deploy command applies migrations.
-- Media: set Cloudinary credentials. Portfolio uploads use `malume-photography/portfolio`; public event uploads use `malume-photography/events`.
-- Notifications: set the credentials for the selected email/WhatsApp provider. Newsletter signup emails require `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASS`, plus an explicitly configured `NEWSLETTER_NOTIFY_EMAIL` recipient. `SMTP_PORT`, `SMTP_SECURE`, and `SMTP_FROM` control SMTP transport/sender details. With no recipient or complete SMTP configuration, subscriptions still save but the notification is skipped.
+- Media: set Cloudinary credentials. Portfolio covers/galleries use `malume-photography/portfolio`, public event images use `/events`, and journal covers use `/journal`. The server accepts JPEG, PNG, and WebP uploads and enforces size, dimensions, and decoded-pixel limits; see [image upload operations](docs/admin-image-upload.md). Sharp 0.35.3 requires Node >=20.9.
+- Notifications: newsletter signup emails require `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASS`, plus an explicitly configured `NEWSLETTER_NOTIFY_EMAIL` recipient. `SMTP_PORT`, `SMTP_SECURE`, and `SMTP_FROM` control SMTP transport/sender details. With no recipient or complete SMTP configuration, subscriptions still save but the notification is skipped. The separate Gmail provider uses `GMAIL_USER` and `GMAIL_APP_PASSWORD`; Resend and WhatsApp implementations are stubs and do not deliver messages.
 - Newsletter delivery reads the legacy SMTP variables above; `EMAIL_PROVIDER` / Gmail provider credentials are used by the separate provider-based notification service and are not substituted automatically for newsletter signup mail.
-- Payments: set Daraja credentials and a public `DARAJA_CALLBACK_URL` ending in `/webhooks/daraja`.
+- Payments: `DARAJA_ENV=sandbox` selects the sandbox host; production initiation also requires `DARAJA_PRODUCTION_INITIATION_ENABLED=true`, which defaults to false and must remain disabled until separately approved. Set only sandbox credentials for development. The callback verifier fails closed, so callbacks cannot confirm or fail payments. See [Daraja safety and prerequisites](docs/DARAJA_SETUP.md); do not enable live initiation or claim automatic settlement.
 - Security: configure a long random `SESSION_SECRET`, `COOKIE_SECURE=true`, HTTPS, exact `CLIENT_ORIGIN` entries, and deployment-managed secrets only. Do not test payments or migration commands against production without explicit operational approval.
 
 ### Admin CSRF protection
@@ -176,11 +177,15 @@ Admin sessions use an HTTP-only cookie. On login and authenticated `/auth/me` se
 
 Login is not yet an authenticated session mutation and uses an exact allowed-origin check plus the existing JSON/CORS request path; logout is protected by the active session's CSRF token. Public booking, quote, newsletter, and invoice-payment requests do not use an admin token. The Daraja callback remains outside admin session and CSRF middleware because it is a provider webhook; its callback authentication/verification must follow the Daraja integration requirements and is not replaced by browser CSRF protection. No additional environment variable is required. Run `npm test` from `server/` and `npm test` from `client/` for the CSRF and CORS regression tests. Verify login, session restoration, admin mutations and preflight in the deployed browser before relying on this protection in production; deployment verification has not been performed from this repository.
 
+Daraja callbacks retain the provider acknowledgment response, but are not independently verified and therefore cannot change an invoice's paid or failed state or send a paid notification. Sandbox STK Push initiation is available when correctly configured; production initiation additionally requires `DARAJA_PRODUCTION_INITIATION_ENABLED=true` and remains disabled by default. Payment status remains unresolved until a trusted operational reconciliation process is available. The current integration does not contain the credentials or an established verification adapter needed for independent transaction verification. Do not mark an invoice paid from callback contents alone. Add and verify a provider-supported flow, including amount, receipt and invoice association checks, before enabling automatic settlement. The current admin PATCH is not an auditable reconciliation workflow; see [project status](docs/PROJECT_STATUS.md).
+
+STK payment attempts are stored separately from invoices. A single unresolved attempt is allowed per invoice; repeated requests reuse it, and an uncertain initiation result remains blocked until an administrator reconciles it. Existing `mpesa_ref` values are retained as unverified legacy references because older records may contain either checkout IDs or receipts. Mark an invoice failed only after checking a trusted source; this closes its active attempt and allows a later attempt.
+
 ### Environment configuration
 
-The backend validates its environment in `server/src/config/env.ts`; `server/.env.example` is the starter file. Main variable groups are `NODE_ENV`, `PORT`, `CLIENT_ORIGIN`, `DATABASE_URL`, `REDIS_URL`, session cookie/secret settings, `ADMIN_EMAIL` and admin seed password/hash, Cloudinary credentials/folder, email provider settings, WhatsApp provider settings, and Daraja environment/credentials/callback URL. Newsletter notifications specifically need SMTP host/user/password and an operator-chosen `NEWSLETTER_NOTIFY_EMAIL`; no personal address is supplied as a default. Keep secrets in an untracked local `.env` or deployment secret store. `VITE_API_BASE_URL` is a frontend build-time setting, not a backend secret.
+The backend validates its environment in `server/src/config/env.ts`; `server/.env.example` lists variable names and safe example values. It covers `NODE_ENV`/`PORT`, `CLIENT_ORIGIN`, `DATABASE_URL`/`REDIS_URL`, session cookie and secret settings, admin seed credentials, Cloudinary, SMTP/newsletter, Gmail/Resend, WhatsApp, and Daraja. `DARAJA_PRODUCTION_INITIATION_ENABLED` defaults to false. Newsletter notifications specifically need SMTP host/user/password and an operator-chosen `NEWSLETTER_NOTIFY_EMAIL`; no personal address is supplied as a default. Keep secrets in an untracked local `.env` or deployment secret store. `VITE_API_BASE_URL` is a frontend build-time setting, not a backend secret.
 
-The deployment's admin seed runs on each Render pre-deploy. Its configured password/hash must remain deliberate: changing it updates the seeded admin credential.
+Render currently runs the admin seed on each pre-deploy, so the configured password/hash can update the admin credential on deploy. Verify the intended credential and review the deployment sequence; do not assume the seed is one-time.
 
 ### Image delivery
 
@@ -248,6 +253,7 @@ curl -i -X OPTIONS https://malume-photography.onrender.com/portfolio \
 - `docs/DARAJA_SETUP.md`
 - `docs/TESTING_DARAJA.md`
 - `docs/ADMIN_INVOICE_GUIDE.md`
+- `docs/PROJECT_STATUS.md` — audited implementation inventory, verification boundaries, security findings, setup/release guide and prioritized roadmap.
 - `docs/ADDING_IMAGES.md`
 - `docs/JOURNAL_GUIDE.md`
 - `PROJECT_OVERVIEW.md`
