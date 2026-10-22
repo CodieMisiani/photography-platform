@@ -5,7 +5,6 @@ import type { Server } from "node:http";
 import { after, before, describe, it } from "node:test";
 
 const allowedOrigin = "https://malumeph.com";
-const csrfToken = "a".repeat(64);
 
 process.env.NODE_ENV = "test";
 process.env.CLIENT_ORIGIN = allowedOrigin;
@@ -18,6 +17,7 @@ let sessions: Map<
   { email: string; createdAt: string; csrfToken: string }
 >;
 let destroyedSessions: string[];
+let nextSessionNumber: number;
 
 before(async () => {
   const [
@@ -36,10 +36,13 @@ before(async () => {
 
   sessions = new Map();
   destroyedSessions = [];
+  nextSessionNumber = 0;
   const auth = createAuthHandlers({
     verifyCredentials: async (email) => ({ email }),
     createSession: async (email) => {
-      const sessionId = "test-session-id";
+      const sessionNumber = nextSessionNumber++;
+      const sessionId = `test-session-id-${sessionNumber}`;
+      const csrfToken = sessionNumber.toString(16).padStart(64, "0");
       sessions.set(sessionId, {
         email,
         createdAt: new Date().toISOString(),
@@ -87,6 +90,14 @@ before(async () => {
       [allowedOrigin],
     ),
     (_req, res) => res.status(200).json({ ok: true }),
+  );
+  app.post(
+    "/portfolio/:id/photos",
+    createRequireAdminSession(
+      async (id) => sessions.get(id) ?? null,
+      [allowedOrigin],
+    ),
+    (_req, res) => res.status(201).json({ ok: true }),
   );
   app.get(
     "/admin/read",
@@ -151,20 +162,21 @@ async function loginAndGetCookie() {
     body: JSON.stringify({ email: "admin@example.test", password: "password" }),
   });
   const cookie = response.headers.get("set-cookie")?.split(";")[0];
-  return { response, cookie };
+  const body = (await response.json()) as { csrfToken: string };
+  return { response, cookie, csrfToken: body.csrfToken, body };
 }
 
 describe("session-bound admin CSRF protection", () => {
   it("issues a no-store synchronizer token at login and restores it from the session", async () => {
-    const { response, cookie } = await loginAndGetCookie();
-    const loginBody = (await response.json()) as {
+    const { response, cookie, body: loginBody } = await loginAndGetCookie();
+    const loginData = loginBody as {
       admin: { email: string };
       csrfToken: string;
     };
 
     assert.equal(response.status, 200);
-    assert.equal(loginBody.admin.email, "admin@example.test");
-    assert.equal(loginBody.csrfToken, csrfToken);
+    assert.equal(loginData.admin.email, "admin@example.test");
+    assert.match(loginData.csrfToken, /^[a-f\d]{64}$/i);
     assert.match(response.headers.get("cache-control") ?? "", /no-store/i);
     assert.ok(cookie);
 
@@ -178,12 +190,12 @@ describe("session-bound admin CSRF protection", () => {
 
     assert.equal(restored.status, 200);
     assert.equal(restoredBody.admin.email, "admin@example.test");
-    assert.equal(restoredBody.csrfToken, csrfToken);
+    assert.equal(restoredBody.csrfToken, loginData.csrfToken);
     assert.match(restored.headers.get("cache-control") ?? "", /no-store/i);
   });
 
   it("accepts a protected mutation with the approved origin and valid session token", async () => {
-    const { cookie } = await loginAndGetCookie();
+    const { cookie, csrfToken } = await loginAndGetCookie();
     const response = await request("/admin/mutation", {
       method: "POST",
       headers: {
@@ -205,7 +217,7 @@ describe("session-bound admin CSRF protection", () => {
   });
 
   it("rejects a missing or invalid CSRF token", async () => {
-    const { cookie } = await loginAndGetCookie();
+    const { cookie, csrfToken } = await loginAndGetCookie();
     for (const token of [undefined, "invalid-token"]) {
       const headers = new Headers({ Cookie: cookie!, Origin: allowedOrigin });
       if (token) headers.set("X-CSRF-Token", token);
@@ -213,14 +225,18 @@ describe("session-bound admin CSRF protection", () => {
         method: "POST",
         headers,
       });
-      const body = (await response.json()) as { error: { code: string } };
+      const body = (await response.json()) as {
+        error: { code: string; message: string };
+      };
       assert.equal(response.status, 403);
       assert.equal(body.error.code, "CSRF_TOKEN_INVALID");
+      assert.equal(JSON.stringify(body).includes(cookie!), false);
+      assert.equal(JSON.stringify(body).includes(csrfToken), false);
     }
   });
 
   it("rejects an unapproved origin even when the session token is valid", async () => {
-    const { cookie } = await loginAndGetCookie();
+    const { cookie, csrfToken } = await loginAndGetCookie();
     const response = await request("/admin/mutation", {
       method: "POST",
       headers: {
@@ -234,6 +250,39 @@ describe("session-bound admin CSRF protection", () => {
     assert.equal(response.status, 403);
     assert.equal(body.error.code, "CSRF_ORIGIN_INVALID");
     assert.equal(response.headers.get("access-control-allow-origin"), null);
+  });
+
+  it("rejects a token issued to a different session", async () => {
+    const first = await loginAndGetCookie();
+    const second = await loginAndGetCookie();
+    assert.notEqual(first.csrfToken, second.csrfToken);
+    const response = await request("/admin/mutation", {
+      method: "POST",
+      headers: {
+        Cookie: first.cookie!,
+        Origin: allowedOrigin,
+        "X-CSRF-Token": second.csrfToken,
+      },
+    });
+    assert.equal(response.status, 403);
+  });
+
+  it("rejects a missing, null, malformed, or disallowed Origin", async () => {
+    const { cookie, csrfToken } = await loginAndGetCookie();
+    for (const origin of [
+      undefined,
+      "null",
+      "https://malumeph.com/path",
+      "https://unapproved.example",
+    ]) {
+      const headers = new Headers({ Cookie: cookie!, "X-CSRF-Token": csrfToken });
+      if (origin !== undefined) headers.set("Origin", origin);
+      const response = await request("/admin/mutation", {
+        method: "POST",
+        headers,
+      });
+      assert.equal(response.status, 403);
+    }
   });
 
   it("rejects login attempts from an unapproved origin", async () => {
@@ -269,11 +318,34 @@ describe("session-bound admin CSRF protection", () => {
     });
 
     assert.equal(read.status, 200);
+    const head = await request("/admin/read", {
+      method: "HEAD",
+      headers: { Cookie: cookie!, Origin: allowedOrigin },
+    });
+    assert.equal(head.status, 200);
     assert.equal(preflight.status, 204);
     assert.equal(
       preflight.headers.get("access-control-allow-origin"),
       allowedOrigin,
     );
+  });
+
+  it("protects the portfolio photo upload route with the session token", async () => {
+    const { cookie, csrfToken } = await loginAndGetCookie();
+    const rejected = await request("/portfolio/project-1/photos", {
+      method: "POST",
+      headers: { Cookie: cookie!, Origin: allowedOrigin },
+    });
+    assert.equal(rejected.status, 403);
+    const accepted = await request("/portfolio/project-1/photos", {
+      method: "POST",
+      headers: {
+        Cookie: cookie!,
+        Origin: allowedOrigin,
+        "X-CSRF-Token": csrfToken,
+      },
+    });
+    assert.equal(accepted.status, 201);
   });
 
   it("leaves public subscription and Daraja webhook routes outside admin CSRF checks", async () => {
@@ -296,7 +368,7 @@ describe("session-bound admin CSRF protection", () => {
   });
 
   it("requires CSRF protection for logout and invalidates its session", async () => {
-    const { cookie } = await loginAndGetCookie();
+    const { cookie, csrfToken } = await loginAndGetCookie();
     const response = await request("/auth/logout", {
       method: "POST",
       headers: {
@@ -307,7 +379,16 @@ describe("session-bound admin CSRF protection", () => {
     });
 
     assert.equal(response.status, 204);
-    assert.deepEqual(destroyedSessions, ["test-session-id"]);
+    assert.deepEqual(destroyedSessions, [cookie!.split("=")[1]]);
     assert.match(response.headers.get("cache-control") ?? "", /no-store/i);
+    const rejected = await request("/admin/mutation", {
+      method: "POST",
+      headers: {
+        Cookie: cookie!,
+        Origin: allowedOrigin,
+        "X-CSRF-Token": csrfToken,
+      },
+    });
+    assert.equal(rejected.status, 401);
   });
 });
