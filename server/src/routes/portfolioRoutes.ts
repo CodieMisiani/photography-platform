@@ -15,7 +15,7 @@ import {
   uploadPortfolioAsset,
 } from "../controllers/portfolioController.js";
 import { requireAdminSession } from "../middleware/auth.js";
-import { mediaUpload } from "../services/mediaService.js";
+import { singleImageUpload } from "../services/mediaService.js";
 import { validate } from "../middleware/validate.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {
@@ -43,13 +43,13 @@ portfolioRoutes.post(
 portfolioRoutes.post(
   "/uploads",
   requireAdminSession,
-  mediaUpload.single("image"),
+  singleImageUpload("image"),
   asyncHandler(uploadPortfolioAsset),
 );
 portfolioRoutes.post(
   "/:id/photos",
   requireAdminSession,
-  mediaUpload.single("image"),
+  singleImageUpload("image"),
   asyncHandler(createPortfolioPhoto),
 );
 portfolioRoutes.post("/:id/photos/url", requireAdminSession, asyncHandler(createPortfolioPhotoFromUrl));

@@ -4,7 +4,7 @@
 
 ### What is Cloudinary?
 
-Cloudinary is the service that stores and delivers all your portfolio photos. When you upload an image through the admin dashboard, it goes to Cloudinary automatically. You never have to manage files manually.
+Cloudinary stores and delivers portfolio covers and gallery photos, journal covers, and public event images. Admin uploads pass through the server's image validation before the original bytes are sent to Cloudinary.
 
 ### What you need to do
 
@@ -35,7 +35,7 @@ Treat the API Secret like a password.
 
 ### Step 3 - Add environment variables
 
-Add these values to `server/.env` locally or Railway environment variables in production:
+Add these values to `server/.env` locally or Render environment variables in production:
 
 ```env
 CLOUDINARY_CLOUD_NAME=your-cloud-name
@@ -70,12 +70,17 @@ If Cloudinary credentials are wrong, the upload route will fail when testing an 
 malume-photography/
   portfolio/
   events/
+  journal/
 ```
 
-### Image optimization
+Portfolio covers and gallery photos share the `portfolio` folder. The folder names are appended to `CLOUDINARY_FOLDER` by the backend.
 
-Upload full-resolution photographs. Cloudinary handles optimized delivery for the website.
+### Image optimization and delivery
+
+Keep the uploaded original in Cloudinary; do not manually convert or overwrite it. Public frontend image components request Cloudinary delivery variants with `f_auto,q_auto`, a layout-appropriate width, and `c_limit`. Cloudinary negotiates an output format supported by the visitor's browser and the quality setting, so the same asset can be delivered as a modern format such as WebP/AVIF where available. The browser receives responsive `srcset` candidates and selects one using viewport and device conditions. Images not hosted on Cloudinary and the local homepage marquee images do not use this Cloudinary transformation path.
+
+Portfolio cards and gallery previews request smaller widths than the project detail lightbox. Below-the-fold public images are lazy-loaded; the lead project image and selected lead content are prioritized. If a transformed Cloudinary URL fails, the component retries the original URL before displaying an accessible placeholder. Verify actual `Content-Type`, selected `currentSrc`, dimensions, and transfer size in browser DevTools; this repository has not recorded production before/after Lighthouse or Core Web Vitals measurements.
 
 ### Removing images
 
-When a portfolio item is deleted through the admin dashboard, the stored database record is deleted. If Cloudinary asset deletion is extended later, keep deletion inside the backend service so the admin never manages files manually.
+The backend stores Cloudinary public IDs and attempts provider cleanup on replacement and deletion where an ID is known. Database and Cloudinary operations are not transactional: provider failures or database failures can leave an orphaned asset or a record whose asset was removed. Legacy rows without a stored public ID are retained in Cloudinary because the server cannot safely infer an ID. See [image upload operations](admin-image-upload.md) for current validation and lifecycle gaps. Keep asset operations in the backend; admins should not manually guess or delete provider IDs.

@@ -2,6 +2,7 @@ import type { EventRow, ProjectPhotoRow } from "../types/domain.js";
 import { db } from "../db/knex.js";
 import { AppError } from "../utils/AppError.js";
 import { deleteMedia } from "./mediaService.js";
+import { persistPortfolioCoverUpdate } from "./portfolioCoverUpdate.js";
 
 export async function listPortfolioEvents(options?: {
   featured?: boolean;
@@ -21,24 +22,54 @@ export async function listPortfolioEvents(options?: {
 }
 
 export async function listAdminPortfolioEvents(): Promise<EventRow[]> {
-  return db<EventRow>("events").select("*").orderBy("event_date", "desc").orderBy("created_at", "desc");
+  return db<EventRow>("events")
+    .select("*")
+    .orderBy("event_date", "desc")
+    .orderBy("created_at", "desc");
 }
 
 type CategoryRow = { id: string; name: string; created_at: string };
-export async function listPortfolioCategories() { return db<CategoryRow>("portfolio_categories").select("*").orderBy("name", "asc"); }
-export async function createPortfolioCategory(name: string) { const [row] = await db<CategoryRow>("portfolio_categories").insert({ name: name.trim() }).returning("*"); return row; }
+export async function listPortfolioCategories() {
+  return db<CategoryRow>("portfolio_categories")
+    .select("*")
+    .orderBy("name", "asc");
+}
+export async function createPortfolioCategory(name: string) {
+  const [row] = await db<CategoryRow>("portfolio_categories")
+    .insert({ name: name.trim() })
+    .returning("*");
+  return row;
+}
 export async function renamePortfolioCategory(id: string, name: string) {
-  const current = await db<CategoryRow>("portfolio_categories").where({ id }).first();
-  if (!current) throw new AppError(404, "Category not found", "CATEGORY_NOT_FOUND");
-  const [row] = await db<CategoryRow>("portfolio_categories").where({ id }).update({ name: name.trim() }).returning("*");
-  await db<EventRow>("events").where({ category: current.name }).update({ category: row.name });
+  const current = await db<CategoryRow>("portfolio_categories")
+    .where({ id })
+    .first();
+  if (!current)
+    throw new AppError(404, "Category not found", "CATEGORY_NOT_FOUND");
+  const [row] = await db<CategoryRow>("portfolio_categories")
+    .where({ id })
+    .update({ name: name.trim() })
+    .returning("*");
+  await db<EventRow>("events")
+    .where({ category: current.name })
+    .update({ category: row.name });
   return row;
 }
 export async function deletePortfolioCategory(id: string) {
-  const category = await db<CategoryRow>("portfolio_categories").where({ id }).first();
-  if (!category) throw new AppError(404, "Category not found", "CATEGORY_NOT_FOUND");
-  const [{ count }] = await db<EventRow>("events").where({ category: category.name }).count<{ count: string }[]>("id as count");
-  if (Number(count) > 0) throw new AppError(409, "This category is still assigned to projects", "CATEGORY_IN_USE");
+  const category = await db<CategoryRow>("portfolio_categories")
+    .where({ id })
+    .first();
+  if (!category)
+    throw new AppError(404, "Category not found", "CATEGORY_NOT_FOUND");
+  const [{ count }] = await db<EventRow>("events")
+    .where({ category: category.name })
+    .count<{ count: string }[]>("id as count");
+  if (Number(count) > 0)
+    throw new AppError(
+      409,
+      "This category is still assigned to projects",
+      "CATEGORY_IN_USE",
+    );
   await db<CategoryRow>("portfolio_categories").where({ id }).delete();
 }
 
@@ -65,17 +96,49 @@ export async function updatePortfolioEvent(
   if (!current) {
     throw new AppError(404, "Portfolio event not found", "PORTFOLIO_NOT_FOUND");
   }
-  const [updated] = await db<EventRow>("events")
-    .where({ id })
-    .update(payload)
-    .returning("*");
-  if (!updated) {
-    throw new AppError(404, "Portfolio event not found", "PORTFOLIO_NOT_FOUND");
-  }
-  if (payload.cover_public_id !== undefined && current.cover_public_id && payload.cover_public_id !== current.cover_public_id) {
-    await deleteMedia(current.cover_public_id);
-  }
-  return updated;
+  return persistPortfolioCoverUpdate(
+    current,
+    payload,
+    async (updates) => {
+      const [updated] = await db<EventRow>("events")
+        .where({ id })
+        .update(updates)
+        .returning("*");
+      if (!updated) {
+        throw new AppError(
+          404,
+          "Portfolio event not found",
+          "PORTFOLIO_NOT_FOUND",
+        );
+      }
+      return updated;
+    },
+    hasOtherPortfolioMediaReferences,
+    deleteMedia,
+  );
+}
+
+async function hasOtherPortfolioMediaReferences(publicId: string) {
+  const [cover, galleryPhoto, publicEvent, journalPost] = await Promise.all([
+    db<EventRow>("events")
+      .select("id")
+      .where({ cover_public_id: publicId })
+      .first(),
+    db<ProjectPhotoRow>("project_photos")
+      .select("id")
+      .where({ cloudinary_public_id: publicId })
+      .first(),
+    db("public_events")
+      .select("id")
+      .where({ image_public_id: publicId })
+      .first(),
+    db("journal_posts")
+      .select("id")
+      .where({ cloudinary_public_id: publicId })
+      .first(),
+  ]);
+
+  return Boolean(cover || galleryPhoto || publicEvent || journalPost);
 }
 
 export async function deletePortfolioEvent(id: string) {
@@ -125,7 +188,11 @@ export async function createProjectPhoto(
 export async function updateProjectPhoto(
   eventId: string,
   photoId: string,
-  payload: { caption?: string | null; alt_text?: string | null; sort_order?: number },
+  payload: {
+    caption?: string | null;
+    alt_text?: string | null;
+    sort_order?: number;
+  },
 ) {
   const existing = await db<ProjectPhotoRow>("project_photos")
     .where({ id: photoId, event_id: eventId })
@@ -142,7 +209,8 @@ export async function updateProjectPhoto(
   if (payload.caption !== undefined) {
     updates.caption = payload.caption?.trim() || null;
   }
-  if (payload.alt_text !== undefined) updates.alt_text = payload.alt_text?.trim() || null;
+  if (payload.alt_text !== undefined)
+    updates.alt_text = payload.alt_text?.trim() || null;
   if (payload.sort_order !== undefined) {
     updates.sort_order = payload.sort_order;
   }

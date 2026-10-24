@@ -15,33 +15,70 @@ const sessionCookieOptions = {
   path: "/",
 };
 
-export async function login(req: Request, res: Response) {
-  const admin = await verifyAdminCredentials(req.body.email, req.body.password);
-  const sessionId = await createSession(admin.email);
-  res.cookie(env.SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
-  res.status(200).json({ admin });
+type AuthDependencies = {
+  verifyCredentials: typeof verifyAdminCredentials;
+  createSession: typeof createSession;
+  destroySession: typeof destroySession;
+  getSession: typeof getSession;
+  cookieName: string;
+  cookieOptions: typeof sessionCookieOptions;
+};
+
+/** Exposed for deterministic request-flow tests; production handlers use real services. */
+export function createAuthHandlers(dependencies: AuthDependencies) {
+  return {
+    async login(req: Request, res: Response) {
+      const admin = await dependencies.verifyCredentials(
+        req.body.email,
+        req.body.password,
+      );
+      const { sessionId, csrfToken } = await dependencies.createSession(
+        admin.email,
+      );
+      res.cookie(
+        dependencies.cookieName,
+        sessionId,
+        dependencies.cookieOptions,
+      );
+      res.setHeader("Cache-Control", "no-store");
+      res.status(200).json({ admin, csrfToken });
+    },
+
+    async logout(req: Request, res: Response) {
+      const sessionId = req.cookies?.[dependencies.cookieName] as
+        | string
+        | undefined;
+      if (sessionId) {
+        await dependencies.destroySession(sessionId);
+      }
+      res.clearCookie(dependencies.cookieName, { path: "/" });
+      res.setHeader("Cache-Control", "no-store");
+      res.status(204).send();
+    },
+
+    async me(req: Request, res: Response) {
+      const sessionId = req.cookies?.[dependencies.cookieName] as
+        | string
+        | undefined;
+      const session = sessionId
+        ? await dependencies.getSession(sessionId)
+        : null;
+      res.setHeader("Cache-Control", "no-store");
+      res.status(200).json({
+        admin: session ? { email: session.email } : null,
+        csrfToken: session?.csrfToken ?? null,
+      });
+    },
+  };
 }
 
-export async function logout(req: Request, res: Response) {
-  const sessionId = req.cookies?.[env.SESSION_COOKIE_NAME] as
-    | string
-    | undefined;
-  if (sessionId) {
-    await destroySession(sessionId);
-  }
-  res.clearCookie(env.SESSION_COOKIE_NAME, { path: "/" });
-  res.status(204).send();
-}
+const authHandlers = createAuthHandlers({
+  verifyCredentials: verifyAdminCredentials,
+  createSession,
+  destroySession,
+  getSession,
+  cookieName: env.SESSION_COOKIE_NAME,
+  cookieOptions: sessionCookieOptions,
+});
 
-export async function me(req: Request, res: Response) {
-  const sessionId = req.cookies?.[env.SESSION_COOKIE_NAME] as
-    | string
-    | undefined;
-  if (!sessionId) {
-    res.status(200).json({ admin: null });
-    return;
-  }
-
-  const session = await getSession(sessionId);
-  res.status(200).json({ admin: session ? { email: session.email } : null });
-}
+export const { login, logout, me } = authHandlers;

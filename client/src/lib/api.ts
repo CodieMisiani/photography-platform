@@ -1,3 +1,5 @@
+import { applyCsrfHeader, updateCsrfTokenFromAuthResponse } from "./csrf.js";
+
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000";
 
@@ -114,6 +116,8 @@ async function request<T>(
 ): Promise<T> {
   const headers = new Headers(options.headers);
   const body = prepareBody(options.body, headers);
+  const method = options.method ?? "GET";
+  applyCsrfHeader(method, headers);
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
@@ -134,10 +138,15 @@ async function request<T>(
   }
 
   if (response.status === 204) {
+    if (path === "/auth/logout") updateCsrfTokenFromAuthResponse(path, null);
     return undefined as T;
   }
 
-  return (await response.json()) as T;
+  const payload: unknown = await response.json();
+  if (path === "/auth/login" || path === "/auth/me") {
+    updateCsrfTokenFromAuthResponse(path, payload);
+  }
+  return payload as T;
 }
 
 function prepareBody(body: RequestOptions["body"], headers: Headers) {
@@ -154,12 +163,15 @@ function prepareBody(body: RequestOptions["body"], headers: Headers) {
 export const api = {
   auth: {
     login: (payload: { email: string; password: string }) =>
-      request<{ admin: AdminUser }>("/auth/login", {
+      request<{ admin: AdminUser; csrfToken: string }>("/auth/login", {
         method: "POST",
         body: payload,
       }),
     logout: () => request<void>("/auth/logout", { method: "POST" }),
-    me: () => request<{ admin: AdminUser | null }>("/auth/me"),
+    me: () =>
+      request<{ admin: AdminUser | null; csrfToken: string | null }>(
+        "/auth/me",
+      ),
     changePassword: (payload: {
       currentPassword: string;
       newPassword: string;
@@ -182,12 +194,25 @@ export const api = {
       const suffix = params.toString() ? `?${params.toString()}` : "";
       return request<{ events: ApiPortfolioEvent[] }>(`/portfolio${suffix}`);
     },
-    adminList: () => request<{ events: ApiPortfolioEvent[] }>("/portfolio/admin"),
+    adminList: () =>
+      request<{ events: ApiPortfolioEvent[] }>("/portfolio/admin"),
     categories: {
-      list: () => request<{ categories: Array<{ id: string; name: string }> }>("/portfolio/categories"),
-      create: (name: string) => request<{ category: { id: string; name: string } }>("/portfolio/categories", { method: "POST", body: { name } }),
-      update: (id: string, name: string) => request<{ category: { id: string; name: string } }>(`/portfolio/categories/${id}`, { method: "PATCH", body: { name } }),
-      delete: (id: string) => request<void>(`/portfolio/categories/${id}`, { method: "DELETE" }),
+      list: () =>
+        request<{ categories: Array<{ id: string; name: string }> }>(
+          "/portfolio/categories",
+        ),
+      create: (name: string) =>
+        request<{ category: { id: string; name: string } }>(
+          "/portfolio/categories",
+          { method: "POST", body: { name } },
+        ),
+      update: (id: string, name: string) =>
+        request<{ category: { id: string; name: string } }>(
+          `/portfolio/categories/${id}`,
+          { method: "PATCH", body: { name } },
+        ),
+      delete: (id: string) =>
+        request<void>(`/portfolio/categories/${id}`, { method: "DELETE" }),
     },
     get: (id: string) =>
       request<{ event: ApiPortfolioEvent }>(`/portfolio/${id}`),
@@ -217,22 +242,30 @@ export const api = {
     updatePhoto: (
       id: string,
       photoId: string,
-      payload: Partial<Pick<ApiProjectPhoto, "caption" | "alt_text" | "sort_order">>,
+      payload: Partial<
+        Pick<ApiProjectPhoto, "caption" | "alt_text" | "sort_order">
+      >,
     ) =>
-      request<{ photo: ApiProjectPhoto }>(`/portfolio/${id}/photos/${photoId}`, {
-        method: "PATCH",
-        body: payload,
-      }),
+      request<{ photo: ApiProjectPhoto }>(
+        `/portfolio/${id}/photos/${photoId}`,
+        {
+          method: "PATCH",
+          body: payload,
+        },
+      ),
     deletePhoto: (id: string, photoId: string) =>
       request<void>(`/portfolio/${id}/photos/${photoId}`, { method: "DELETE" }),
     reorderPhotos: (
       id: string,
       photos: Array<Pick<ApiProjectPhoto, "id" | "sort_order">>,
     ) =>
-      request<{ photos: ApiProjectPhoto[] }>(`/portfolio/${id}/photos/reorder`, {
-        method: "PATCH",
-        body: { photos },
-      }),
+      request<{ photos: ApiProjectPhoto[] }>(
+        `/portfolio/${id}/photos/reorder`,
+        {
+          method: "PATCH",
+          body: { photos },
+        },
+      ),
     create: (payload: Omit<ApiPortfolioEvent, "id" | "created_at">) =>
       request<{ event: ApiPortfolioEvent }>("/portfolio", {
         method: "POST",

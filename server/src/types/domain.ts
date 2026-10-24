@@ -89,6 +89,7 @@ export type PublicEventRow = {
 export type AdminSession = {
   email: string;
   createdAt: string;
+  csrfToken: string;
 };
 
 export type NewsletterSubscriberRow = {

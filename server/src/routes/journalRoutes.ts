@@ -8,7 +8,7 @@ import {
   updateAdminJournal,
 } from "../controllers/journalController.js";
 import { requireAdminSession } from "../middleware/auth.js";
-import { mediaUpload } from "../services/mediaService.js";
+import { singleImageUpload } from "../services/mediaService.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const journalRoutes = Router();
@@ -25,13 +25,13 @@ adminJournalRoutes.get(
 adminJournalRoutes.post(
   "/",
   requireAdminSession,
-  mediaUpload.single("cover"),
+  singleImageUpload("cover"),
   asyncHandler(createAdminJournal),
 );
 adminJournalRoutes.patch(
   "/:id",
   requireAdminSession,
-  mediaUpload.single("cover"),
+  singleImageUpload("cover"),
   asyncHandler(updateAdminJournal),
 );
 adminJournalRoutes.delete(

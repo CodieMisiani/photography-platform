@@ -10,7 +10,7 @@ import {
 import { requireAdminSession } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { mediaUpload } from "../services/mediaService.js";
+import { singleImageUpload } from "../services/mediaService.js";
 import {
   idParamsSchema,
   publicEventCreateSchema,
@@ -24,7 +24,7 @@ publicEventRoutes.get("/admin/public-events", requireAdminSession, asyncHandler(
 publicEventRoutes.post(
   "/admin/public-events/uploads",
   requireAdminSession,
-  mediaUpload.single("image"),
+  singleImageUpload("image"),
   asyncHandler(uploadPublicEventAsset),
 );
 publicEventRoutes.post(

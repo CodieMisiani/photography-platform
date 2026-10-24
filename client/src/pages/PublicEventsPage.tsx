@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import ResponsiveImage from "../components/ui/ResponsiveImage";
 import Button from "../components/ui/Button";
 import type { EventCategory, PublicEvent } from "../types/event";
 import { api } from "../lib/api";
@@ -145,9 +146,12 @@ function EventRow({ event }: { event: PublicEvent }) {
 
       <div className="aspect-[4/3] overflow-hidden bg-paper-warm">
         {event.image ? (
-          <img
+          <ResponsiveImage
             src={event.image}
             alt={event.imageAlt}
+            width={800}
+            height={600}
+            sizes="(max-width: 768px) 100vw, 35vw"
             className="h-full w-full object-cover grayscale"
           />
         ) : null}
@@ -156,7 +160,7 @@ function EventRow({ event }: { event: PublicEvent }) {
       <div className="flex flex-col gap-4">
         <div className="flex items-start justify-between gap-6">
           <StatusLabel category={event.category} />
-        <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-primary">
+          <span className="text-[0.75rem] font-semibold uppercase tracking-[0.25em] text-text-primary">
             {event.price}
           </span>
         </div>

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import ResponsiveImage from "../components/ui/ResponsiveImage";
 import Button from "../components/ui/Button";
 import { api } from "../lib/api";
 import MDEditor from "@uiw/react-md-editor";
@@ -67,9 +68,13 @@ export default function JournalPostPage() {
                   </div>
                 </div>
                 {post.cover_url ? (
-                  <img
+                  <ResponsiveImage
                     src={post.cover_url}
                     alt={post.title}
+                    width={1200}
+                    height={800}
+                    sizes="(max-width: 1024px) 100vw, 40vw"
+                    priority
                     className="h-80 w-full rounded-none object-cover grayscale"
                   />
                 ) : null}

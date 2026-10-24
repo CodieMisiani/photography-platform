@@ -65,7 +65,7 @@ These match `server/.env.example`.
 - `SMTP_PASS`: SMTP password or app password.
 - `SMTP_FROM`: Sender address shown on newsletter notification emails.
 - `SMTP_SECURE`: `true` for implicit TLS, usually port `465`; `false` for STARTTLS, usually port `587`.
-- `NEWSLETTER_NOTIFY_EMAIL`: Email address that receives new subscriber notifications. Defaults to `nimrodmisiani42@gmail.com`.
+- `NEWSLETTER_NOTIFY_EMAIL`: Optional recipient for new-subscriber notification emails; configure an inbox you control to enable delivery.
 - `DARAJA_ENV`: `sandbox` or `production`.
 - `DARAJA_CONSUMER_KEY`: From Safaricom Daraja app.
 - `DARAJA_CONSUMER_SECRET`: From Safaricom Daraja app.
@@ -77,29 +77,29 @@ For the frontend, set `VITE_API_BASE_URL` to the backend URL.
 
 ### Environment Variables - Where To Get Each One
 
-- Railway dashboard: `DATABASE_URL`, `PORT`.
+- Render service settings: `DATABASE_URL`, `PORT`.
 - Upstash dashboard: `REDIS_URL`.
 - Cloudinary dashboard: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 - SMTP provider dashboard: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
 - Studio inbox owner: `NEWSLETTER_NOTIFY_EMAIL`.
 - Safaricom Daraja developer portal: `DARAJA_CONSUMER_KEY`, `DARAJA_CONSUMER_SECRET`, `DARAJA_PASSKEY`, `DARAJA_SHORTCODE`, `DARAJA_CALLBACK_URL`.
 - Self-generated: `SESSION_SECRET` as a long random string, `SESSION_COOKIE_NAME`, and admin seed values used only outside git.
-- Vercel project settings: `VITE_API_BASE_URL`, set to the Railway backend URL.
+- Vercel project settings: `VITE_API_BASE_URL`, set to the Render backend URL.
 
 ### Local Setup
 
-1. Install frontend dependencies:
+1. Install frontend dependencies with the checked-in lockfile:
 
    ```bash
    cd client
-   npm install
+   npm ci
    ```
 
 2. Install backend dependencies:
 
    ```bash
    cd server
-   npm install
+   npm ci
    ```
 
 3. Create `server/.env` from `server/.env.example` and fill real local or production PostgreSQL/Redis values.
@@ -165,25 +165,23 @@ Full Jest/React Testing Library/Supertest test suites are still not built.
 
 ### Deployment Topology
 
-Planned deployment:
+Current repository deployment configuration:
 
-- Frontend: Vercel.
-- Backend API: Railway.
-- PostgreSQL: Railway managed PostgreSQL.
-- Redis: Upstash.
+- Frontend: Vercel (`vercel.json`).
+- Backend API: Render (`render.yaml`).
+- PostgreSQL: configured through Render's `DATABASE_URL` environment setting.
+- Redis: configured through `REDIS_URL` (Upstash is supported but not required by repository code).
 - Media: Cloudinary.
 - Payments: Safaricom Daraja.
 
 To deploy:
 
-1. Create a Railway backend service from `server`.
-2. Add Railway Postgres and Upstash Redis URLs to backend env vars.
-3. Run `npm run migrate` and `npm run seed:admin` against production.
-4. Deploy frontend from `client` to Vercel.
-5. Set `VITE_API_BASE_URL` in Vercel to the Railway backend URL.
-6. Set Daraja callback URL to `https://your-api-domain/webhooks/daraja`.
-7. Confirm `/health` returns Postgres and Redis as healthy.
-8. Test admin login, booking creation, quote submission, invoice creation, and M-Pesa sandbox payment.
+1. Configure the Render backend and required services/environment values.
+2. Render's current blueprint applies migrations and seeds the admin during pre-deploy; set intentional admin seed secrets in Render because the seed updates an existing admin password.
+3. Deploy the frontend from `client` to Vercel and set `VITE_API_BASE_URL` to the Render backend URL.
+4. Set Daraja callback URL to the public backend URL ending in `/webhooks/daraja`.
+5. Confirm `/health` returns sanitized Postgres and Redis status.
+6. Test admin login, booking creation, quote submission, invoice creation, and M-Pesa sandbox payment using non-production data.
 
 Rollback:
 
@@ -253,7 +251,7 @@ Rollback:
 - Calendar month navigation and multi-month availability view.
 - Automated WhatsApp confirmations (Baileys).
 - Automated email confirmations (Nodemailer + Gmail SMTP).
-- PDF invoice generation and email delivery.
+- PDF invoice generation and email delivery (not implemented on the current branch; an unmerged feature branch exists).
 - Google Calendar sync.
 - Newsletter broadcast to active subscribers.
 - Client self-service rescheduling flow.

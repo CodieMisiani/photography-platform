@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Button from "../components/ui/Button";
+import ResponsiveImage from "../components/ui/ResponsiveImage";
 import type { PortfolioItem } from "../types/portfolio";
 import { api } from "../lib/api";
 
@@ -155,9 +156,12 @@ function PortfolioCard({
       role="button"
       tabIndex={0}
     >
-      <img
+      <ResponsiveImage
         src={item.image}
         alt={item.title}
+        width={960}
+        height={1200}
+        sizes="(max-width: 640px) 100vw, 50vw"
         className="h-140 w-full object-cover transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
       />
       <div className="absolute inset-0 bg-ink-rich/0 transition-colors duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:bg-ink-rich/20" />

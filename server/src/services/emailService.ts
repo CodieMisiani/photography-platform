@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import type { Transporter } from "nodemailer";
 import { env } from "../config/env.js";
+import { deliverNewsletterNotification } from "./newsletterDelivery.js";
 
 let transporter: Transporter | null = null;
 
@@ -33,29 +34,30 @@ export async function sendNewsletterSignupNotification({
   subscribedAt: string;
   reactivated: boolean;
 }) {
-  if (!hasSmtpConfig()) {
-    console.warn(
-      "[emailService] SMTP env vars are incomplete; newsletter notification skipped.",
-    );
-    return;
-  }
-
   const statusLabel = reactivated ? "reactivated" : "subscribed";
   const subscribedAtLabel = new Date(subscribedAt).toLocaleString("en-KE", {
     dateStyle: "medium",
     timeStyle: "short",
   });
 
-  await getTransporter().sendMail({
-    from: env.SMTP_FROM || env.SMTP_USER,
-    to: env.NEWSLETTER_NOTIFY_EMAIL,
-    subject: `Newsletter ${statusLabel}: ${email}`,
-    text: [
-      "A newsletter subscriber was captured.",
-      "",
-      `Email: ${email}`,
-      `Status: ${statusLabel}`,
-      `Time: ${subscribedAtLabel}`,
-    ].join("\n"),
+  await deliverNewsletterNotification({
+    smtpConfigured: hasSmtpConfig(),
+    recipient: env.NEWSLETTER_NOTIFY_EMAIL,
+    message: {
+      from: env.SMTP_FROM || env.SMTP_USER,
+      subject: `Newsletter ${statusLabel}: ${email}`,
+      text: [
+        "A newsletter subscriber was captured.",
+        "",
+        `Email: ${email}`,
+        `Status: ${statusLabel}`,
+        `Time: ${subscribedAtLabel}`,
+      ].join("\n"),
+    },
+    sendMail: (message) => getTransporter().sendMail(message),
+    onSkipped: () =>
+      console.warn(
+        "[emailService] SMTP or newsletter recipient configuration is incomplete; newsletter notification skipped.",
+      ),
   });
 }

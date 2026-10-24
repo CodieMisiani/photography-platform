@@ -4,6 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import ResponsiveImage from "../components/ui/ResponsiveImage";
+import {
+  cloudinaryImageUrl,
+  getImageFallbackState,
+  isCloudinaryImage,
+} from "../lib/cloudinaryImages";
 import { api } from "../lib/api";
 
 export default function PortfolioProjectPage() {
@@ -26,9 +32,10 @@ export default function PortfolioProjectPage() {
   const photos = data?.[1]?.photos;
   const galleryItems = useMemo(
     () =>
-      [event?.cover_url, ...(photos ?? []).map((photo) => photo.cloudinary_url)].filter(
-        Boolean,
-      ) as string[],
+      [
+        event?.cover_url,
+        ...(photos ?? []).map((photo) => photo.cloudinary_url),
+      ].filter(Boolean) as string[],
     [event?.cover_url, photos],
   );
 
@@ -91,9 +98,13 @@ export default function PortfolioProjectPage() {
                 })}
               </p>
             </div>
-            <img
+            <ResponsiveImage
               src={event.cover_url ?? ""}
               alt={event.title}
+              width={1600}
+              height={900}
+              sizes="(max-width: 768px) 100vw, 1200px"
+              priority
               className="mb-8 aspect-[16/9] w-full object-cover"
             />
             {(photos?.length ?? 0) > 0 ? (
@@ -105,9 +116,12 @@ export default function PortfolioProjectPage() {
                     onClick={() => setLightboxIndex(index + 1)}
                     className="group relative aspect-square overflow-hidden border border-paper-deep bg-paper-white text-left"
                   >
-                    <img
+                    <ResponsiveImage
                       src={photo.cloudinary_url}
-                      alt={photo.caption ?? event.title}
+                      alt={photo.alt_text ?? photo.caption ?? event.title}
+                      width={720}
+                      height={720}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                     />
                     <div className="absolute inset-0 bg-ink-rich/0 transition-colors duration-300 group-hover:bg-ink-rich/20" />
@@ -148,6 +162,12 @@ function ProjectLightbox({
   onClose: () => void;
   onNavigate: (index: number) => void;
 }) {
+  const [imageFailure, setImageFailure] = useState<{
+    image: string;
+    useOriginal: boolean;
+    failed: boolean;
+  } | null>(null);
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -165,6 +185,9 @@ function ProjectLightbox({
 
   const image = images[index];
   if (!image) return null;
+  const failure = imageFailure?.image === image ? imageFailure : null;
+  const optimizedImage = cloudinaryImageUrl(image, 1920);
+  const showOriginal = failure?.useOriginal ?? false;
 
   return createPortal(
     <div
@@ -192,11 +215,48 @@ function ProjectLightbox({
       >
         ‹
       </button>
-      <img
-        src={image}
-        alt="Project preview"
-        className="max-h-[80vh] max-w-full object-contain"
-      />
+      {failure?.failed ? (
+        <div
+          className="flex min-h-40 min-w-64 items-center justify-center bg-paper/10 p-8 text-center text-sm text-text-inverse/70"
+          role="img"
+          aria-label="Project image unavailable"
+        >
+          Image unavailable
+        </div>
+      ) : (
+        <img
+          src={showOriginal ? image : optimizedImage}
+          srcSet={
+            !showOriginal && isCloudinaryImage(image)
+              ? [960, 1440, 1920]
+                  .map(
+                    (width) => `${cloudinaryImageUrl(image, width)} ${width}w`,
+                  )
+                  .join(", ")
+              : undefined
+          }
+          sizes="(max-width: 1920px) 100vw, 1920px"
+          alt="Project preview"
+          width={1920}
+          height={1440}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          className="max-h-[80vh] max-w-full object-contain"
+          onError={() => {
+            const nextFailure = getImageFallbackState(
+              image,
+              optimizedImage,
+              showOriginal,
+            );
+            setImageFailure({
+              image: nextFailure.src,
+              useOriginal: nextFailure.useOriginalSource,
+              failed: nextFailure.hasError,
+            });
+          }}
+        />
+      )}
       <button
         type="button"
         onClick={(event) => {

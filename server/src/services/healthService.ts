@@ -20,10 +20,10 @@ async function checkPostgres() {
     await db.raw("select 1");
     return { ok: true };
   } catch (error) {
-    return {
-      ok: false,
-      message: error instanceof Error ? error.message : "Postgres check failed",
-    };
+    console.error("[health] Postgres check failed", {
+      name: error instanceof Error ? error.name : "UnknownError",
+    });
+    return { ok: false };
   }
 }
 
@@ -35,9 +35,9 @@ async function checkRedis() {
     const response = await redis.ping();
     return { ok: response === "PONG" };
   } catch (error) {
-    return {
-      ok: false,
-      message: error instanceof Error ? error.message : "Redis check failed",
-    };
+    console.error("[health] Redis check failed", {
+      name: error instanceof Error ? error.name : "UnknownError",
+    });
+    return { ok: false };
   }
 }
