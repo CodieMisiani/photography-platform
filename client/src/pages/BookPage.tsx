@@ -6,6 +6,17 @@ import Header from "../components/Header";
 import Button from "../components/ui/Button";
 import FormField from "../components/ui/FormField";
 import { api } from "../lib/api";
+import {
+  formatFullDate,
+  formatMonthLabel,
+  getCalendarMonth,
+  getMonthEnd,
+  getMonthGridDays,
+  getMonthStart,
+  getNairobiToday,
+  nextMonth,
+  previousMonth,
+} from "../lib/bookingCalendar";
 
 const eventTypes = ["Wedding", "Portrait", "Corporate", "Concert", "Editorial"];
 
@@ -18,10 +29,11 @@ type BookingForm = {
 };
 
 export default function BookPage() {
-  const today = new Date();
-  const monthStart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-01`;
-  const monthEndDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  const monthEnd = monthEndDate.toISOString().slice(0, 10);
+  const [today] = useState(() => getNairobiToday());
+  const currentMonth = getCalendarMonth(today);
+  const [visibleMonth, setVisibleMonth] = useState(currentMonth);
+  const monthStart = getMonthStart(visibleMonth);
+  const monthEnd = getMonthEnd(visibleMonth);
   const [selectedDate, setSelectedDate] = useState("");
   const [message, setMessage] = useState("");
   const [bookingSuccess, setBookingSuccess] = useState(false);
@@ -45,7 +57,10 @@ export default function BookPage() {
     () => new Set((availability.data?.unavailable_dates ?? []).map((date) => date.date.slice(0, 10))),
     [availability.data?.unavailable_dates],
   );
-  const days = buildMonthDays(today.getFullYear(), today.getMonth());
+  const days = getMonthGridDays(visibleMonth);
+  const canGoPrevious =
+    visibleMonth.year > currentMonth.year ||
+    (visibleMonth.year === currentMonth.year && visibleMonth.month > currentMonth.month);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -90,10 +105,27 @@ export default function BookPage() {
 
         <section className="grid gap-10 lg:grid-cols-[1fr_420px]">
           <div>
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-2xl font-display font-semibold uppercase">
-                {today.toLocaleString("en", { month: "long", year: "numeric" })}
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <Button
+                variant="secondary"
+                aria-label="Previous month"
+                disabled={!canGoPrevious}
+                onClick={() => setVisibleMonth((month) => previousMonth(month))}
+                className="px-3 py-2"
+              >
+                <span aria-hidden="true">←</span>
+              </Button>
+              <h2 className="text-center text-2xl font-display font-semibold uppercase" aria-live="polite">
+                {formatMonthLabel(visibleMonth)}
               </h2>
+              <Button
+                variant="secondary"
+                aria-label="Next month"
+                onClick={() => setVisibleMonth((month) => nextMonth(month))}
+                className="px-3 py-2"
+              >
+                <span aria-hidden="true">→</span>
+              </Button>
               {availability.isLoading ? (
                 <span className="text-[0.75rem] uppercase tracking-[0.25em] text-text-muted">
                   Loading dates
@@ -115,20 +147,25 @@ export default function BookPage() {
                   </div>
                 ))}
                 {days.map((day, index) => {
-                  const dateId = day?.toISOString().slice(0, 10) ?? "";
-                  const blocked = !day || unavailable.has(dateId) || dateId < today.toISOString().slice(0, 10);
+                  const dateId = day?.date ?? "";
+                  const blocked = !day || unavailable.has(dateId) || dateId < today;
                   const selected = selectedDate === dateId;
+                  const label = day
+                    ? `${formatFullDate(dateId)}${blocked ? ", unavailable" : selected ? ", selected" : ""}`
+                    : undefined;
                   return (
                     <button
                       key={dateId || `blank-${index}`}
                       type="button"
                       disabled={blocked}
+                      aria-label={label}
+                      aria-pressed={day && !blocked ? selected : undefined}
                       onClick={() => setSelectedDate(dateId)}
                       className={`min-h-20 border-b border-r border-paper-deep p-3 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.97] disabled:active:scale-100 ${
                         selected ? "bg-accent text-white" : "bg-paper text-text-primary"
                       } ${blocked ? "cursor-not-allowed text-text-muted opacity-40" : "hover:bg-paper-warm"}`}
                     >
-                      {day ? day.getDate() : ""}
+                      {day ? day.day : ""}
                     </button>
                   );
                 })}
@@ -203,17 +240,6 @@ function BookingConfirmation() {
       </p>
     </section>
   );
-}
-
-function buildMonthDays(year: number, month: number) {
-  const monthStart = new Date(year, month, 1);
-  const firstWeekday = monthStart.getDay();
-  const monthEnd = new Date(year, month + 1, 0);
-  const days: Array<Date | null> = Array.from({ length: firstWeekday }, () => null);
-  for (let day = 1; day <= monthEnd.getDate(); day += 1) {
-    days.push(new Date(year, month, day));
-  }
-  return days;
 }
 
 function setFormValue(
