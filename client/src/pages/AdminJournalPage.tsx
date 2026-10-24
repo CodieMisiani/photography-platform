@@ -6,8 +6,10 @@ import AdminShell from "../components/layout/AdminShell";
 import Button from "../components/ui/Button";
 import AdminEmptyState from "../components/ui/AdminEmptyState";
 import FormField from "../components/ui/FormField";
+import JournalCoverField from "../components/JournalCoverField";
 import StatusText from "../components/ui/StatusText";
 import { api } from "../lib/api";
+import { isValidImageUrl } from "../lib/imageUrl";
 
 type JournalFormState = {
   title: string;
@@ -29,6 +31,9 @@ export default function AdminJournalPage() {
   const queryClient = useQueryClient();
   const [form, setForm] = useState(emptyForm);
   const [file, setFile] = useState<File | null>(null);
+  const [coverUrl, setCoverUrl] = useState("");
+  const [coverMode, setCoverMode] = useState<"upload" | "url">("upload");
+  const [coverUrlError, setCoverUrlError] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeEditor, setActiveEditor] = useState<"write" | "preview">(
     "write",
@@ -47,11 +52,15 @@ export default function AdminJournalPage() {
         body: form.body,
         category: form.category,
         is_published: form.is_published,
-        cover: file,
+        cover: coverMode === "upload" ? file : null,
+        cover_url: coverMode === "url" ? coverUrl : undefined,
       }),
     onSuccess: async () => {
       setForm(emptyForm);
       setFile(null);
+      setCoverUrl("");
+      setCoverMode("upload");
+      setCoverUrlError("");
       await queryClient.invalidateQueries({ queryKey: ["admin-journal"] });
       await queryClient.invalidateQueries({ queryKey: ["journal-list"] });
     },
@@ -82,6 +91,11 @@ export default function AdminJournalPage() {
 
   function handleCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (coverMode === "url" && !isValidImageUrl(coverUrl)) {
+      setCoverUrlError("Cover URL must be a valid http or https image URL.");
+      return;
+    }
+    setCoverUrlError("");
     createMutation.mutate();
   }
 
@@ -175,18 +189,22 @@ export default function AdminJournalPage() {
               />
             </div>
             <div className="md:col-span-2">
-              <label
-                className="mb-3 block text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey"
-                htmlFor="journal-cover"
-              >
-                Cover image
-              </label>
-              <input
+              <JournalCoverField
                 id="journal-cover"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-                className="w-full border border-dashed border-ink bg-paper p-8 text-[0.75rem] font-semibold uppercase tracking-[0.2em]"
+                label="Cover image"
+                mode={coverMode}
+                file={file}
+                url={coverUrl}
+                error={coverUrlError}
+                onModeChange={(mode) => {
+                  setCoverMode(mode);
+                  setCoverUrlError("");
+                }}
+                onFileChange={setFile}
+                onUrlChange={(value) => {
+                  setCoverUrl(value);
+                  setCoverUrlError("");
+                }}
               />
             </div>
             <label className="flex items-center gap-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-grey">
@@ -348,19 +366,28 @@ function EditJournalPanel({
     is_published: post.is_published,
   });
   const [file, setFile] = useState<File | null>(null);
+  const [coverUrl, setCoverUrl] = useState("");
+  const [coverMode, setCoverMode] = useState<"upload" | "url">("upload");
+  const [coverUrlError, setCoverUrlError] = useState("");
   const [activeEditor, setActiveEditor] = useState<"write" | "preview">(
     "write",
   );
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (coverMode === "url" && coverUrl.trim() && !isValidImageUrl(coverUrl)) {
+      setCoverUrlError("Cover URL must be a valid http or https image URL.");
+      return;
+    }
+    setCoverUrlError("");
     onSave({
       title: form.title,
       excerpt: form.excerpt,
       body: form.body,
       category: form.category,
       is_published: form.is_published,
-      cover: file,
+      cover: coverMode === "upload" ? file : null,
+      cover_url: coverMode === "url" ? coverUrl : undefined,
     });
   }
 
@@ -425,18 +452,22 @@ function EditJournalPanel({
           />
         </div>
         <div className="md:col-span-2">
-          <label
-            className="mb-3 block text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-grey"
-            htmlFor={`edit-journal-cover-${post.id}`}
-          >
-            Replace cover image
-          </label>
-          <input
+          <JournalCoverField
             id={`edit-journal-cover-${post.id}`}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-            className="w-full border border-dashed border-ink bg-paper p-8 text-[0.75rem] font-semibold uppercase tracking-[0.2em]"
+            label="Replace cover image"
+            mode={coverMode}
+            file={file}
+            url={coverUrl}
+            error={coverUrlError}
+            onModeChange={(mode) => {
+              setCoverMode(mode);
+              setCoverUrlError("");
+            }}
+            onFileChange={setFile}
+            onUrlChange={(value) => {
+              setCoverUrl(value);
+              setCoverUrlError("");
+            }}
           />
         </div>
         <label className="flex items-center gap-3 text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-grey">
