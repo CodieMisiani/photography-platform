@@ -561,6 +561,7 @@ export const api = {
       category?: string;
       is_published?: boolean;
       cover?: File | null;
+      cover_url?: string | null;
     }) => {
       const formData = new FormData();
       formData.append("title", payload.title);
@@ -569,6 +570,7 @@ export const api = {
       if (payload.category) formData.append("category", payload.category);
       formData.append("is_published", payload.is_published ? "true" : "false");
       if (payload.cover) formData.append("cover", payload.cover);
+      else if (payload.cover_url?.trim()) formData.append("cover_url", payload.cover_url.trim());
       return request<{ post: unknown }>("/admin/journal", {
         method: "POST",
         body: formData,
@@ -583,6 +585,7 @@ export const api = {
         category?: string;
         is_published?: boolean;
         cover?: File | null;
+        cover_url?: string | null;
       },
     ) => {
       const formData = new FormData();
@@ -598,6 +601,7 @@ export const api = {
           payload.is_published ? "true" : "false",
         );
       if (payload.cover) formData.append("cover", payload.cover);
+      else if (payload.cover_url?.trim()) formData.append("cover_url", payload.cover_url.trim());
       return request<{ post: unknown }>(`/admin/journal/${id}`, {
         method: "PATCH",
         body: formData,

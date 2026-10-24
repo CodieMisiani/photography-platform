@@ -168,6 +168,17 @@ export async function updateJournalPost(
   if (!updated) {
     throw new AppError(404, "Journal post not found", "JOURNAL_POST_NOT_FOUND");
   }
+  if (
+    payload.cloudinary_public_id !== undefined &&
+    existing.cloudinary_public_id &&
+    payload.cloudinary_public_id !== existing.cloudinary_public_id
+  ) {
+    try {
+      await deleteMedia(existing.cloudinary_public_id);
+    } catch {
+      // Cleanup failure should not make the already-saved post update fail.
+    }
+  }
   return updated;
 }
 

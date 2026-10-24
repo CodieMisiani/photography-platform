@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { uploadMedia } from "../services/mediaService.js";
+import { parseExternalImageUrl } from "../utils/imageUrl.js";
 import {
   createJournalPost,
   deleteJournalPost,
@@ -62,6 +63,13 @@ export async function createAdminJournal(req: Request, res: Response) {
     const upload = await uploadMedia(req.file, { folder: "journal" });
     coverUrl = upload.url;
     coverPublicId = upload.public_id;
+  } else if (typeof req.body?.cover_url === "string" && req.body.cover_url.length > 0) {
+    const parsedCoverUrl = parseExternalImageUrl(req.body.cover_url);
+    if (!parsedCoverUrl) {
+      res.status(400).json({ error: { message: "Cover URL must be a valid http or https image URL" } });
+      return;
+    }
+    coverUrl = parsedCoverUrl;
   }
 
   const post = await createJournalPost({
@@ -100,6 +108,14 @@ export async function updateAdminJournal(req: Request, res: Response) {
     const upload = await uploadMedia(req.file, { folder: "journal" });
     coverUrl = upload.url;
     coverPublicId = upload.public_id;
+  } else if (typeof req.body?.cover_url === "string" && req.body.cover_url.length > 0) {
+    const parsedCoverUrl = parseExternalImageUrl(req.body.cover_url);
+    if (!parsedCoverUrl) {
+      res.status(400).json({ error: { message: "Cover URL must be a valid http or https image URL" } });
+      return;
+    }
+    coverUrl = parsedCoverUrl;
+    coverPublicId = null;
   }
 
   const post = await updateJournalPost(String(req.params.id), {
